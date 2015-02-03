@@ -24,6 +24,15 @@ NETWORK=ConceptNetwork()
 BL=set()
 SL=set()
 
+
+LOG_FILE=None
+
+def print_log(string):
+	print(string)
+	if LOG_FILE:
+		LOG_FILE.write(string+"\n")
+
+
 ################################
 #utils
 ############################
@@ -176,7 +185,7 @@ def expand_similarity(words,from_existing=False,to_existing=False):
 def tag_linked_nodes(limit=1000):
 	k=0
 	q=0
-	print("tag linked nodes on current network...")
+	print_log("tag linked nodes on current network...")
 	for n,d in NETWORK.nodes():
 		k+=1
 		if NETWORK[n]['a'] <100 and len(list(NETWORK.predecessors(n)))+len(list(NETWORK.successors(n))) > 1:
@@ -188,14 +197,14 @@ def tag_linked_nodes(limit=1000):
 			print(k.__str__()+" nodes looked !")
 		if k>limit:
 			break
-	print(k.__str__()+" nodes looked !")
-	print(q.__str__()+" nodes reactivated !")	
+	print_log(k.__str__()+" nodes looked !")
+	print_log(q.__str__()+" nodes reactivated !")	
 
 
 def tag_much_linked_nodes(limit=1000):
 	k=0
 	q=0
-	print("tag linked nodes on current network...")
+	print_log("tag linked nodes on current network...")
 	for n,d in NETWORK.nodes():
 		k+=1
 		if NETWORK[n]['a'] <100 and len(list(NETWORK.predecessors(n))) > 1:
@@ -207,13 +216,13 @@ def tag_much_linked_nodes(limit=1000):
 			print(k.__str__()+" nodes looked !")
 		if k>limit:
 			break	
-	print(k.__str__()+" nodes looked !")
-	print(q.__str__()+" nodes reactivated !")
+	print_log(k.__str__()+" nodes looked !")
+	print_log(q.__str__()+" nodes reactivated !")
 
 def clear_nodes(filter='a',limit=1000):
 	k=0
 	q=0
-	print("clear nodes on current network with filter "+filter)
+	print_log("clear nodes on current network with filter "+filter)
 	for n in NETWORK.nodes().copy():
 		k+=1
 		if NETWORK[n[0]][filter]==0:
@@ -225,8 +234,8 @@ def clear_nodes(filter='a',limit=1000):
 			print(k.__str__()+" nodes looked !")
 		if k>limit:
 			break
-	print(k.__str__()+" nodes looked !")
-	print(q.__str__()+" nodes removed !")	
+	print_log(k.__str__()+" nodes looked !")
+	print_log(q.__str__()+" nodes removed !")	
 
 def clear_ic(limit):
 	clear_nodes(filter='ic',limit=limit)
@@ -236,7 +245,7 @@ def clear_act(limit):
 
 
 def deactivate_nodes(limit=1000):
-	print("deactivate nodes...")
+	print_log("deactivate nodes...")
 	k=0
 	for n in NETWORK.nodes():
 		NETWORK[n[0]]['a']=0
@@ -245,6 +254,7 @@ def deactivate_nodes(limit=1000):
 			print(k.__str__()+" nodes looked !")
 		if k>limit:
 			break
+	print_log("done !")
 
 
 ##########################################
@@ -255,8 +265,8 @@ def use_method_on_file(file,expand_method,max,to_existing,from_existing):
 	param expand_method : the method to use
 	it has to take words as argument, plus to_existing, from_existing
 	"""
-	print("Using method "+expand_method.__name__+" on file "+file.__repr__()+"...")
-	print("to_existing_nodes : "+to_existing.__str__()+", from_existing : "\
+	print_log("Using method "+expand_method.__name__+" on file "+file.__repr__()+"...")
+	print_log("to_existing_nodes : "+to_existing.__str__()+", from_existing : "\
 		+from_existing.__str__())
 	dict={}
 	k=0
@@ -272,38 +282,39 @@ def use_method_on_file(file,expand_method,max,to_existing,from_existing):
 				break
 	if len(dict)>0:
 		expand_method(words=dict,to_existing=to_existing,from_existing=from_existing)
-	print("Looked at "+k.__str__()+" elements.")
+	print_log("Looked at "+k.__str__()+" elements.")
 
 
-def use_method_on_network(expand_method,max,to_existing,from_existing,not_act_only=False):
+def use_method_on_network(expand_method,max,to_existing,from_existing,act=True,not_act=True):
 	"""
 	param expand_method : the method to use
+	param act : if we check activated nodes
+	param not_act : if we check not activated nodes
 	"""
-	print("Using method "+expand_method.__name__+" on current network...")
-	print("to_existing_nodes : "+to_existing.__str__()+", from_existing : "\
-		+from_existing.__str__()+", not activated only :"+not_act_only.__str__())
+	print_log("Using method "+expand_method.__name__+" on current network...")
+	print_log("to_existing_nodes : "+to_existing.__str__()+", from_existing : "\
+		+from_existing.__str__()+", activated :"+ act.__str__() + ", not activated :"+not_act.__str__())
 	list=[]
 	k=0
 	for n,d in NETWORK.nodes():
-		if not_act_only:
-			if d['a']==0:
-				list.append(n)
-		else:
+		if ((not_act and d['a']==0) | (act and d['a'] >0)):
 			list.append(n)
-		k+=1
-		if len(list)>500:
+			k+=1
+		else:
+			pass
+		if len(list)>100:
 			expand_method(words=list,to_existing=to_existing,from_existing=from_existing)
 			list=[]
 		if k>max:
 			break
 	if len(list)>0:
 		expand_method(words=list,to_existing=to_existing,from_existing=from_existing)	
-	print("Looked at "+k.__str__()+" nodes.")
+	print_log("Looked at "+k.__str__()+" nodes.")
 
 ####################################################
 
 def load_dir(name):
-	print("Loading network "+name+"...")
+	print_log("Loading network "+name+"...")
 	NETWORK.load_from_JSON_stream(nodes_files=[name+"/"+name+"_nodes.jsons"],\
 		edges_files=[name+"/"+name+"_edges.jsons"])
 	for n in js.read_json_stream(name+"/"+name+"_black_list.jsons"):
@@ -313,7 +324,7 @@ def load_dir(name):
 		#SL.append(n)
 
 def save_dir(name):
-	print("Saving to network "+name+"...")
+	print_log("Saving to network "+name+"...")
 	if not os.path.isdir(name):
 		os.makedirs(name)
 	NETWORK.save_to_JSON_stream(name+"/"+name)
@@ -321,9 +332,9 @@ def save_dir(name):
 	js.write_json_stream(list(SL),name+"/"+name+"_success_list.jsons")	
 
 def print_network_status():
-	print("Current network has %i nodes and %i edges." % (len(NETWORK.nodes()),len(NETWORK.edges())))
-	print("Current black list has %i entries" % (len(BL)))
-	print("Current success list has %i entries\n\n" % (len(SL)))
+	print_log("Current network has %i nodes and %i edges." % (len(NETWORK.nodes()),len(NETWORK.edges())))
+	print_log("Current black list has %i entries" % (len(BL)))
+	print_log("Current success list has %i entries\n\n" % (len(SL)))
 	
 
 ##############################
@@ -354,13 +365,22 @@ def print_network_status():
 
 ##end of example
 
+LOG_FILE=open("log.txt",'a')
 
-load_dir("wayne_3")
+load_dir("rc_6")
+print_network_status()
 
 
-#use_method_on_network(expand_similarity,max=5000,to_existing=False,from_existing=False,not_act_only=False)
+#use_method_on_file(DATA_DIR+"concepts.jsons",expand_lookup,max=15000,to_existing=False,from_existing=False)
+#print_network_status()
+#use_method_on_file(DATA_DIR+"names.jsons",expand_names,max=12000,to_existing=False,from_existing=False)
+#print_network_status()
 
-#use_method_on_network(expand_edges,max=500,to_existing=False,from_existing=True,not_act_only=False)
+#très long
+#use_method_on_network(expand_similarity,max=5000,to_existing=False,from_existing=False,act=True,not_act=False)
+#print_network_status()
+
+#use_method_on_network(expand_edges,max=10000,to_existing=False,from_existing=True,not_act=True,act=False)
 #print_network_status()
 
 #use_method_on_network(expand_edges,max=30000,to_existing=False,from_existing=False,not_act_only=True)
@@ -370,12 +390,14 @@ load_dir("wayne_3")
 
 
 #tag_linked_nodes(limit=100000)
-
-
-#clear_ic(limit=100000)
-#clear_act(limit=100000)
-#deactivate_nodes(limit=100000)
 #print_network_status()
 
 
-save_dir("wayne_4")
+
+clear_ic(limit=100000)
+#clear_act(limit=100000)
+deactivate_nodes(limit=100000)
+#print_network_status()
+
+save_dir("rc")
+LOG_FILE.close()
