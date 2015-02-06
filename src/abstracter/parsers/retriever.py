@@ -59,12 +59,12 @@ DISMISS=['ve']
 
 def _links_to(entity_list,name):
     """
-    See if the name is not in the entity_list.
-    For example : Wayne or Rooney is in ["Wayne Rooney], since it refers obviously to the same person.
-    We avoid taking a Family Name or a First Name for the whole name.
+    Return the whole name of sth or sb, given the list of entities in the text.
+    For example, Wayne in the list ["Wayne Rooney", "Tom"] refers obviously to "Wayne Rooney".
+    We thus avoid taking a Family Name or a First Name for the whole name.
     :param entity_list: List of entities (string)
     :type name: str
-    :rtype: boolean
+    :rtype: str
     """
     if entity_list:
         temp=name
@@ -79,6 +79,8 @@ def get_names(sents):
     """
     Sents : generator of sentences ; each sentence contains words and POS
     (from tokenize_and_tag)
+    :param sents: generator of tagged sentences (list of [word,POS])
+    :rtype: str list
     """
     named_entities=[]
     for sent in sents:
@@ -97,6 +99,8 @@ def get_important_words(sents):
     Sents : generator of sentences ; each sentence contains words and POS
     (from tokenize_and_tag)
     Returns a list of important words in the text (dismiss some, dismiss one letter words)
+    :param sents: generator of tagged sentences (list of [word,POS])
+    :rtype: generator of tagged sentences (list of [word,POS])
     """
     for sent in sents:
         for key,val in sent:
@@ -108,6 +112,8 @@ def retrieve_words_only(sents):
     """
     We retrieve words in their normal form and count their occurrences in a dictionary.
     Thus, if a concept is used n times, it is counted n times.
+    :param sents: generator of tagged sentences (list of [word,POS])
+    :rtype: str list
     """
     words=norm.normalize(get_important_words(sents))
     concepts={}
@@ -119,25 +125,13 @@ def retrieve_words_only(sents):
     #return the dictionary
     return concepts
 
-def old_retrieve_names_only(sents):
-	"""
-	Get a list of all names in the text.
-	Every name appear only once.
-	"""
-	names=list(s.lower() for s in get_names(sents))
-	namescopy=names.copy()
-	res=[]#suppress duplicated names and add names to res
-	for name in namescopy:
-		names.remove(name)
-		if not _links_to(names,name):
-			res.append(name)
-			names.append(name)  
-	return res  
 
 def retrieve_names_only(sents):
     """
     Get a list of all names in the text.
     Every name appear only once.
+    :param sents: generator of tagged sentences (list of [word,POS])
+    :rtype: str list
     """
     names=list(s.lower() for s in get_names(sents))
     res={}
@@ -151,6 +145,12 @@ def retrieve_names_only(sents):
 
 
 def retrieve_words_names(text):
-	sents=list(tok.tokenize_and_tag(text))
-	return [retrieve_words_only(sents),retrieve_names_only(sents)]
-
+    """
+    Retrieve words and names of a text.
+    Returns a tuple of two dicts : words (not -proper noun concepts) and names
+    :param text: The text to analyze
+    :type text: str
+    :rtype: tuple
+    """
+    sents=list(tok.tokenize_and_tag(text))
+    return [retrieve_words_only(sents),retrieve_names_only(sents)]
