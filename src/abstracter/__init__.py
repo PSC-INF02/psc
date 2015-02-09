@@ -11,7 +11,7 @@ class Context:
     
     
     def __init__(self,network=None):
-        self.workersManager=WorkersManager()
+        self.workersManager=WorkersManager(self)
         self.network=(network if network else Network())
 
     def test(self):
@@ -34,10 +34,10 @@ class Context:
 
     def run(self,max_time):
         while self.workersManager.time<max_time and not self.workersManager.isEmpty():
-            print(self.workersManager)
+            #print(self.workersManager)
             #self.print_activated_nodes()
-            self.workersManager.runWorker(self)
-        print(self.workersManager)
+            self.workersManager.runWorker()
+        #print(self.workersManager)
 
 if __name__=="__main__":
 	c=Context()

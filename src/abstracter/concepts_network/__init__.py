@@ -29,8 +29,9 @@ class ConceptNetwork(Network):
 
     def add_edge(self,fromId,toId,w,r,key=0):
         """
-        w : weight
-        r : relation
+        Adding an edge with parameters concerning the concept network.
+        :param w: weight
+        :param r: relation
         """
         if not self.network.has_node(fromId):
             self.add_node(id=fromId,a=0,ic=0)
@@ -50,7 +51,7 @@ class ConceptNetwork(Network):
         #divlog = log(3 + len(self.inArcs(id))) / log(3)
         divlog = 1  # deactivated for now
         i = 0
-        for arc in self.inArcs(id):
+        for arc in self.in_arcs(id):
             i = i + (arc[3]['w'] or 0) * self[arc[0]]['a']
         act = self[id]['a']
         i = i / (100 * divlog)  # neighbours

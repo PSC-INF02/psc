@@ -1,19 +1,15 @@
-try:
-    from workers_settings import *
-    from compute_worker import ComputeWorker
-except ImportError:
-    from abstracter.workers.workers_settings import *
-    from abstracter.workers.compute_worker import *
+from abstracter.workers.workers_settings import *
+from abstracter.workers.compute_worker import *
 
 class ActivateWorker(Worker):
     """
     Worker which activates a node in the conceptnetwork
     """
 
-    def __init__(self, target_id, activation_to_add):
+    def __init__(self, target_id, activation_to_add,urgency=ACTIVATE_URGENCY):
         """
         """
-        super(ActivateWorker, self).__init__(ACTIVATE_URGENCY)
+        super(ActivateWorker, self).__init__(urgency)
         self.target_id = target_id
         self.activation_to_add = activation_to_add
 
@@ -27,8 +23,10 @@ class ActivateWorker(Worker):
         if context.network[self.target_id]['a'] > ACTIVATION_ENABLING_CONCEPT_INSTANTIATION:
             pass
             #context.workers.push(WriteConceptWorker(self.target_id))
-        for n in context.network.successors(self.target_id):
-            context.workersManager.push(ComputeWorker(n))
+        for arc in context.network.out_arcs(self.target_id):
+            context.workersManager.push(ComputeWorker(arc[1],urgency=arc[3]['w']))
+        #for n in context.network.successors(self.target_id):
+        #    context.workersManager.push(ComputeWorker(n))
         return ACTIVATE_DELTA_TIME
 
 

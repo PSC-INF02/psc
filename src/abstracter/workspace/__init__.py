@@ -1,14 +1,4 @@
-import networkx as nx
-from networkx.readwrite import json_graph
-from math import log
-import matplotlib.pyplot as plt
-import json
-try:
-    from abstracter.util.json_stream import *
-except ImportError:
-    pass
-
-
+from abstracter.concepts_network.network import *
 
 """
 The workspace is supposed to be smaller than the concept network.
@@ -18,7 +8,12 @@ Beginning : we use the class Network from concepts_network
 """
 
 
-class Workspace:
+class Workspace(Network):
+
+	def __init__(self):
+		pass
+
+
     pass
 
 

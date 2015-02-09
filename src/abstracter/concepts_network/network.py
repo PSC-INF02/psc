@@ -68,10 +68,10 @@ class Network:
     def get_edge(self,fromId,toId,key=0):
         return self.network[fromId][toId][key]
 
-    def outArcs(self,id):
+    def out_arcs(self,id):
         return self.network.out_edges_iter(id, data=True, keys=True)
 
-    def inArcs(self,id):
+    def in_arcs(self,id):
         return self.network.in_edges_iter(id, data=True, keys=True)
 
     def nodes(self,data=True):

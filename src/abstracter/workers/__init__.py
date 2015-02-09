@@ -7,6 +7,7 @@ from random import random
 Main worker class and manager
 """
 
+MAX_LEN=1000
 
 class WorkerException(Exception):
     pass
@@ -28,34 +29,38 @@ class Worker:
 
 
 class WorkersManager:
-    def __init__(self):
+    def __init__(self,context):
         self.workers = []
         self.time = 0
+        self.context=context
 
 
     def pop(self):
         return self.workers.pop(0)
 
     def pushEnd(self, w):
-        self.workers.append(w)
+        if(len(self.workers)<MAX_LEN):
+            self.workers.append(w)
 
-    def push(self, w):
+    def push(self, w,randomly=True):
         """
         Push a new worker into the queue, but randomly
         (it has to depend on the urgency of the worker)
         """
-        i = 0
-        while i < len(self.workers) and self.workers[i].urgency > w.urgency:
-            i += 1
-        i += int((random() - 0.5) * len(self.workers) / 15)
-        self.workers.insert(i, w)
+        if(len(self.workers)<MAX_LEN):
+            i = 0
+            while i < len(self.workers) and self.workers[i].urgency > w.urgency:
+                i += 1
+            if(randomly):
+                i += int((random() - 0.5) * len(self.workers) / 15)
+            self.workers.insert(i, w)
 
     def isEmpty(self):
         return self.workers==[]
 
-    def runWorker(self, context, w=None):
+    def runWorker(self,w=None):
         w = w or self.pop()
-        delta_time = w.run(context)
+        delta_time = w.run(self.context)
         self.time += delta_time
 
 
