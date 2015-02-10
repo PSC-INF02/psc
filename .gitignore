@@ -5,3 +5,4 @@
 localConfig.py
 *.backup
 *.bst
+test/
