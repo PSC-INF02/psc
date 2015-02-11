@@ -1,10 +1,10 @@
-import abstracter.conceptnet5_client.api.concurrent_api as ca
+import abstracter.conceptnet5_client.concurrent_api as ca
 from abstracter.concepts_network import ConceptNetwork
 from abstracter.util import json_stream as js
-from abstracter.conceptnet5_client.api import api as cn5
+from abstracter.conceptnet5_client import api as cn5
 import abstracter.freebase_client as fb
 import re
-from abstracter.conceptnet5_client.api.result import *
+from abstracter.conceptnet5_client.result import *
 import os
 
 """

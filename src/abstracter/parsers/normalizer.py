@@ -1,15 +1,13 @@
+"""@file normalizer.py
+Contains the code of a normalizer using wordnet & nltk.
+Most of it comes from conceptnet5.
+
+@see https://github.com/commonsense/conceptnet5/blob/1e86e2426af3ce4bea3b1d15dc02ebdfe9107544/conceptnet5/language/english.py
+"""
+
 from nltk.corpus import wordnet
 import re
 morphy = wordnet._morphy
-
-"""
-Contains the code of a normalizer using wordnet & nltk.
-Most of it comes from conceptnet5
-"""
-
-##############################################
-##CODE FROM CONCEPTNET5 
-################################################
 
 
 STOPWORDS = ['the', 'a', 'an']
@@ -120,16 +118,14 @@ def _morphy_best(word, pos=None):
 
 def morphy_stem(word, pos=None):
     """
-    Get the most likely stem for a word. If a part of speech is supplied,
-    the stem will be more accurate.
+    Get the most likely stem for a word. 
 
-    Valid parts of speech are:
-
-    - 'n' or 'NN' for nouns
-    - 'v' or 'VB' for verbs
-    - 'a' or 'JJ' for adjectives
-    - 'r' or 'RB' for adverbs
-
+    If a part of speech is supplied, the stem will be more accurate.\n
+    Valid parts of speech are:\n
+    - 'n' or 'NN' for nouns\n
+    - 'v' or 'VB' for verbs\n
+    - 'a' or 'JJ' for adjectives\n
+    - 'r' or 'RB' for adverbs\n
     Any other part of speech will be treated as unknown.
     """
     # FIXME: strip punctuation that may still be attached to the word

@@ -1,19 +1,14 @@
-"""
-Code from https://github.com/commonsense/conceptnet5/blob/master/conceptnet5/formats/json_stream.py
+"""@file json_stream.py
 Using streams enables us to store bigger networks (not as much bigger as the bigger expected, but still better than
 json alone)
+
+@see https://github.com/commonsense/conceptnet5/blob/master/conceptnet5/formats/json_stream.py
 """
 
 from __future__ import print_function, unicode_literals
 import json
 import sys
 import codecs
-
-# Python 2/3 compatibility
-if sys.version_info.major >= 3:
-    string_type = str
-else:
-    string_type = basestring
 
 
 class JSONStreamWriter(object):

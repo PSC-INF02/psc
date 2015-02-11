@@ -1,10 +1,14 @@
+"""@file retriever.py
+Functions to retrieve concepts and names from a text.
+
+Includes tokenizing, tagging.
+"""
+
 import abstracter.parsers.normalizer as norm
 import abstracter.parsers.tokenizer as tok
 import re
 
-"""
-Functions to retrieve concepts and names from a text.
-"""
+
 
 
 USEFUL_TAGS=["JJ","NN","NNS","VB","VBD","VBG","VBN","VBP","VBZ"];
@@ -62,9 +66,10 @@ def _links_to(entity_list,name):
     Return the whole name of sth or sb, given the list of entities in the text.
     For example, Wayne in the list ["Wayne Rooney", "Tom"] refers obviously to "Wayne Rooney".
     We thus avoid taking a Family Name or a First Name for the whole name.
-    :param entity_list: List of entities (string)
-    :type name: str
-    :rtype: str
+
+    @param entity_list List of entities (string).
+    @param name A name (string).
+    @return A full name (string).
     """
     if entity_list:
         temp=name
@@ -77,10 +82,10 @@ def _links_to(entity_list,name):
 
 def get_names(sents):
     """
-    Sents : generator of sentences ; each sentence contains words and POS
-    (from tokenize_and_tag)
-    :param sents: generator of tagged sentences (list of [word,POS])
-    :rtype: str list
+    Get all named entities in previously tagged sentences.
+
+    @param sents Generator of tagged sentences (list of [word,POS])
+    @return A list of named entities.
     """
     named_entities=[]
     for sent in sents:
@@ -96,11 +101,12 @@ def get_names(sents):
 
 def get_important_words(sents):
     """
-    Sents : generator of sentences ; each sentence contains words and POS
-    (from tokenize_and_tag)
-    Returns a list of important words in the text (dismiss some, dismiss one letter words)
-    :param sents: generator of tagged sentences (list of [word,POS])
-    :rtype: generator of tagged sentences (list of [word,POS])
+    Get all important words in a list of previously tagged sentences.
+    Dismiss one letter words, dismiss prepositions...
+    @see USEFUL_TAGS
+
+    @param sents Generator of tagged sentences (list of [word,POS])
+    @return Generator of tagged sentences (list of [word,POS])
     """
     for sent in sents:
         for key,val in sent:
@@ -112,8 +118,9 @@ def retrieve_words_only(sents):
     """
     We retrieve words in their normal form and count their occurrences in a dictionary.
     Thus, if a concept is used n times, it is counted n times.
-    :param sents: generator of tagged sentences (list of [word,POS])
-    :rtype: str list
+
+    @param sents Generator of tagged sentences (list of [word,POS]).
+    @return List of concepts (string).
     """
     words=norm.normalize(get_important_words(sents))
     concepts={}
@@ -128,10 +135,12 @@ def retrieve_words_only(sents):
 
 def retrieve_names_only(sents):
     """
-    Get a list of all names in the text.
-    Every name appear only once.
-    :param sents: generator of tagged sentences (list of [word,POS])
-    :rtype: str list
+    Retrieve names and count their occurrences in a dictionary.
+    Thus, if a concept is used n times, it is counted n times.
+    @todo : améliorer ça...
+
+    @param sents Generator of tagged sentences (list of [word,POS]).
+    @return List of names (string).
     """
     names=list(s.lower() for s in get_names(sents))
     res={}
@@ -147,10 +156,10 @@ def retrieve_names_only(sents):
 def retrieve_words_names(text):
     """
     Retrieve words and names of a text.
-    Returns a tuple of two dicts : words (not -proper noun concepts) and names
-    :param text: The text to analyze
-    :type text: str
-    :rtype: tuple
+    Returns a tuple of two dicts : words (not -proper noun concepts) and names.
+    
+    @param text The text to analyze (string).
+    @return A tuple of two dicts : [words,names].
     """
     sents=list(tok.tokenize_and_tag(text))
     return [retrieve_words_only(sents),retrieve_names_only(sents)]

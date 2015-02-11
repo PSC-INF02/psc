@@ -1,8 +1,7 @@
-from nltk import word_tokenize, sent_tokenize, pos_tag
-
-"""
+"""@file tokenizer.py
 Tokenizers.
 """
+from nltk import word_tokenize, sent_tokenize, pos_tag
 
 
 def tokenize(text):

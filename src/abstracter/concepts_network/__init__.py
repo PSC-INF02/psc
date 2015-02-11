@@ -14,7 +14,7 @@ except ImportError:
 
 class ConceptNetwork(Network):
     """
-    Data in a conceptnetwork is much more precise than in a general network.
+    Class representing our Conceptnetwork.
     """
 
     def __init__(self):
@@ -22,16 +22,20 @@ class ConceptNetwork(Network):
 
     def add_node(self,id,a,ic):
         """
-        a : activation
-        ic : importance conceptuelle
+        Adding a node with parameters concerning the concept network.
+
+        @param id Node id (str).
+        @param a Node activation.
+        @param ic Node ic (importance conceptuelle).
         """
         super(ConceptNetwork,self).add_node(id=id,a=a,ic=ic)
 
     def add_edge(self,fromId,toId,w,r,key=0):
         """
         Adding an edge with parameters concerning the concept network.
-        :param w: weight
-        :param r: relation
+
+        @param w Weight
+        @param r Relation
         """
         if not self.network.has_node(fromId):
             self.add_node(id=fromId,a=0,ic=0)
@@ -43,9 +47,9 @@ class ConceptNetwork(Network):
 
     def compute_activation(self,id):
         """
-        computes the new node activation, using :
-        -divlog : logarithmic divisor (connexity)
-        -activation of neighbours
+        computes the new node activation, using :\n
+        -divlog : logarithmic divisor (connexity)\n
+        -activation of neighbours\n
         -self-desactivation
         """
         #divlog = log(3 + len(self.inArcs(id))) / log(3)
@@ -59,8 +63,7 @@ class ConceptNetwork(Network):
         self[id]['a'] = int(min(act + i - d, 100))  # we do not go beyond 100, and activation is an integer
 
 
-    ############################################
-    ###JSON streams
+    #JSON streams
     ##########################################
 
     def load_nodes_from_stream(self,filename="temp_nodes.jsons"):
@@ -72,7 +75,7 @@ class ConceptNetwork(Network):
     def load_from_JSON_stream(self,nodes_files,edges_files):
         """
         We load from a bunch of files, assuming that
-        they contain node and edge data
+        they contain node and edge data.
         """
         for f in nodes_files:
             self.load_nodes_from_stream(f)
@@ -81,6 +84,12 @@ class ConceptNetwork(Network):
 
 
     def save_to_JSON_stream(self,filenamebase="temp"):
+        """
+        Saves the network, creating two files : '_nodes.jsons' and 'edges.jsons'.
+        Those files are encoded in JSONStream format.
+
+        @see util.json_stream
+        """
         nodes_writer=JSONStreamWriter(filenamebase+"_nodes.jsons")
         for n in self.network.nodes(data=True):
             nodes_writer.write(n)

@@ -1,5 +1,4 @@
-import requests
-"""
+"""@file http.py
 Making http and https requests, using requests.
 example :
 
@@ -7,21 +6,21 @@ example :
 >>> print(make_http_request(url).json())
 """
 
-##########################################
-###PROXY SETTINGS
-########################################
+import requests
+from abstracter.util.settings import HTTP_PROXY,HTTPS_PROXY
 
-
-HTTPS_PROXY={'https' : 'http://kuzh.polytechnique.fr:8080'}
-HTTP_PROXY={'http' : 'http://kuzh.polytechnique.fr:8080'}
-#HTTP_PROXY=None
-#HTTPS_PROXY=None
-
-########################################################
 
 def make_https_request(url):
-    return requests.get(url,proxies=HTTPS_PROXY)#.json()
+	"""
+	@param url An url.
+	@return A query result, which can be for example transformed into JSON by : result.json().
+	"""
+    return requests.get(url,proxies=HTTPS_PROXY)
 
 def make_http_request(url):
-    return requests.get(url,proxies=HTTP_PROXY)#.json()
+	"""
+	@param url An url.
+	@return A query result, which can be for example transformed into JSON by : result.json().
+	"""
+    return requests.get(url,proxies=HTTP_PROXY)
 

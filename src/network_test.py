@@ -33,5 +33,5 @@ for w in doublelist[0]:
 	c.activate(w.replace(" ","_"),30)
 for w in doublelist[1]:
 	c.activate(w.replace(" ","_"),50)
-c.run(20)
+c.run(10)
 print_activated_nodes(n)
