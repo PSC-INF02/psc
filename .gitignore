@@ -6,3 +6,4 @@ localConfig.py
 *.backup
 *.bst
 test/
+doxydoc/
