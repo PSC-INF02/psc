@@ -3,12 +3,11 @@ from abstracter.workers.compute_worker import *
 
 class ActivateWorker(Worker):
     """
-    Worker which activates a node in the conceptnetwork
+    Worker which activates a node in the concepts network.
+    @see abstracter.concepts_network.ConceptNetwork
     """
 
     def __init__(self, target_id, activation_to_add,urgency=ACTIVATE_URGENCY):
-        """
-        """
         super(ActivateWorker, self).__init__(urgency)
         self.target_id = target_id
         self.activation_to_add = activation_to_add
@@ -17,7 +16,11 @@ class ActivateWorker(Worker):
     def run(self, context):
         """
         The Activate worker generates new Compute workers for every linked node
-        It pushes a writeConcept worker if the node is activated enough
+        It pushes a writeConcept worker if the node is activated enough.
+
+        @param context The current context.
+        @see abstracter.workers.compute_worker.ComputeWorker
+        @see abstracter.Context
         """
         context.network[self.target_id]['a'] += self.activation_to_add
         if context.network[self.target_id]['a'] > ACTIVATION_ENABLING_CONCEPT_INSTANTIATION:

@@ -10,8 +10,8 @@ import re
 
 
 
-
 USEFUL_TAGS=["JJ","NN","NNS","VB","VBD","VBG","VBN","VBP","VBZ"];
+
 NOT_USEFUL_TAGS=["CC","NNP","NNPS","RB","RBR","RBS","JJR","JJS","MD"]
 #R : adverbs
 #J : adjectives
@@ -56,10 +56,8 @@ NOT_USEFUL_TAGS=["CC","NNP","NNPS","RB","RBR","RBS","JJR","JJS","MD"]
 
 
 _digits = re.compile('\d')
-def contains_digits(d):
+def _contains_digits(d):
     return bool(_digits.search(d))
-
-DISMISS=['ve']
 
 def _links_to(entity_list,name):
     """
@@ -110,7 +108,7 @@ def get_important_words(sents):
     """
     for sent in sents:
         for key,val in sent:
-            if val in USEFUL_TAGS and not contains_digits(key) and len(key)>1 and key not in DISMISS:
+            if val in USEFUL_TAGS and not _contains_digits(key) and len(key)>1:
                 yield ([key,val])
 
 
@@ -135,12 +133,13 @@ def retrieve_words_only(sents):
 
 def retrieve_names_only(sents):
     """
-    Retrieve names and count their occurrences in a dictionary.
-    Thus, if a concept is used n times, it is counted n times.
-    @todo : améliorer ça...
+    Retrieve names and count their occurrences in a dictionary.\n
+    Thus, if a name is used n times, it is counted n times.
 
     @param sents Generator of tagged sentences (list of [word,POS]).
     @return List of names (string).
+
+    @todo : améliorer ça...
     """
     names=list(s.lower() for s in get_names(sents))
     res={}

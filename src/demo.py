@@ -1,4 +1,4 @@
-from abstracter.crawler.parse_crawler import download_and_parse_data,download_crawler_data,unify
+from abstracter.crawler.parse_crawler import * #download_and_parse_data,download_crawler_data,unify
 
 #download_and_parse fait tout pour une date : télécharger sur le crawler, 
 #stocker localement les données, parser les articles 
@@ -7,11 +7,15 @@ from abstracter.crawler.parse_crawler import download_and_parse_data,download_cr
 
 #download_crawler_data("2015_02_01")#without parsing this one
 #download_and_parse_data("2015_01_31")
-#download_and_parse_data("2015_01_14")
+#download_and_parse_data("2015_02_15")
+#unify_day(subdirectory="2015_02_15")
 #unify()
+#download_and_parse_data("2015_02_01")
+
+from abstracter.parsers.retriever import _digits
 
 
-from abstracter.parsers import retriever as ret
+#from abstracter.parsers import retriever as ret
 
-text="Peyton Manning was in a bad mood yesterday because I don't know yet."
-print(ret.retrieve_words_names(text))
+#text="Peyton Manning was in a bad mood yesterday because I don't know yet."
+#print(ret.retrieve_words_names(text))

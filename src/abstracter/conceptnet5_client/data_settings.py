@@ -23,6 +23,15 @@ MINIMUM_WEIGHT_ALLOWED = 0.5#which is weight of the edge in conceptnet5 * arbitr
 MAX_UNDERSCORES_ALLOWED=2
 
 #warning : some of these attributes do not exist in conceptnet5.3
+"""
+All possible edges attributes.
+
+@warning Some of these attributes do not exist in conceptnet5.3
+"""
 ALL_EDGES_ATTRIBUTES=['start','startLemmas','rel','end','endLemmas','weight','score','uri','nodes',
 'text','features','sources','context','dataset','timestamp']
+
+"""
+Edges attributes that are kept and put into Edge objects.
+"""
 RELEVANT_EDGES_ATTRIBUTES=['start','rel','end','weight']

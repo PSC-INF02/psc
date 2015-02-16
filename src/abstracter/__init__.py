@@ -8,6 +8,10 @@ except ImportError:
 
 
 class Context:
+    """
+    General context in which we work.
+    It contains a workersmanager, a concepts network, a workspace and maybe other objects.
+    """
     
     
     def __init__(self,network=None):

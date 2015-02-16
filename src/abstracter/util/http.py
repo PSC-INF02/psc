@@ -15,12 +15,11 @@ def make_https_request(url):
 	@param url An url.
 	@return A query result, which can be for example transformed into JSON by : result.json().
 	"""
-    return requests.get(url,proxies=HTTPS_PROXY)
-
+	return requests.get(url,proxies=HTTPS_PROXY)
+	
 def make_http_request(url):
 	"""
 	@param url An url.
 	@return A query result, which can be for example transformed into JSON by : result.json().
 	"""
-    return requests.get(url,proxies=HTTP_PROXY)
-
+	return requests.get(url,proxies=HTTP_PROXY)

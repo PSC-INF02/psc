@@ -1,11 +1,9 @@
-#!/usr/bin/python3.4
-# -*-coding:utf-8 -*
+"""@package workers
+Workers and WorkersManager.
 
+@see abstracter.concepts_network.ConceptNetwork
+"""
 from random import random
-
-"""
-Main worker class and manager
-"""
 
 MAX_LEN=1000
 
@@ -22,6 +20,9 @@ class Worker:
         self.urgency = urgency
 
     def run(self, context):
+        """
+        Launch the worker.
+        """
         return 0
 
     def __str__(self):
@@ -29,6 +30,9 @@ class Worker:
 
 
 class WorkersManager:
+    """
+    The workers manager is a stack of workers which wait to be launched.
+    """
     def __init__(self,context):
         self.workers = []
         self.time = 0
@@ -44,8 +48,10 @@ class WorkersManager:
 
     def push(self, w,randomly=True):
         """
-        Push a new worker into the queue, but randomly
-        (it has to depend on the urgency of the worker)
+        Push a new worker into the queue, depending on its urgency.
+
+        @param randomly When set to false, the stack is like a priority one. 
+        When set to true, a random factor is applied.
         """
         if(len(self.workers)<MAX_LEN):
             i = 0

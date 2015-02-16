@@ -9,7 +9,6 @@ from nltk.corpus import wordnet
 import re
 morphy = wordnet._morphy
 
-
 STOPWORDS = ['the', 'a', 'an']
 
 EXCEPTIONS = {
@@ -89,6 +88,8 @@ def _word_badness(word):
     """
     Assign a heuristic to possible outputs from Morphy. Minimizing this
     heuristic avoids incorrect stems.
+
+    @param word Word (str).
     """
     if word.endswith('e'):
         return len(word) - 2
@@ -151,23 +152,25 @@ def morphy_stem(word, pos=None):
     return _morphy_best(word, pos) or word
 
 
-def good_lemma(lemma):
+def _good_lemma(lemma):
     """
     Filter for lemmas that are not stopwords, and are not punctuation.
     """
     return lemma and lemma not in STOPWORDS and lemma[0].isalnum()
 
 
-
 #########################################################
 
 def normalize(words):
     """
-    Normalizes a list of [word,POS].
+    Normalizes a list of [word,POS].\n
     Returns a list of words in normal form.
+
+    @param words List of [word,POS].
+    @return A list of words in normal form.
     """
     pieces = [morphy_stem(word,pos) for word,pos in words]
-    pieces = [piece for piece in pieces if good_lemma(piece)]
+    pieces = [piece for piece in pieces if _good_lemma(piece)]
     if not pieces:
         return []
     return pieces

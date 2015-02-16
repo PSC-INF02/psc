@@ -1,3 +1,7 @@
+"""@file parse_crawler
+
+Utils for downloading and parsing crawler data.
+"""
 from abstracter.parsers.retriever import retrieve_words_names
 from abstracter.util.json_stream import *
 from abstracter.util.http import make_http_request
@@ -5,12 +9,14 @@ import json
 import os
 import tarfile,sys
 import shutil
+from re import match
+from glob import glob
+
 
 DEFAULT_DATA_DIRECTORY="crawlerpsc/"
 DEFAULT_RESULTS_DIRECTORY="concepts/"
 CONCEPTS_NAMES_DATA_DIRECTORY="concepts_names_data/"
 CRAWLER_URL='http://nadrieril.fr/dropbox/crawlerpsc/'
-#or None
 #default location of the data directory when it is downloaded and uncompressed
 DEFAULT_LOCATION="srv/ftp/crawlerpsc/"
 
@@ -18,7 +24,8 @@ DEFAULT_LOCATION="srv/ftp/crawlerpsc/"
 def download_crawler_data(date):
 	"""
 	Download raw data for a day.
-	Date : AAAA_MM_JJ, such as 2015_01_03
+
+	@param Date : Formatted date AAAA_MM_JJ, such as 2015_01_03 (str).
 	"""
 	full_url=CRAWLER_URL+date+".tar.gz"
 	print("downloading : "+full_url)
@@ -49,7 +56,10 @@ def download_crawler_data(date):
 
 def parse_article(filename):
 	"""
-	Parse an article from the crawler, retrieve words and names and write them.
+	Parse an article from the crawler, retrieve words and names.
+
+	@param filename Name of the file to parse.
+	@return A tuple of two lists : [words,names].
 	"""
 	with open(filename,'r') as file:
 		text=file.read() 
@@ -57,10 +67,14 @@ def parse_article(filename):
 	return []
 
 
-def parse_directory(max_subdirectories=10,max_files=100,data_directory=DEFAULT_DATA_DIRECTORY,
+def _parse_directory(max_subdirectories=10,max_files=1000,data_directory=DEFAULT_DATA_DIRECTORY,
 	results_directory=DEFAULT_RESULTS_DIRECTORY,subdirectory="2014_12_04"):
 	"""
 	Parse a directory from the crawler.
+
+	@param max_subdirectories Maximum number of subdirectories to consider.
+	@param max_files Maximum number of files to analyze in a subdirectory.
+	@param subdirectory The subdirectory to consider (formatted date AAAA_MM_JJ).
 	"""
 	if not os.path.isdir(results_directory+subdirectory+"/"):
 		os.makedirs(results_directory+subdirectory+"/")
@@ -81,15 +95,16 @@ def parse_directory(max_subdirectories=10,max_files=100,data_directory=DEFAULT_D
 
 
 
+def unify_day(directory=DEFAULT_RESULTS_DIRECTORY,max_files=1000,subdirectory="2014_12_04",
+	names_file=None,concepts_file=None):
+	"""
+	Unify concepts and names files for a day.
 
-def unify_all_names(directory=DEFAULT_RESULTS_DIRECTORY,max_files=10,subdirectory="2014_12_04",
-	names_file=None):
+	The result, two dict objects, is written as JSON streams in two separated files. 
+	The value associated with each name counts the number of occurrences.
 	"""
-	Retrieve all names and put them into a single dict.
-	The value associated to each name represents the number of articles in which it appears.
-	The result is put into a single jsonstream.
-	max_files : maximum number of files to analyze in the directory.
-	"""
+	if not os.path.isdir(CONCEPTS_NAMES_DATA_DIRECTORY):
+		os.makedirs(CONCEPTS_NAMES_DATA_DIRECTORY)
 	i=0
 	j=0
 	all_names={}
@@ -111,22 +126,11 @@ def unify_all_names(directory=DEFAULT_RESULTS_DIRECTORY,max_files=10,subdirector
 		j=0
 		i+=1	
 	if not names_file:
-		if not os.path.isdir(CONCEPTS_NAMES_DATA_DIRECTORY):
-			os.makedirs(CONCEPTS_NAMES_DATA_DIRECTORY)
 		names_file=CONCEPTS_NAMES_DATA_DIRECTORY+subdirectory+"_all_names.jsons"
 	writer=JSONStreamWriter(names_file)
 	for d in all_names.items():
 		writer.write(d)
 	writer.close()
-
-
-def unify_all_concepts(directory=DEFAULT_RESULTS_DIRECTORY,max_files=10,subdirectory="2014_12_04",
-	concepts_file=None):
-	"""
-	Retrieve all concepts and put them into a single dict.
-	The result is put into a single jsonstream.
-	max_files : maximum number of files to analyze in the directory.
-	"""
 	i=0
 	j=0
 	all_concepts={}
@@ -148,8 +152,6 @@ def unify_all_concepts(directory=DEFAULT_RESULTS_DIRECTORY,max_files=10,subdirec
 		j=0
 		i+=1	
 	if not concepts_file:
-		if not os.path.isdir(CONCEPTS_NAMES_DATA_DIRECTORY):
-			os.makedirs(CONCEPTS_NAMES_DATA_DIRECTORY)
 		concepts_file=CONCEPTS_NAMES_DATA_DIRECTORY+subdirectory+"_all_concepts.jsons"	
 	writer=JSONStreamWriter(concepts_file)
 	for d in all_concepts.items():
@@ -158,14 +160,15 @@ def unify_all_concepts(directory=DEFAULT_RESULTS_DIRECTORY,max_files=10,subdirec
 
 
 
-from re import match
-from glob import glob
-
 def unify(directory=CONCEPTS_NAMES_DATA_DIRECTORY,max_files=1000,names_file="names.jsons",concepts_file="concepts.jsons"):
 	"""
 	Unifies all dicts of concepts and list of names into two single files.
 	Retrieves all data from the default directory, with a maximum number of files.
 	Suppress bad characters.
+
+	@param names_file Name of the file where names will be written.
+	@param concepts_file Name of the file where concepts will be written.
+	@param directory Name of the directory where to read and write files.
 	"""
 	#(_, _, filenames) = os.walk(directory).next()
 	filenames=glob(directory+"*names.jsons")[0:max_files]
@@ -200,30 +203,19 @@ def unify(directory=CONCEPTS_NAMES_DATA_DIRECTORY,max_files=1000,names_file="nam
 	writer.close()
 
 
-
 def download_and_parse_data(date="2015_01_05"):
 	"""
 	Download data for a day, parse it, unify the dicts of names and concepts and
 	write them in the default directory.
 	"""
 	download_crawler_data(date)
-	parse_directory(max_subdirectories=10,max_files=100,subdirectory=date)
-	unify_all_names(subdirectory=date,max_files=1000)
-	unify_all_concepts(subdirectory=date,max_files=1000)
+	_parse_directory(max_subdirectories=10,max_files=1000,subdirectory=date)
+	unify_day(subdirectory=date)
 
 
+def demo():
+	download_and_parse_data("2014_12_30")
+	unify()
 
-###################################################
-####EXAMPLE
-###################################################
-
-#parse_directory(max_subdirectories=10,max_files=100,data_directory="crawlerpsc/2015_01_01/",results_directory="concepts/2015_01_01/")
-#unify_all_names(subdirectory="2015_01_01",max_files=1000,names_file="all_names_2015_01_01.jsons")
-#unify_all_concepts(directory="concepts/2014_12_04/",max_files=1000,concepts_file="all_concepts_2014_12_04.jsons")
-
-#parse_directory(max_subdirectories=10,max_files=100,data_directory="crawlerpsc/",
-#	results_directory="concepts/",subdirectory="2015_01_02")
-
-#parse_directory(max_subdirectories=1,max_files=10,subdirectory="2015_01_03")
-#unify_all_names(subdirectory="2015_01_03",max_files=1000)
-#unify_all_concepts(subdirectory="2015_01_03",max_files=1000)
+if __name__=="__main__":
+	demo()

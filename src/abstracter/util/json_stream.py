@@ -30,7 +30,12 @@ class JSONStreamWriter(object):
             self.stream = codecs.open(filename_or_stream, 'w', encoding='utf-8')
 
     def write(self, obj):
-        if isinstance(obj, string_type):
+        """
+        Writes an object in the file or stream specified.
+
+        @param obj Python object : dict, list. If it's a string str, the object will be written as [str].
+        """
+        if isinstance(obj, str):
             obj=[obj]
             #raise ValueError(
             #    "%r is already a string. It shouldn't be written to a JSON stream."
@@ -47,9 +52,8 @@ class JSONStreamWriter(object):
 
 def write_json_stream(data,filename):
     """
-    :param data: iterable data of JSON serializable ojects
-    :param filename: name of the file to create
-    :type filename: str
+    @param data Iterable data of JSON serializable ojects.
+    @param filename Name of the file to create.
     """
     writer=JSONStreamWriter(filename)
     for d in data:
