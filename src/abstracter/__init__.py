@@ -4,6 +4,7 @@ try:
 except ImportError:
     from abstracter.concepts_network import *
     from abstracter.workers.activate_worker import *
+    from abstracter.workspace import *
 
 
 
@@ -17,6 +18,7 @@ class Context:
     def __init__(self,network=None):
         self.workersManager=WorkersManager(self)
         self.network=(network if network else Network())
+        self.workspace=Workspace(self)
 
     def test(self):
         self.network=ConceptNetwork()
