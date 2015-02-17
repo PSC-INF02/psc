@@ -12,7 +12,6 @@ from abstracter.crawler.parse_crawler import * #download_and_parse_data,download
 #unify()
 #download_and_parse_data("2015_02_06")
 
-
 #from abstracter.parsers import retriever as ret
 
 #text="Peyton Manning was in a bad mood yesterday because I don't know yet."
