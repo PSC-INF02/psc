@@ -11,11 +11,12 @@ import tarfile,sys
 import shutil
 from re import match
 from glob import glob
-
+import datetime as dt
 
 DEFAULT_DATA_DIRECTORY="crawlerpsc/"
 DEFAULT_RESULTS_DIRECTORY="concepts/"
 CONCEPTS_NAMES_DATA_DIRECTORY="concepts_names_data/"
+BIG_FILES_DIRECTORY="concepts_names_dicts/"
 CRAWLER_URL='http://nadrieril.fr/dropbox/crawlerpsc/'
 #default location of the data directory when it is downloaded and uncompressed
 DEFAULT_LOCATION="srv/ftp/crawlerpsc/"
@@ -182,9 +183,9 @@ def unify(directory=CONCEPTS_NAMES_DATA_DIRECTORY,max_files=1000,names_file="nam
 					thedict[c[0]]=1
 				else:
 					thedict[c[0]]+=c[1]
-		print("successful reading of :"+name)
+		#print("successful reading of :"+name)
 	writer=JSONStreamWriter(names_file)
-	for d in thedict.items():
+	for d in sorted(thedict.items()):#.items():
 		writer.write(d)
 	writer.close()
 	thedict={}
@@ -196,9 +197,9 @@ def unify(directory=CONCEPTS_NAMES_DATA_DIRECTORY,max_files=1000,names_file="nam
 					thedict[c[0]]=1
 				else:
 					thedict[c[0]]+=c[1]
-		print("successful reading of :"+name)
+		#print("successful reading of :"+name)
 	writer=JSONStreamWriter(concepts_file)
-	for d in thedict.items():
+	for d in sorted(thedict.items()):#.items():
 		writer.write(d)
 	writer.close()
 
@@ -216,6 +217,21 @@ def download_and_parse_data(date="2015_01_05"):
 def demo():
 	download_and_parse_data("2014_12_30")
 	unify()
+
+
+def update():
+	start_date=dt.datetime(2015,1,1)
+	end_date=(dt.datetime.now()-dt.timedelta(days=1))#.__str__().replace("-","_")
+	
+	total_days = (end_date - start_date).days+1
+	for day_number in range(total_days):
+		current_date = (start_date + dt.timedelta(days = day_number)).date().__str__().replace("-","_")
+		if not os.path.isdir(DEFAULT_DATA_DIRECTORY+current_date):
+			print("updating : "+current_date)
+			download_and_parse_data(current_date)
+	unify(names_file=BIG_FILES_DIRECTORY+"names_"+end_date.date().__str__().replace("-","_")+".jsons",\
+		concepts_file=BIG_FILES_DIRECTORY+"concepts_"+end_date.date().__str__().replace("-","_")+".jsons")
+
 
 if __name__=="__main__":
 	demo()
