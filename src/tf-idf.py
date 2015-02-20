@@ -20,8 +20,8 @@ def build_database(max_files=100):
 	
 	if not os.path.isdir(DIRECTORY):
 		os.makedirs(DIRECTORY)
-	fileconcepts=glob(CONCEPTS_NAMES_DATA_DIRECTORY+"*all_concepts.jsons")[0:max_files]
-	smallfiles=glob(DEFAULT_RESULTS_DIRECTORY+"/*/*concepts.json")[0:10000]
+	fileconcepts=glob(CONCEPTS_NAMES_DATA_DIRECTORY+"*all_names.jsons")[0:max_files]
+	smallfiles=glob(DEFAULT_RESULTS_DIRECTORY+"/*/*names.json")[0:10000]
 	#building tf database
 	for filename in fileconcepts:
 		for c in read_json_stream(filename):
@@ -32,7 +32,7 @@ def build_database(max_files=100):
 				else:
 					tf_data[c[0]]+=c[1]
 		#print("successful reading of :"+filename)
-	writer=JSONStreamWriter(DIRECTORY+"tf_data.jsons")
+	writer=JSONStreamWriter(DIRECTORY+"ntf_data.jsons")
 	for d in tf_data.items():
 		writer.write(d)
 	writer.close()
@@ -47,7 +47,7 @@ def build_database(max_files=100):
 						idf_data[c]+=1
 					else:
 						idf_data[c]=1
-	writer=JSONStreamWriter(DIRECTORY+"idf_data.jsons")
+	writer=JSONStreamWriter(DIRECTORY+"nidf_data.jsons")
 	for d in idf_data.items():
 		writer.write(d)
 	writer.close()
@@ -59,7 +59,7 @@ def build_database(max_files=100):
 			tfidf_data[c]=tf_data[c]/idf_data[c]
 	sorted_data=sorted(tfidf_data.items(),key=operator.itemgetter(1))
 	sorted_data.reverse()
-	writer=JSONStreamWriter(DIRECTORY+"tfidf_data.jsons")
+	writer=JSONStreamWriter(DIRECTORY+"ntfidf_data.jsons")
 	for d in sorted_data:
 		writer.write(d)
 	writer.close()	
