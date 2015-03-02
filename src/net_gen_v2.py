@@ -19,7 +19,7 @@ OTHER_IC=40#on 100
 DEFAULT_IC=40
 
 
-DATA_DIR="concepts_names_data/"
+DATA_DIR="concepts_names_dicts/"
 NETWORK=ConceptNetwork()
 BL=set()
 SL=set()
