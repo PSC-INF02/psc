@@ -21,7 +21,9 @@ class Context:
             self.network=network
         else:
             self.network=ConceptNetwork()
+            print("Loading default network...")
             self.load_network()
+            print("Done loading.")
         self.workspace=Workspace(self)
 
     def load_network(self,name="rc"):
@@ -48,6 +50,10 @@ class Context:
         for n,d in self.network.nodes():
             if d['a'] > 0:
                 yield n,d
+
+    def reset_network(self):
+        for n,d in self.network.nodes():
+            self.network[n]['a']=0
 
 
     def run(self,max_time):

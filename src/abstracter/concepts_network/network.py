@@ -80,6 +80,9 @@ class Network:
     def edges(self):
         return self.network.edges()
 
+    def shortest_path(self,source=None, target=None, weight=None):
+        return nx.shortest_path(self.network,source=source,target=target,weight=weight)
+
     ###########################################################
     ###JSON generating and decoding
     ##############################################

@@ -45,6 +45,9 @@ class ConceptNetwork(Network):
             key=key+1
         super(ConceptNetwork,self).add_edge(fromId=fromId,toId=toId,key=key,w=w,r=r)
 
+    def shortest_path(self,fromId,toId):
+        return super(ConceptNetwork,self).shortest_path(source=fromId,target=toId,weight=None)
+
     def compute_activation(self,id):
         """
         computes the new node activation, using :\n
