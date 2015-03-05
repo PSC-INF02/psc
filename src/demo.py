@@ -18,4 +18,12 @@ from abstracter.crawler.parse_crawler import * #download_and_parse_data,download
 #print(ret.retrieve_words_names(text))
 
 #unify()
-update()
+#update()
+
+
+from abstracter.workspace.entities_recognition import *
+from abstracter import *
+context=Context()
+
+#activate_entities(context,["wayne_rooney"])
+print(match_entities(context,["wayne rooney","wayne"]))

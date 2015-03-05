@@ -99,9 +99,9 @@ class ConceptNetwork(Network):
             edges_writer.write(e)
         edges_writer.close()
 
-    def load(directory):
-        self.network.add_nodes_from(read_json_stream(directory+"/"+directory+"_nodes.jsons"))
-        self.network.add_edges_from(read_json_stream(directory+"/"+directory+"_edges.jsons"))
+    def load(self,arg):
+        self.network.add_nodes_from(read_json_stream(arg+"/"+arg+"_nodes.jsons"))
+        self.network.add_edges_from(read_json_stream(arg+"/"+arg+"_edges.jsons"))
 
 
 

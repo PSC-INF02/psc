@@ -17,11 +17,17 @@ class Context:
     
     def __init__(self,network=None):
         self.workersManager=WorkersManager(self)
-        self.network=(network if network else Network())
+        if network:
+            self.network=network
+        else:
+            self.network=ConceptNetwork()
+            self.load_network()
         self.workspace=Workspace(self)
 
+    def load_network(self,name="rc"):
+        self.network.load(name)
+
     def test(self):
-        self.network=ConceptNetwork()
         self.network.add_node(id="babar",ic=2,a=0)
         self.network.add_edge(fromId="toto",toId="babar",w=20,r="nothing in common")
         self.network.add_edge(fromId="toto",toId="elephant",w=100,r="useless")
@@ -38,7 +44,14 @@ class Context:
             if d['a'] > 0:
                 print(n+" : "+d['a'].__str__())
 
+    def get_activated_nodes(self):
+        for n,d in self.network.nodes():
+            if d['a'] > 0:
+                yield n,d
+
+
     def run(self,max_time):
+        print("Running for "+max_time.__str__()+" time.")
         while self.workersManager.time<max_time and not self.workersManager.isEmpty():
             #print(self.workersManager)
             #self.print_activated_nodes()

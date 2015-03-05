@@ -17,6 +17,8 @@ class ActivateWorker(Worker):
         """
         The Activate worker generates new Compute workers for every linked node
         It pushes a writeConcept worker if the node is activated enough.
+        The more the node is activated, the more activating other nodes becomes urgent.
+        The more his neighbours are close to him, the more activating them becomes urgent.
 
         @param context The current context.
         @see abstracter.workers.compute_worker.ComputeWorker
@@ -27,7 +29,7 @@ class ActivateWorker(Worker):
             pass
             #context.workers.push(WriteConceptWorker(self.target_id))
         for arc in context.network.out_arcs(self.target_id):
-            context.workersManager.push(ComputeWorker(arc[1],urgency=arc[3]['w']))
+            context.workersManager.push(ComputeWorker(arc[1],urgency=arc[3]['w']*context.network[self.target_id]['a']))
         #for n in context.network.successors(self.target_id):
         #    context.workersManager.push(ComputeWorker(n))
         return ACTIVATE_DELTA_TIME

@@ -15,7 +15,7 @@ DIRECTORY="tfidf/"
 
 
 
-def build_database(max_files=100,which="names"):
+def build_database(name="",max_files=100,which="names"):
 	"""
 	@param which "names" or "concepts"
 	"""
@@ -28,6 +28,7 @@ def build_database(max_files=100,which="names"):
 	smallfiles=glob(DEFAULT_RESULTS_DIRECTORY+"/*/*" + which + ".json")[0:10000]
 	#building tf database
 	for filename in fileconcepts:
+		#print(filename)
 		for c in read_json_stream(filename):
 			#avoid bad words
 			if match('^[a-zA-Z\s-]*$',c[0]) and len(c[0]) < 20:
@@ -36,7 +37,7 @@ def build_database(max_files=100,which="names"):
 				else:
 					tf_data[c[0]]+=c[1]
 		#print("successful reading of :"+filename)
-	writer=JSONStreamWriter(DIRECTORY+which+"tf_data.jsons")
+	writer=JSONStreamWriter(DIRECTORY+name+"tf_data.jsons")
 	for d in tf_data.items():
 		writer.write(d)
 	writer.close()
@@ -51,7 +52,7 @@ def build_database(max_files=100,which="names"):
 						idf_data[c]+=1
 					else:
 						idf_data[c]=1
-	writer=JSONStreamWriter(DIRECTORY+which+"idf_data.jsons")
+	writer=JSONStreamWriter(DIRECTORY+name+"idf_data.jsons")
 	for d in idf_data.items():
 		writer.write(d)
 	writer.close()
@@ -63,13 +64,11 @@ def build_database(max_files=100,which="names"):
 			tfidf_data[c]=tf_data[c]/idf_data[c]
 	sorted_data=sorted(tfidf_data.items(),key=operator.itemgetter(1))
 	sorted_data.reverse()
-	writer=JSONStreamWriter(DIRECTORY+"ntfidf_data.jsons")
+	writer=JSONStreamWriter(DIRECTORY+name+"tfidf_data.jsons")
 	for d in sorted_data:
 		writer.write(d)
 	writer.close()	
 
-
-build_database()
 
 from abstracter.concepts_network import *
 
@@ -82,10 +81,13 @@ def clean_database(name="tfidf_data.jsons"):
 	tfidf_data=dict()
 	for entry in read_json_stream(DIRECTORY+name):
 		if cn.has_node(entry[0]):
-			tf_idf_data[entry[0]]=entry[1]
+			tfidf_data[entry[0]]=entry[1]
 	sorted_data=sorted(tfidf_data.items(),key=operator.itemgetter(1))
 	sorted_data.reverse()
 	writer=JSONStreamWriter(DIRECTORY+"cleared_"+name)
 	for d in sorted_data:
 		writer.write(d)
 	writer.close()
+
+#build_database(name="concepts_",which="concepts")
+clean_database("names_tfidf_data.jsons")
