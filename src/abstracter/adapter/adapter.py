@@ -1,11 +1,10 @@
 
 
-
 class adapter:
 	"""
 	A class that takes an article analyzed by systran and pours elements from it into a workspace
 	Use it with
-	syntacticParser.parse(filename)
+	adapter.parse(filename, workspace);
 	"""
 
 	def parse(self, filename, workspace):
