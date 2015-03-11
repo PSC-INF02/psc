@@ -4,7 +4,7 @@ from collections import Counter
 
 class statsPseudoWorkspace(abstractNetwork):
     """
-    A pseudo workpsace used only for statistic calculations
+    A pseudo workspace used only for statistic calculations
     """
 
     def __init__(self):

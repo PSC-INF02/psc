@@ -11,6 +11,9 @@ class adapter:
         """
         Parses a syntactic tree (systran format) and fills workspace
         given as argument with new information.
+
+        @param filename Name of the file to parse.
+        @param workspace Current workspace.
         """
         f = open(filename, 'r')
         for line in f:
@@ -26,6 +29,11 @@ class adapter:
         """
         Takes a cursory glance at whatever information is stored in the word
         (systran format) and returns it as a dictionary
+
+        @param word A word in the text, given with much information (-|- separator).
+        @param workspace Current workspace.
+
+        @return A dict representing all information about the word.
         """
         wordStatus = word.split('-|-')
         wordCar = {}

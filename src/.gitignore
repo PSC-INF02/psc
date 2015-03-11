@@ -3,6 +3,7 @@ concepts/
 crawlerpsc/
 concepts_names_data/
 wayne*/
-rc*/
+rc/
 concepts_names_dicts/
 tfidf/
+data/
