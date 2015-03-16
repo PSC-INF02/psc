@@ -22,10 +22,10 @@ class adapter:
             words = line.split(' ')
             for word in words:
                 # Spaces serve as a delimiter for words in a sentence
-                parsedSent.append(self.parseWord(word, workspace))
+                parsedSent.append(self.parseWord(word, workspace, words))
             workspace.addSentence(parsedSent)
 
-    def parseWord(self, word, workspace):
+    def parseWord(self, word, workspace, words):
         """
         Takes a cursory glance at whatever information is stored in the word
         (systran format) and returns it as a dictionary
@@ -44,21 +44,25 @@ class adapter:
 
         '''
          Now there are two possibilities :
-             - the name is just a name and I can push it in the workspace as is
-             - it's an adjective / verb or such and I need to make it
+             -The name is a name, and I need to see whether it's a head of chunk or just a part
+		- it's an adjective / verb or such and I need to make it
              an attribute or an event and to gather some more information.
         '''
-
-        if 'noun' in wordCar['nature']:
-            # I'll read doc to see what I can get into a node
-            pass
-
-        else:
-
             # Getting features and relations to other words in the sentence
             # (just in case)
 
             features = wordStatus.pop(0).split(';')
+
+        if 'noun' in wordCar['nature']:
+            '''a noun can be either a head of chunk or part of a chunk ; if the latter, it is more an attribute than an actual entity.
+		So, checking if the name is a head of chunk, and if so adding the whole chunk, otherwise adding it as an attribute
+		'''
+		if self.isHeadOfChunk(features):
+			chunkName = self.getChunkName(features, words)	
+		else:
+			pass
+        else:
+
 
             '''
             For now I'll stay simple and just ignore everything
@@ -77,3 +81,44 @@ class adapter:
                 pass
 
         return wordCar
+
+	def getChunkName(features, words)
+		'''
+		Gets a whole chunk of sentence as the longest in the features list
+
+		@param features Features of the word under study, containing (among other things) chunks of which it is the head
+		@param words Array of all the words in the sentence
+
+		@return Longest chunk as a string
+		'''
+		longestChunk=[0,0]
+
+		for feature in features:
+			if feature[0].isdigit():
+				#First symbol of feature is a digit : those are chunks, in the format chunkStart_@_chunkEnd
+				currentChunk=feature.split("_@_");
+				if currentChunk[1]-currentChunk[0]>longestChunk[1]-longestChunk[0]:
+					longestChunk[0]=currentChunk[0]
+					longestChunk[1]=currentChunk[1]
+		chunkName = ""
+		for word in words[longestChunk[0]:longestChunk[1]]:
+			chunkName.append(word.split("-|-").pop())
+			chunkName.append(" ")
+
+		return chunkName
+			
+
+	def isHeadOfChunk(features)
+		'''
+		Checks whether a word having those features (in Crego sense) is a head of chunk.
+	
+		@param features Features of the word to study
+
+		@return True if the word is head.
+		'''
+		test = False;
+		for feature in features:
+			if feature[0].isdigit():
+				test = true
+
+		return test
