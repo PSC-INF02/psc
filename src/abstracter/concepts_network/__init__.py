@@ -3,14 +3,9 @@ from networkx.readwrite import json_graph
 from math import log
 import matplotlib.pyplot as plt
 import json
-try:
-    from abstracter.util.json_stream import *
-except ImportError:
-    pass
-try:
-    from abstracter.concepts_network.network import Network
-except ImportError:
-    from .network import Network
+from abstracter.util.json_stream import *
+from abstracter.util.network import Network
+
 
 class ConceptNetwork(Network):
     """

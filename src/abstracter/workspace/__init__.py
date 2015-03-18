@@ -1,4 +1,4 @@
-from abstracter.concepts_network.network import *
+from abstracter.util.network import *
 
 
 class Workspace(Network):

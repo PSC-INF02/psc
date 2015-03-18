@@ -58,18 +58,16 @@ def match_entities(par_context,names_list):
 	if refactored:
 		possible_matches=list(_activate_entities(context,first_matches))
 		for name in refactored:
-			n,d=minimize_distance(name,possible_matches)
+			n,d=_minimize_distance(name,possible_matches)
 			if d<0.5:
 				result[name]=n
 			else:
 				result[name]=name
 	return result
 
-	#pass
 
 
-
-def minimize_distance(name,name_list):
+def _minimize_distance(name,name_list):
 	result=name,-1
 	for name2 in name_list:
 		d=levenshtein(name,name2, normalized=True, max_dist=-1)

@@ -1,13 +1,13 @@
-class abstractNetwork:
+class AbstractNetwork:
     """
     An abstract class containing the interface a network must have
     """
 
-    def addSentence(self):
+    def add_sentence(self):
         raise NotImplementedError("Should have implemented this")
 
-    def getSentence(self, sentID):
+    def get_sentence(self, sentID):
         raise NotImplementedError("Should have implemented this")
 
-    def getWord(self, wid):
+    def get_word(self, wid):
         raise NotImplementedError("Should have implemented this")
