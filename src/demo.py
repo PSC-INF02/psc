@@ -1,4 +1,4 @@
-from abstracter.crawler.parse_crawler import * #download_and_parse_data,download_crawler_data,unify
+from abstracter.crawler.parse_crawler import *  #download_and_parse_data,download_crawler_data,unify
 
 #download_and_parse fait tout pour une date : télécharger sur le crawler, 
 #stocker localement les données, parser les articles 
@@ -18,20 +18,19 @@ from abstracter.crawler.parse_crawler import * #download_and_parse_data,download
 #print(ret.retrieve_words_names(text))
 
 #unify()
-#update()
-
+update()
 
 from abstracter.workspace.entities_recognition import *
 from abstracter import *
 
 import networkx as nx
 #activate_entities(context,["wayne_rooney"])
-context=Context()
+#context=Context()
 #print(match_entities(context,["wayne rooney","wayne"]))
 
-liste=["Everton","Goodison Park","Roberto Martinez","Martinez","Champions League","Diego Simeone","Atletico Madrid",
-"FIFA","David Moyes","Barcelona","Real Sociedad","New Year's Day","Premier League","Roberto"];
-print(match_entities(context,liste))
+#liste=["Everton","Goodison Park","Roberto Martinez","Martinez","Champions League","Diego Simeone","Atletico Madrid",
+#"FIFA","David Moyes","Barcelona","Real Sociedad","New Year's Day","Premier League","Roberto"];
+#print(match_entities(context,liste))
 
 #print(minimize_distance("soccer_player",["the soccer player"]))
 
@@ -43,8 +42,7 @@ print(match_entities(context,liste))
 #for g in nx.weakly_connected_component_subgraphs(context.network.network):
 #	print(nx.average_shortest_path_length(g))
 
-text="""
-Everton are on their worst run since December 2005, but the Goodison Park fans must get behind Roberto Martinez
+text="""Everton are on their worst run since December 2005, but the Goodison Park fans must get behind Roberto Martinez
 Martinez was praised last year for his style of play that took Everton to the brink of Champions League qualification
 Talk of Martinez needing to change his style is baffling Diego Simeone's work at Atletico Madrid has been 
 unbelievable, I hope he wins FIFA's coach of the year award 
