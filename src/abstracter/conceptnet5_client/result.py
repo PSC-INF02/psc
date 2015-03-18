@@ -18,23 +18,27 @@ similar : Only in Association.
 """
 SUPPORTED_KEYS = ['numFound', 'maxScore', 'edges', 'terms', 'similar']
 
+
 def rel_to_word(relation='/r/HasA'):
     """
     Small util to transform a relation into a word : '/r/HasA' becomes HasA.
     """
     return relation.split('/')[2]
 
+
 def concept_to_word(concept='/c/en/dog'):
     """
     Small util to transform a concept into a word : '/c/en/dog' becomes dog.
-    """    
+    """
     return concept.split('/')[3]
+
 
 def is_relevant_concept(word):
     """
     Check if the concept is relevant, that is, if it doesn't have too much undescores.
     """
-    return len(word.split('_'))<MAX_UNDERSCORES_ALLOWED+2
+    return len(word.split('_')) < MAX_UNDERSCORES_ALLOWED + 2
+
 
 def parse_similar_concepts(json_data):
     """
@@ -42,11 +46,10 @@ def parse_similar_concepts(json_data):
 
     @param json_data Query result encoded in JSON.
     """
-    return list([concept_to_word(w[0]),int(w[1]*1000)/1000] for w in json_data["similar"])
+    return list([concept_to_word(w[0]), int(w[1] * 1000) / 1000] for w in json_data["similar"])
 
 
-
-def parse_relevant_edges(json_data,clean_self_ref=True):
+def parse_relevant_edges(json_data, clean_self_ref=True):
     """
     Transforms edges of a query result into result.Edge objects.
 
@@ -58,15 +61,16 @@ def parse_relevant_edges(json_data,clean_self_ref=True):
     @param json_data Query result encoded in JSON.
     @param clean_self_ref Indicates if edges that have the same start and end have to be dismissed.
     """
-    edges = []        
-    if not 'edges' in json_data:
+    edges = []
+    if 'edges' not in json_data:
         return edges
     for edge_str in json_data['edges']:
         e = Edge(edge_str)
-        if e.rel in USEFUL_CONCEPTNET_EDGES:# and e.weight*USEFUL_CONCEPTNET_EDGES[e.rel] > MINIMUM_WEIGHT_ALLOWED: unuseful
-            e.rel=rel_to_word(e.rel)
-            e.start=concept_to_word(e.start)
-            e.end=concept_to_word(e.end)
+        if e.rel in USEFUL_CONCEPTNET_EDGES:
+            # and e.weight*USEFUL_CONCEPTNET_EDGES[e.rel] > MINIMUM_WEIGHT_ALLOWED: unuseful
+            e.rel = rel_to_word(e.rel)
+            e.start = concept_to_word(e.start)
+            e.end = concept_to_word(e.end)
             if is_relevant_concept(e.start) and is_relevant_concept(e.end):
                 if clean_self_ref:
                     if e.start != e.end:
@@ -76,7 +80,6 @@ def parse_relevant_edges(json_data,clean_self_ref=True):
     return edges
 
 
-        
 class Edge(object):
     '''
     This class implements the methods for representing a single edge and manipulating it.
@@ -85,23 +88,20 @@ class Edge(object):
     def __init__(self, edge_str):
         edge_dict = ast.literal_eval(str(edge_str))
         for attribute in RELEVANT_EDGES_ATTRIBUTES:
-            self.__dict__[attribute]=(edge_dict[attribute])
+            self.__dict__[attribute] = (edge_dict[attribute])
 
-    
     def print_assertion(self):
         '''
         Prints the lemmas of this edge with start, rel, end lemmas.
         '''
         print('%s %s %s' % (self.start_lemmas, self.rel, self.end_lemmas))
 
-    
     def print_edge(self):
         '''
         Prints the normalized edge data with start node, rel, end node.
         '''
-        print('(%s -> %s -> %s , %d)' % (self.start, self.rel, self.end,self.weight))
+        print('(%s -> %s -> %s , %d)' % (self.start, self.rel, self.end, self.weight))
 
-    
     def print_all_attrs(self):
         '''
         Prints all attributes regarding to this edge.

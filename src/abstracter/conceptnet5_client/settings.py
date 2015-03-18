@@ -1,6 +1,6 @@
 
 
-LANGUAGE="en"
+LANGUAGE = "en"
 
 
 # These URLs basically points to MIT's conceptnet5 setup for Web API
@@ -18,7 +18,7 @@ BASE_ASSOCIATION_URL = 'http://conceptnet5.media.mit.edu/data/5.3/assoc'
 #                if 'core-assetions', search for edges by default, and there can be many edges 
 #                representing the same assertion.
 # :type filter: Either 'core' or 'core-assertions'
-SUPPORTED_LOOKUP_ARGS = ['filter', 'limit']#suppressed 'offset' in conceptnet5.3 ?
+SUPPORTED_LOOKUP_ARGS = ['filter', 'limit']  # suppressed 'offset' in conceptnet5.3 ?
 
 
 # This is the supported query arguments for Association API
@@ -56,6 +56,10 @@ SUPPORTED_ASSOCIATION_ARGS = ['limit', 'filter']
 # :param filter: If 'core', only get edges from the ConceptNet 5 Core (not from ShareAlike resources),
 #       if 'core-assetions', search for edges by default, and there can be many edges representing the same assertion.
 # :type filter: Either 'core' or 'core-assertions'
-SUPPORTED_SEARCH_ARGS = ['id', 'uri', 'rel', 'start', 'end', 'context', 'dataset', 
-    'license', 'nodes', 'startLemmas', 'endLemmas', 'relLemmas', 'text',
-    'surfaceText', 'minWeight', 'limit', 'offset', 'features', 'filter']
+SUPPORTED_SEARCH_ARGS = ['id', 'uri', 'rel', 'start',
+                         'end', 'context', 'dataset',
+                         'license', 'nodes',
+                         'startLemmas', 'endLemmas',
+                         'relLemmas', 'text',
+                         'surfaceText', 'minWeight', 'limit',
+                         'offset', 'features', 'filter']
