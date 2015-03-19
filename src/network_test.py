@@ -14,9 +14,9 @@ c=Context(n)
 #c.run(20)
 
 def print_activated_nodes(network):
-	for n,d in network.nodes():
-		if d['a'] > 0:
-			print(n+" : "+d['a'].__str__())
+    for n,d in network.nodes():
+        if d['a'] > 0:
+            print(n+" : "+d['a'].__str__())
 
 
 #print_activated_nodes(n)
@@ -30,8 +30,8 @@ text="Wayne Rooney was in a bad mood yesterday because I don't know yet."
 doublelist=ret.retrieve_words_names(text)
 print(doublelist)
 for w in doublelist[0]:
-	c.activate(w.replace(" ","_"),30)
+    c.activate(w.replace(" ","_"),30)
 for w in doublelist[1]:
-	c.activate(w.replace(" ","_"),50)
+    c.activate(w.replace(" ","_"),50)
 c.run(10)
 print_activated_nodes(n)

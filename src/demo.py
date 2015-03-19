@@ -18,12 +18,17 @@ from abstracter.crawler.parse_crawler import *  #download_and_parse_data,downloa
 #print(ret.retrieve_words_names(text))
 
 #unify()
-update()
+#update()
 
 from abstracter.workspace.entities_recognition import *
 from abstracter import *
 
 import networkx as nx
+
+from nltk.sem.logic import ParseException
+
+print("toto")
+
 #activate_entities(context,["wayne_rooney"])
 #context=Context()
 #print(match_entities(context,["wayne rooney","wayne"]))
@@ -40,7 +45,7 @@ import networkx as nx
 
 
 #for g in nx.weakly_connected_component_subgraphs(context.network.network):
-#	print(nx.average_shortest_path_length(g))
+#    print(nx.average_shortest_path_length(g))
 
 text="""Everton are on their worst run since December 2005, but the Goodison Park fans must get behind Roberto Martinez
 Martinez was praised last year for his style of play that took Everton to the brink of Champions League qualification
