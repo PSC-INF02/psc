@@ -1,12 +1,13 @@
-import ast
-from abstracter.conceptnet5_client.data_settings import RELEVANT_EDGES_ATTRIBUTES,USEFUL_CONCEPTNET_EDGES,MINIMUM_WEIGHT_ALLOWED,MAX_UNDERSCORES_ALLOWED
-import json
-
 """@file result.py
 Methods for parsing a query result.
 
 @see data_settings.py Settings used.
 """
+import ast
+from abstracter.conceptnet5_client.data_settings import RELEVANT_EDGES_ATTRIBUTES,USEFUL_CONCEPTNET_EDGES,MINIMUM_WEIGHT_ALLOWED,MAX_UNDERSCORES_ALLOWED
+import json
+
+
 
 
 """

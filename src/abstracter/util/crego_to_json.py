@@ -1,6 +1,13 @@
 #!/usr/bin/python3
+"""@file crego_to_json.py
+@brief Util to transform systran files into json objects.
+
+"""
+
+
 import re
 import json
+
 
 def crego_to_json(file):
     data = []
@@ -9,7 +16,7 @@ def crego_to_json(file):
             for word in line.split(" "):
                 word_details = word.split("-|-")
 
-                tags = {"relations":[]}
+                tags = {"relations": []}
                 for t in word_details[3].split(";"):
                     r = re.match(r"(.+)=(.+)", t)
                     if r is not None:

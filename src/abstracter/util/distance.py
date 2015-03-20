@@ -16,7 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"Utilities for comparing sequences"
+"""@file distance.py
+@brief Utilities for comparing sequences.
+
+Copyright (C) 2013 Michaël Meyer.
+"""
+
 
 
 from array import array

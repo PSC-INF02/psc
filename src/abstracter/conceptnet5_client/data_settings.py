@@ -4,8 +4,7 @@
 Including edge information and also
 what we consider as relevant information.
 
-@see api.py
-@see concurrent_api.py
+@see result.py
 """
 
 ##########################################

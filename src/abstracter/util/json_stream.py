@@ -1,5 +1,6 @@
 """@file json_stream.py
-Using streams enables us to store bigger networks (not as much bigger as the bigger expected, but still better than
+Using streams enables us to store bigger networks (not as much bigger as
+the bigger expected, but still better than
 json alone)
 
 @see https://github.com/commonsense/conceptnet5/blob/master/conceptnet5/formats/json_stream.py
@@ -59,6 +60,7 @@ def write_json_stream(data,filename):
     for d in data:
         writer.write(d)
     writer.close()
+
 
 def read_json_stream(filename_or_stream, offsets=False):
     """

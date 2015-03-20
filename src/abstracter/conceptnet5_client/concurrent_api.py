@@ -8,7 +8,7 @@ Conceptnet5 supports 3 API :\n
 Lookup is for when you know the URI of an object in ConceptNet,
 and want to see a list of edges that include it.
 Search finds a list of edges that match certain criteria.
-Association is for finding concepts similar 
+Association is for finding concepts similar
 to a particular concept or a list of concepts.
 
 @see api For simple, non-concurrent queries.
