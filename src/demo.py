@@ -20,14 +20,35 @@ from abstracter.crawler.parse_crawler import *  #download_and_parse_data,downloa
 #unify()
 #update()
 
-from abstracter.workspace.entities_recognition import *
-from abstracter import *
+#from abstracter.workspace.entities_recognition import *
+#from abstracter import *
 
-import networkx as nx
+#import networkx as nx
 
-from nltk.sem.logic import ParseException
+#from nltk.sem.logic import ParseException
 
-print("toto")
+from abstracter.util.crego_to_json import crego_to_json
+from abstracter.parsers.tokenizer import *
+from abstracter.util.anaphora_resolution import *
+
+#with open("../systran/3",'r') as file:
+#    text = file.read()
+#with open("../systran/refactored",'a') as file:
+#    for s in refactor_crawler(text):
+#        file.write(s+"\n")
+
+data = sentence_to_dict(crego_to_json("../systran/example"))
+#print(get_tag(data, 0, "location"))
+#print_noun_phrases(data, get_noun_phrases(data))
+#print(sentence_to_dict(data))
+resolve_anaphoras(data, get_noun_phrases(data))
+
+#with open("../systran/parsed_example.json",'w') as file:
+#    json.dump(crego_to_json("../systran/example"),file)
+
+#json.dump(crego_to_json("../systran/test")))
+
+#print("toto")
 
 #activate_entities(context,["wayne_rooney"])
 #context=Context()
