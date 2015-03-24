@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 """@file crego_to_json.py
 @brief Util to transform systran files into json objects.
 
@@ -102,6 +103,8 @@ def crego_to_json(file):
     data = []
     with open(file, "r") as f:
         for line in f:
+            words = []
+            line_text = []
             for word in line.split(" "):
                 word_details = word.split("-|-")
 
@@ -117,14 +120,19 @@ def crego_to_json(file):
                         x = map(int, t.split("_@_"))
                         tags["relations"].append(tuple(x))
 
-                data.append({
-                    "id": len(data),
+                words.append({
+                    "id": len(words),
                     "name": word_details[0],
                     "norm": word_details[1],
                     "type": word_details[2],
                     "tags": tags
                 })
-
+                line_text.append(word_details[0])
+            data.append({
+                "id": len(data),
+                "text": " ".join(line_text),
+                "words": words
+            })
     return data
 
 if __name__ == "__main__":
