@@ -1,8 +1,7 @@
 #!/usr/bin/python3
-
-"""@file crego_to_json.py
+"""
+@file systran_parser.py
 @brief Util to transform systran files into json objects.
-
 """
 
 import re
@@ -71,10 +70,10 @@ TAGS_INFO = {
 
 
 # ALL_TYPES_EXAMPLES = {"aux:plain": "will", "intj": "no", "verb:inf": "reach",
-#                       "prep_x_det": "with_x_the", "noun:acronym_x_punct": "a._x_.", 
-#                       "prtcl": "to", "adj": "capital", "noun:propernoun": "Tottenham", 
-#                       "adv_x_det": "a_+_little_x_more", "aux:plain_x_aux:inf": "would_x_have", 
-#                       "verb:plain_x_adv": "do_x_not", "symb": "'", "verb:pastpart": "avoid", 
+#                       "prep_x_det": "with_x_the", "noun:acronym_x_punct": "a._x_.",
+#                       "prtcl": "to", "adj": "capital", "noun:propernoun": "Tottenham",
+#                       "adv_x_det": "a_+_little_x_more", "aux:plain_x_aux:inf": "would_x_have",
+#                       "verb:plain_x_adv": "do_x_not", "symb": "'", "verb:pastpart": "avoid",
 #                       "verb:prespart": "give", "aux:plain_x_adv": "do_x_not",
 #                       "noun:acronym": "cup.Christian", "aux:pastpart": "be",
 #                       "det": "the", "verb:plain": "send", "numeric_x_punct": "7._x_.",
@@ -86,20 +85,20 @@ TAGS_INFO = {
 #                       "adv_x_aux:plain": "there_x_be",
 #                       "aux:plain_x_aux:plain": "have_x_be", "noun:acronym_x_adv": "1-1did_x_not"}
 
-TYPES = ["adj", "adv", "adv_x_aux:plain", 
-         "adv_x_det", "aux:inf", "aux:pastpart", 
-         "aux:plain", "aux:plain_x_adv", "aux:plain_x_aux:inf", 
-         "aux:plain_x_aux:pastpart", "aux:plain_x_aux:plain", 
-         "aux:prespart", "conj", "det", "intj", "noun:acronym", 
-         "noun:acronym_x_adv", "noun:acronym_x_punct", 
-         "noun:common", "noun:propernoun", "numeric", 
-         "numeric_x_punct", "prep", "prep_x_det", "pron", 
-         "pron_x_aux:plain", "prtcl", "punct", "symb", 
-         "verb:inf", "verb:pastpart", "verb:plain", "verb:plain_x_adv", 
+TYPES = ["adj", "adv", "adv_x_aux:plain",
+         "adv_x_det", "aux:inf", "aux:pastpart",
+         "aux:plain", "aux:plain_x_adv", "aux:plain_x_aux:inf",
+         "aux:plain_x_aux:pastpart", "aux:plain_x_aux:plain",
+         "aux:prespart", "conj", "det", "intj", "noun:acronym",
+         "noun:acronym_x_adv", "noun:acronym_x_punct",
+         "noun:common", "noun:propernoun", "numeric",
+         "numeric_x_punct", "prep", "prep_x_det", "pron",
+         "pron_x_aux:plain", "prtcl", "punct", "symb",
+         "verb:inf", "verb:pastpart", "verb:plain", "verb:plain_x_adv",
          "verb:plain_x_pron", "verb:prespart"]
 
 
-def crego_to_json(file):
+def parse_systran(file):
     data = []
     with open(file, "r") as f:
         for line in f:
@@ -138,5 +137,5 @@ def crego_to_json(file):
 if __name__ == "__main__":
     import sys
     file = sys.argv[1]
-    data = crego_to_json(file)
+    data = parse_systran(file)
     print(json.dumps(data))
