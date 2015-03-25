@@ -12,11 +12,25 @@ PRONOUN_TAGS = ["pron"]
 # however, this is not always the case -> have to run some tests
 ##############################
 
-MASTER_NOUN_TAGS = ["object_of_verb", "agent_of_verb"]
-TO_ADD = ["modified_on_left"]
-TO_BE_ADDED = ["modifies_right_head", "modifies_another_noun", "semantic_modifier_of"]
-DEFINITE = ["the", "his", "her", "this", "these"]
-INDEFINITE = ["a"]
+MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB"]
+
+#####################################
+# When we get a master noun, we want to
+# construct the whole noun phrase :
+# with TO_ADD, add directly words with the master noun's tags
+# with TO_BE_ADDED, add words from the phrase that
+# are linked with the master noun
+###################################
+
+TO_ADD = ["MODIFIED_ON_LEFT", "MODIFIED_ON_RIGHT", "MODIFIED_BY_ADJ"]
+TO_BE_ADDED = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN", "SEMANTIC_MODIFIER_OF"]
+
+
+DEFINITE = ["THE", "HIS", "HER", "THIS", "THESE"]
+INDEFINITE = ["A"]
+
+DISCRIMINATIVE_TAGS = ["PL", "SG", "HUMAN"]
+ANTECEDENT_TAGS = ["ANTECEDENT"]
 
 
 def _get_norm(sent, id):
@@ -31,6 +45,14 @@ def _has_type_in(sent, id, type_list):
     return sent[id]["type"] in type_list
 
 
+def is_subject(sent, id):
+    return _get_tag(sent, id, "AGENT_OF_VERB") is not None
+
+
+def is_object(sent, id):
+    return _get_tag(sent, id, "AGENT_OF_VERB") is not None
+
+
 def is_definite(sent, id_list):
     """
     Check if it is a definite noun phrase, i.e
@@ -43,12 +65,21 @@ def is_definite(sent, id_list):
     return res
 
 
+def is_prepositional(sent, id):
+    return _get_tag(sent, id, "MODIFIED_BY_PREP1") != None
+
+
 def _has_tag_in(sent, id, tag_list):
     res = False
     for tag in tag_list:
         res = res or _get_tag(sent, id, tag)
     return res
 
+
+#################################
+# No more dependency with the data structure
+#
+##############################
 
 def sentence_to_dict(sent):
     """
@@ -100,10 +131,6 @@ def print_noun_phrases(sent, noun_phrases):
     """
     for p in sorted(noun_phrases):
         print(' '.join([sent[id]["name"] for id in (noun_phrases[p] + [p])]))
-
-
-DISCRIMINATIVE_TAGS = ["pl", "sg", "human"]
-ANTECEDENT_TAGS = ["antecedent"]
 
 
 def resolve_anaphoras(sent, np, previous_np1=None, previous_np2=None):
@@ -163,7 +190,14 @@ def resolve_anaphoras(sent, np, previous_np1=None, previous_np2=None):
                 res[term_id][id] += 1
 
     # 4 : prepositional or non prepositional NP : "into the VCR"
-    # ranking : subject, direct object, indirect object
+    # + ranking : subject, direct object, indirect object
+    for id in np_keys:
+        if is_prepositional(sent, id):
+            for term_id in res:
+                res[term_id][id] -= 1
+        if is_object(sent, id):
+            for term_id in res:
+                res[term_id][id] -= 1
 
     # 5 : collocation pattenrn
 
