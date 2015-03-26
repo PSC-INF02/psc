@@ -118,7 +118,9 @@ def parse_systran(file):
                         v = r.group(2)
                         if v[0] == '@':
                             v = int(v[1:])
-                        tags[r.group(1)] = v
+                        # tags[r.group(1)] = v
+                        if r.group(1) in TAGS_INFO and TAGS_INFO[r.group(1)]["keep"]:
+                            tags[TAGS_INFO[r.group(1)]["cor"]] = v
                     else:
                         x = map(int, t.split("_@_"))
                         tags["relations"].append(tuple(x))
@@ -138,41 +140,6 @@ def parse_systran(file):
             })
     return data
 
-
-def parse_systran_dict(file):
-    data = []
-    with open(file, "r") as f:
-        for line in f:
-            words = {}
-            line_text = []
-            for word in line.split(" "):
-                word_details = word.split("-|-")
-
-                tags = {"relations": []}
-                for t in word_details[3].split(";"):
-                    r = re.match(r"(.+)=(.+)", t)
-                    if r is not None:
-                        v = r.group(2)
-                        if v[0] == '@':
-                            v = int(v[1:])
-                        if r.group(1) in TAGS_INFO and TAGS_INFO[r.group(1)]["keep"]:
-                            tags[TAGS_INFO[r.group(1)]["cor"]] = v
-                    else:
-                        x = map(int, t.split("_@_"))
-                        tags["relations"].append(tuple(x))
-                words[len(words)] = {
-                    "name": word_details[0],
-                    "norm": word_details[1],
-                    "type": word_details[2],
-                    "tags": tags
-                }
-                line_text.append(word_details[0])
-            data.append({
-                "id": len(data),
-                "text": " ".join(line_text),
-                "words": words
-            })
-    return data
 
 
 if __name__ == "__main__":

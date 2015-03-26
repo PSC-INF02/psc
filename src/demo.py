@@ -1,4 +1,4 @@
-from abstracter.crawler.parse_crawler import *  #download_and_parse_data,download_crawler_data,unify
+# from abstracter.crawler.parse_crawler import *  #download_and_parse_data,download_crawler_data,unify
 
 #download_and_parse fait tout pour une date : télécharger sur le crawler, 
 #stocker localement les données, parser les articles 
@@ -27,7 +27,7 @@ from abstracter.crawler.parse_crawler import *  #download_and_parse_data,downloa
 
 #from nltk.sem.logic import ParseException
 
-from abstracter.util.systran_parser import parse_systran_dict
+from abstracter.util.systran_parser import parse_systran
 from abstracter.util.json_stream import *
 # from abstracter.parsers.tokenizer import *
 from abstracter.util.anaphora_resolution import *
@@ -41,16 +41,25 @@ from abstracter.util.anaphora_resolution import *
 #data = sentence_to_dict(crego_to_json("../systran/example"))
 #print(get_tag(data, 0, "location"))
 
-data = parse_systran_dict("../systran/3.clean.wsd.linear")[0]
-print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
+data = parse_systran("../systran/3.clean.wsd.linear")
+#print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
 #print(sentence_to_dict(data))
 
-resolve_anaphoras([data], [get_noun_phrases(data["words"])])
+sents = data[0:20]
+nps = get_all_noun_phrases(sents)
+print(nps)
+res = resolve_all_anaphoras(sents, nps)
+print(res)
+print_all_resolution(sents, nps, res)
 
+#nps = [get_noun_phrases(data[3]["words"]), get_noun_phrases(data[4]["words"])]
+#print(nps)
+#toto = resolve_anaphoras(sents, nps)
 
+#print_resolution(sents, nps, toto)
 
 #with open("../systran/parsed_example.json",'w') as file:
-#     json.dump(parse_systran_dict("../systran/3.clean.wsd.linear"), file)
+#     json.dump(parse_systran("../systran/3.clean.wsd.linear"), file)
 
 #json.dump(crego_to_json("../systran/test")))
 
