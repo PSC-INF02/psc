@@ -17,6 +17,7 @@ TAGS_INFO = {
         "apposition_to": {"keep": True, "cor": "APPOSITION_TO", "is_rel": True},
         "closing_quote_ptr": {"keep": False, "cor": "CLOSING_QUOTE_PTR", "is_rel": True},
         "comparative": {"keep": True, "cor": "COMPARATIVE", "is_rel": False},
+        "det": {"keep": True, "cor": "DET", "is_rel": False},
         "dirobj": {"keep": True, "cor": "DIROBJ", "is_rel": True},
         "dirobj_of": {"keep": True, "cor": "DIROBJ_OF", "is_rel": True},
         "emphatic": {"keep": False, "cor": "EMPHATIC", "is_rel": False},
@@ -43,15 +44,18 @@ TAGS_INFO = {
         "modifies_another_noun": {"keep": True, "cor": "MODIFIES_ANOTHER_NOUN", "is_rel": True},
         "modifies_left_head": {"keep": True, "cor": "MODIFIES_LEFT_HEAD", "is_rel": True},
         "modifies_right_head": {"keep": True, "cor": "MODIFIES_RIGHT_HEAD", "is_rel": True},
+        "nb": {"keep": False, "cor": "NB", "is_rel": False},
         "neg": {"keep": False, "cor": "NEG", "is_rel": False},
         "next_enum": {"keep": False, "cor": "NEXT_ENUM", "is_rel": True},
         "nfw": {"keep": True, "cor": "NFW", "is_rel": False},
         "nonfinite_governed_by": {"keep": False, "cor": "NONFINITE_GOVERNED_BY", "is_rel": True},
         "object_of_action": {"keep": True, "cor": "OBJECT_OF_ACTION", "is_rel": True},
         "object_of_verb": {"keep": True, "cor": "OBJECT_OF_VERB", "is_rel": True},
+        "oldtag": {"keep": False, "cor": "OLDTAG", "is_rel": True},
         "opening_quote_ptr": {"keep": False, "cor": "OPENING_QUOTE_PTR", "is_rel": True},
         "passive": {"keep": True, "cor": "PASSIVE", "is_rel": False},
         "past": {"keep": True, "cor": "PAST", "is_rel": False},
+        "per": {"keep": False, "cor": "PER", "is_rel": False},
         "perfect": {"keep": True, "cor": "PERFECT", "is_rel": False},
         "physub": {"keep": False, "cor": "PHYSUB", "is_rel": False},
         "pl": {"keep": True, "cor": "PL", "is_rel": False},
@@ -133,6 +137,43 @@ def parse_systran(file):
                 "words": words
             })
     return data
+
+
+def parse_systran_dict(file):
+    data = []
+    with open(file, "r") as f:
+        for line in f:
+            words = {}
+            line_text = []
+            for word in line.split(" "):
+                word_details = word.split("-|-")
+
+                tags = {"relations": []}
+                for t in word_details[3].split(";"):
+                    r = re.match(r"(.+)=(.+)", t)
+                    if r is not None:
+                        v = r.group(2)
+                        if v[0] == '@':
+                            v = int(v[1:])
+                        if r.group(1) in TAGS_INFO and TAGS_INFO[r.group(1)]["keep"]:
+                            tags[TAGS_INFO[r.group(1)]["cor"]] = v
+                    else:
+                        x = map(int, t.split("_@_"))
+                        tags["relations"].append(tuple(x))
+                words[len(words)] = {
+                    "name": word_details[0],
+                    "norm": word_details[1],
+                    "type": word_details[2],
+                    "tags": tags
+                }
+                line_text.append(word_details[0])
+            data.append({
+                "id": len(data),
+                "text": " ".join(line_text),
+                "words": words
+            })
+    return data
+
 
 if __name__ == "__main__":
     import sys

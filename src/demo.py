@@ -27,8 +27,9 @@ from abstracter.crawler.parse_crawler import *  #download_and_parse_data,downloa
 
 #from nltk.sem.logic import ParseException
 
-from abstracter.util.crego_to_json import crego_to_json
-from abstracter.parsers.tokenizer import *
+from abstracter.util.systran_parser import parse_systran_dict
+from abstracter.util.json_stream import *
+# from abstracter.parsers.tokenizer import *
 from abstracter.util.anaphora_resolution import *
 
 #with open("../systran/3",'r') as file:
@@ -37,14 +38,19 @@ from abstracter.util.anaphora_resolution import *
 #    for s in refactor_crawler(text):
 #        file.write(s+"\n")
 
-data = sentence_to_dict(crego_to_json("../systran/example"))
+#data = sentence_to_dict(crego_to_json("../systran/example"))
 #print(get_tag(data, 0, "location"))
-#print_noun_phrases(data, get_noun_phrases(data))
+
+data = parse_systran_dict("../systran/3.clean.wsd.linear")[0]
+print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
 #print(sentence_to_dict(data))
-resolve_anaphoras(data, get_noun_phrases(data))
+
+resolve_anaphoras([data], [get_noun_phrases(data["words"])])
+
+
 
 #with open("../systran/parsed_example.json",'w') as file:
-#    json.dump(crego_to_json("../systran/example"),file)
+#     json.dump(parse_systran_dict("../systran/3.clean.wsd.linear"), file)
 
 #json.dump(crego_to_json("../systran/test")))
 
