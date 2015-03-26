@@ -41,16 +41,15 @@ from abstracter.util.anaphora_resolution import *
 #data = sentence_to_dict(crego_to_json("../systran/example"))
 #print(get_tag(data, 0, "location"))
 
+#with open("../systran/parsed_example.json", 'w') as file:
+#    write_json_stream(parse_systran("../systran/3.clean.wsd.linear"), file)
+
+
 data = parse_systran("../systran/3.clean.wsd.linear")
 #print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
 #print(sentence_to_dict(data))
 
-sents = data[0:20]
-nps = get_all_noun_phrases(sents)
-print(nps)
-res = resolve_all_anaphoras(sents, nps)
-print(res)
-print_all_resolution(sents, nps, res)
+demo(data)
 
 #nps = [get_noun_phrases(data[3]["words"]), get_noun_phrases(data[4]["words"])]
 #print(nps)
@@ -58,8 +57,6 @@ print_all_resolution(sents, nps, res)
 
 #print_resolution(sents, nps, toto)
 
-#with open("../systran/parsed_example.json",'w') as file:
-#     json.dump(parse_systran("../systran/3.clean.wsd.linear"), file)
 
 #json.dump(crego_to_json("../systran/test")))
 
