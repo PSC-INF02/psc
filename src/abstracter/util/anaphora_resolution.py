@@ -38,9 +38,9 @@ DISCRIMINATIVE_TAGS = ["PL", "SG"]
 ANTECEDENT_TAGS = ["ANTECEDENT"]
 
 
-#####################"
+#####################
 # how many previous sentences to check
-################""
+###################
 
 PREV_SENTS = 2
 
@@ -168,13 +168,15 @@ def resolve_anaphoras(sents, nps):
     then ranks, for each pronoun, the candidates.
 
     @see abstracter.util.parse_systran
-    @param sents Sentences list. The last is the principal sentence (the one studied).
+    @param sents Sentences list. The last is the principal sentence
+    (the one studied).
     Each sentence is a dict, resulting from parse_systran, of the form :
     >> {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
     Where each word has the form :
     >> {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
-    @param nps List of dicts of get_noun_phrases results. All nps are already computed.
+    @param nps List of dicts of get_noun_phrases results.
+    All nps are already computed.
     Each np dict corresponds to a sentence.
     @return A dict of relations between the pronouns of the studied sentence,
     and noun phrases, identified with their master noun.
@@ -187,6 +189,9 @@ def resolve_anaphoras(sents, nps):
     """
     assert len(sents) == len(nps)
     assert len(sents) > 0
+    assert 1 + sents[len(sents) - 1]["id"] - len(sents) == sents[0]["id"]
+    offset = sents[0]["id"]
+    # id of the first sentence
     res = {}
     # we recompute the keys of the noun phrases
     np_keys = []
@@ -215,7 +220,6 @@ def resolve_anaphoras(sents, nps):
             else:
                 res[term_id][full_id] = -100
 
-            # 
             for tag in ["PL", "SG"]:
                 temp = get_tag(sents, full_id, tag)
                 if (_get_tag(words[term_id], tag) and temp
@@ -228,7 +232,7 @@ def resolve_anaphoras(sents, nps):
 
         # check antecedent data (given by systran)
         for tag in ANTECEDENT_TAGS:
-            if _get_tag(words[term_id], tag) and (sent_id - len(sents) + 1, _get_tag(words[term_id], tag)) in res[term_id]:
+            if _get_tag(words[term_id], tag) and (offset, _get_tag(words[term_id], tag)) in res[term_id]:
                 res[term_id][(sent_id - len(sents) + 1, _get_tag(words[term_id], tag))] = 1
     # other checkings
     # 1 : noun phrases that appear at the beginning of a sentence
@@ -237,7 +241,7 @@ def resolve_anaphoras(sents, nps):
         temp = list(nps[i].keys())
         temp.sort()
         for term_id in res:
-            res[term_id][i - len(sents) + 1 + sent_id, temp[0]] += 5
+            res[term_id][i + offset, temp[0]] += 5
 
     # 3 : lexical reiteration (with previous sentences also)
     # we check the head nouns
@@ -246,7 +250,7 @@ def resolve_anaphoras(sents, nps):
     for id in np_keys:
         temp = 0
         for id2 in np_keys:
-            if get_word(sents, id)["norm"] == get_word(sents, id2)["norm"]:
+            if sents[id2[0] - offset]["words"][id2[1]]["norm"] == sents[id[0] - offset]["words"][id[1]]["norm"]:
                 temp += 1
         if temp > 1:
             for term_id in res:
@@ -266,10 +270,10 @@ def resolve_anaphoras(sents, nps):
         if get_tag(sents, full_id, "OBJECT_OF_VERB") is not None:
             for term_id in res:
                 res[term_id][full_id] -= 2
-        if is_indefinite(sents[id_change(sents, full_id[0])]["words"], nps[id_change(sents, full_id[0])][full_id[1]]):
+        if is_indefinite(sents[id_change(sents, full_id[0])]["words"], nps[full_id[0] - offset][full_id[1]]):
             for term_id in res:
                 res[term_id][full_id] -= 4
-        if is_propernoun(sents[id_change(sents, full_id[0])]["words"], nps[id_change(sents, full_id[0])][full_id[1]]):
+        if is_propernoun(sents[id_change(sents, full_id[0])]["words"], nps[full_id[0] - offset][full_id[1]]):
             for term_id in res:
                 res[term_id][full_id] += 4
 
@@ -326,6 +330,32 @@ def print_all_resolution(sents, nps, resolve_results):
         print("\n")
 
 
+def refactor_results(offset, nps, resolve_results):
+    """
+    As resolve results are indexed by the master noun,
+    this function refactor them in order to print
+    them without any nps information.
+
+    @param nps Noun phrases {0: [], 8: [6, 7]}
+    @param resolve_results {29: (1, 28), 30: (0, 15)}
+
+    @return A list of dicts like :
+    > {1: [(0, 1), (0, 2)]}
+    Where is the pronoun id in the sentence, and
+    (0, 1), (0, 2) ids of words forming a noun phrase.
+    """
+    assert len(nps) == len(resolve_results)
+    result = []
+    for i in range(len(resolve_results)):
+        temp = {}
+        for id in resolve_results[i]:
+            tmp = resolve_results[i][id]
+            tmp2 = nps[tmp[0] - offset][tmp[1]]
+            temp[id] = [(tmp[0], j) for j in sorted(tmp2 + [tmp[1]])]
+        result.append(temp)
+    return result
+
+
 def print_resolution(sents, nps, resolve_result):
     for i in range(len(sents) - 1):
         print(sents[i]["text"])
@@ -343,9 +373,12 @@ def print_resolution(sents, nps, resolve_result):
 
 
 def demo(systran_parsed_data):
-    sents = systran_parsed_data[1:20]
+    sents = systran_parsed_data
     nps = get_all_noun_phrases(sents)
     print(nps)
     res = resolve_all_anaphoras(sents, nps)
     print(res)
+    truc = refactor_results(sents[0]["id"], nps, res)
+    for t in truc:
+        print(t)
     print_all_resolution(sents, nps, res)

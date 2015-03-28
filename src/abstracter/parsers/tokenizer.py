@@ -80,7 +80,7 @@ def tokenize_and_tag(text):
     @param text Raw text data (str).
     @return Yields a list of lists of [word,POS].
     """
-    for sent in custom_sent_tokenize(text):
+    for sent in refactor_crawler(text):
         sent2 = sent
         # for i in MAJ:
         #    sent2 = sent2.replace(i, " " + i)

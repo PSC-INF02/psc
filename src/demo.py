@@ -1,4 +1,4 @@
-# from abstracter.crawler.parse_crawler import *  #download_and_parse_data,download_crawler_data,unify
+from abstracter.crawler.parse_crawler import *  #download_and_parse_data,download_crawler_data,unify
 
 #download_and_parse fait tout pour une date : télécharger sur le crawler, 
 #stocker localement les données, parser les articles 
@@ -31,6 +31,8 @@ from abstracter.util.systran_parser import parse_systran
 from abstracter.util.json_stream import *
 # from abstracter.parsers.tokenizer import *
 from abstracter.util.anaphora_resolution import *
+from abstracter.util.names_resolution import *
+
 
 #with open("../systran/3",'r') as file:
 #    text = file.read()
@@ -46,11 +48,21 @@ from abstracter.util.anaphora_resolution import *
 
 
 data = parse_systran("../systran/3.clean.wsd.linear")
-#print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
-#print(sentence_to_dict(data))
+# print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
+# print(sentence_to_dict(data))
 
-demo(data)
+#print_entities_matching(data[0:10])
 
+#print(reduce_names(data[0:1]))
+
+#for s in reduce_names(data[0:2]):
+#    for word in s["words"]:
+#        print(word["name"])
+
+reduce_names(data[1:20])
+#demo(data[3:5])
+print_entities_matching(data[1:20])
+#demo(data[2:5])
 #nps = [get_noun_phrases(data[3]["words"]), get_noun_phrases(data[4]["words"])]
 #print(nps)
 #toto = resolve_anaphoras(sents, nps)

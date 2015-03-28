@@ -13,10 +13,10 @@ class Context:
     General context in which we work.
     It contains a workersmanager, a concepts network, a workspace and maybe other objects.
     """
-    
-    
+
+
     def __init__(self,network=None):
-        self.workersManager=WorkersManager(self)
+        self.workersManager = WorkersManager(self)
         if network:
             self.network=network
         else:
@@ -24,9 +24,9 @@ class Context:
             print("Loading default network...")
             self.load_network()
             print("Done loading.")
-        self.workspace=Workspace(self)
+        self.workspace = Workspace(self)
 
-    def load_network(self,name="rc"):
+    def load_network(self, name="rc"):
         self.network.load(name)
 
     def test(self):
@@ -38,36 +38,32 @@ class Context:
         self.run(10)
         print(self.network["babar"]["a"])
 
-    def activate(self,node,activation):
-        self.workersManager.push(ActivateWorker(node,activation))
+    def activate(self, node, activation):
+        self.workersManager.push(ActivateWorker(node, activation))
 
     def print_activated_nodes(self):
-        for n,d in self.network.nodes():
+        for n, d in self.network.nodes():
             if d['a'] > 0:
-                print(n+" : "+d['a'].__str__())
+                print(n + " : " + d['a'].__str__())
 
     def get_activated_nodes(self):
-        for n,d in self.network.nodes():
+        for n, d in self.network.nodes():
             if d['a'] > 0:
-                yield n,d
+                yield n, d
 
     def reset_network(self):
-        for n,d in self.network.nodes():
-            self.network[n]['a']=0
+        for n, d in self.network.nodes():
+            self.network[n]['a'] = 0
 
 
     def run(self,max_time):
-        print("Running for "+max_time.__str__()+" time.")
-        while self.workersManager.time<max_time and not self.workersManager.isEmpty():
+        print("Running for " + max_time.__str__() + " time.")
+        while self.workersManager.time < max_time and not self.workersManager.isEmpty():
             #print(self.workersManager)
             #self.print_activated_nodes()
             self.workersManager.runWorker()
         #print(self.workersManager)
 
-if __name__=="__main__":
-    c=Context()
+if __name__ == "__main__":
+    c = Context()
     c.test()
-
-
-
-

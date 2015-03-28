@@ -56,24 +56,30 @@ NOT_USEFUL_TAGS=["CC","NNP","NNPS","RB","RBR","RBS","JJR","JJS","MD"]
 
 
 _digits = re.compile('\d')
+
+
 def _contains_digits(d):
     return bool(_digits.search(d))
 
-def _links_to(entity_list,name):
+
+def _links_to(entity_list, name):
     """
     Return the whole name of sth or sb, given the list of entities in the text.
-    For example, Wayne in the list ["Wayne Rooney", "Tom"] refers obviously to "Wayne Rooney".
+    For example, Wayne in the list ["Wayne Rooney", "Tom"]
+    refers obviously to "Wayne Rooney".
     We thus avoid taking a Family Name or a First Name for the whole name.
+    @warning This function is local, some similar calculations may
+    be done in other files, in different ways.
 
     @param entity_list List of entities (string).
     @param name A name (string).
     @return A full name (string).
     """
     if entity_list:
-        temp=name
+        temp = name
         for e in entity_list:
             if temp in e:
-                temp=e
+                temp = e
         return temp
     return None
 
@@ -107,27 +113,28 @@ def get_important_words(sents):
     @return Generator of tagged sentences (list of [word,POS])
     """
     for sent in sents:
-        for key,val in sent:
-            if val in USEFUL_TAGS and not _contains_digits(key) and len(key)>1:
-                yield ([key,val])
+        for key, val in sent:
+            if val in USEFUL_TAGS and not _contains_digits(key) and len(key) > 1:
+                yield ([key, val])
 
 
 def retrieve_words_only(sents):
     """
-    We retrieve words in their normal form and count their occurrences in a dictionary.
+    We retrieve words in their normal form and count
+    their occurrences in a dictionary.
     Thus, if a concept is used n times, it is counted n times.
 
     @param sents Generator of tagged sentences (list of [word,POS]).
     @return List of concepts (string).
     """
-    words=norm.normalize(get_important_words(sents))
-    concepts={}
+    words = norm.normalize(get_important_words(sents))
+    concepts = {}
     for word in words:
         if word in concepts:
-            concepts[word]+=1
+            concepts[word] += 1
         else:
-            concepts[word]=1
-    #return the dictionary
+            concepts[word] = 1
+    # return the dictionary
     return concepts
 
 
@@ -141,24 +148,24 @@ def retrieve_names_only(sents):
 
     @todo : améliorer ça...
     """
-    names=list(s.lower() for s in get_names(sents))
-    res={}
+    names = list(s.lower() for s in get_names(sents))
+    res = {}
     for name in names:
-        name2=_links_to(names,name)
-        if not name2 in res:
-            res[name2]=1
+        name2 = _links_to(names, name)
+        if name2 not in res:
+            res[name2] = 1
         else:
-            res[name2]=res[name2]+1
-    return res 
+            res[name2] = res[name2] + 1
+    return res
 
 
 def retrieve_words_names(text):
     """
     Retrieve words and names of a text.
     Returns a tuple of two dicts : words (not -proper noun concepts) and names.
-    
+
     @param text The text to analyze (string).
     @return A tuple of two dicts : [words,names].
     """
-    sents=list(tok.tokenize_and_tag(text))
-    return [retrieve_words_only(sents),retrieve_names_only(sents)]
+    sents = list(tok.tokenize_and_tag(text))
+    return [retrieve_words_only(sents), retrieve_names_only(sents)]
