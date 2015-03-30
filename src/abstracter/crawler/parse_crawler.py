@@ -3,6 +3,7 @@
 Utils for downloading and parsing crawler data.
 """
 from abstracter.parsers.retriever import retrieve_words_names
+from abstracter.parsers.tokenizer import refactor_crawler
 from abstracter.util.json_stream import *
 from abstracter.util.http import make_http_request
 import json
@@ -189,9 +190,36 @@ def download_and_parse_data(date="2015_01_05"):
     unify_day(subdirectory=date)
 
 
-def demo():
-    download_and_parse_data("2014_12_30")
-    unify()
+def _parse_for_systran_directory(data_directory=DEFAULT_DATA_DIRECTORY,
+                                 results_directory="../parsed_for_systran/",
+                                 subdirectory="2014_12_04"):
+    """
+    """
+    if not os.path.isdir(results_directory + subdirectory + "/"):
+        os.makedirs(results_directory + subdirectory + "/")
+    i = 0
+    j = 0
+    while(os.path.exists(data_directory + "%s/%i/%i" % (subdirectory, i, j))):
+        while(os.path.exists(data_directory + "%s/%i/%i" % (subdirectory, i, j))):
+            with open(data_directory + "%s/%i/%i" % (subdirectory, i, j), 'r') as to_parse:
+                temp = refactor_crawler(to_parse.read())
+            if temp:
+                # erase the contents
+                with open(results_directory + "%s/%i_%i" % (subdirectory, i, j), 'w') as file:
+                    pass
+                # write the sentences
+                with open(results_directory + "%s/%i_%i" % (subdirectory, i, j), 'a') as file:
+                    for s in temp:
+                        file.write(s + "\n")
+                    print("successful with : " + data_directory + "%s/%i/%i" % (subdirectory, i, j))
+            j += 1
+        j = 0
+        i += 1
+
+
+def parse_for_systran(date="2015_01_05"):
+    download_crawler_data(date)
+    _parse_for_systran_directory(subdirectory=date)
 
 
 def update():
@@ -208,4 +236,4 @@ def update():
 
 
 if __name__ == "__main__":
-    demo()
+    pass

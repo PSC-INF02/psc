@@ -4,6 +4,7 @@ Tokenizers.
 from nltk import word_tokenize, pos_tag
 
 
+PUNKT2 = ",;/!?:"
 PUNKT = (";.,?!:_()'/’\u2019()[]=")
 ALWAYS_REMOVE = "=\t\""
 BOUNDARIES = ["!", ".", "?", "\n", "'"]
@@ -59,6 +60,8 @@ def refactor_crawler(text):
             temp = []
         car2 = car
     for sent in sents:
+        for p in PUNKT2:
+            sent = sent.replace(p, p + " ")
         while sent and not sent[0].isalpha():
             sent = sent[1:]
         if sent and sent[len(sent) - 1].isalpha():

@@ -46,8 +46,9 @@ from abstracter.util.names_resolution import *
 #with open("../systran/parsed_example.json", 'w') as file:
 #    write_json_stream(parse_systran("../systran/3.clean.wsd.linear"), file)
 
+parse_for_systran("2015_03_29")
 
-data = parse_systran("../systran/3.clean.wsd.linear")
+#data = parse_systran("../systran/3.clean.wsd.linear")
 # print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
 # print(sentence_to_dict(data))
 
@@ -59,9 +60,9 @@ data = parse_systran("../systran/3.clean.wsd.linear")
 #    for word in s["words"]:
 #        print(word["name"])
 
-reduce_names(data[1:20])
+#reduce_names(data[1:20])
 #demo(data[3:5])
-print_entities_matching(data[1:20])
+#print_entities_matching(data[1:20])
 #demo(data[2:5])
 #nps = [get_noun_phrases(data[3]["words"]), get_noun_phrases(data[4]["words"])]
 #print(nps)
