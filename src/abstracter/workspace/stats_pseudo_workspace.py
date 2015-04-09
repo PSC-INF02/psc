@@ -1,4 +1,4 @@
-from abstracter.workspace.workspaceInterface import abstractNetwork
+from abstracter.workspace.interface.workspaceInterface import abstractNetwork
 from collections import Counter
 
 
