@@ -58,8 +58,15 @@ def reduce_names(sentences, cn=None, use_cn=False):
             elif temp:
                 if not use_cn:
                     sentence["words"][w_id - skip2 - skip]["name"] = temp
+                    for w in sentence["words"][w_id - skip - skip2 + 1: w_id - skip2]:
+                        for tag in w["tags"]:
+                            sentence["words"][w_id - skip2 - skip]["tags"][tag] = w["tags"][tag]
+                    # sentence["words"][w_id - skip2 - skip]["name"] = temp
                     # print("deleted : " + (w_id - skip - skip2 + 1).__str__() + " to "+ (w_id - skip2).__str__())
                     del sentence["words"][w_id - skip - skip2 + 1: w_id - skip2]
+#
+#  WARNING : IDS AREN'T CHANGED !!
+#
                 skip2 += skip - 1
                 skip = 0
                 temp = ""
@@ -135,6 +142,21 @@ def match_entities(sentences, cn=None, activate=False):
             if d < 0.5:
                 names_dict[id] = n
     return names_dict
+
+
+def _get_word(ids, idw, sents):
+    for sent in sents:
+        if sent["id"] == ids:
+            for word in sent["words"]:
+                if word["id"] == idw:
+                    return word
+    return None
+
+
+def replace_entities(sentences, cn=None):
+    names_dict = match_entities(sentences, cn)
+    for full_id in names_dict:
+        _get_word(full_id[0], full_id[1], sentences)["name"] = names_dict[full_id]
 
 
 def print_entities_matching(sentences):

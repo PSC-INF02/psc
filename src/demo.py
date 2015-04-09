@@ -46,25 +46,36 @@ from abstracter.util.names_resolution import *
 #with open("../systran/parsed_example.json", 'w') as file:
 #    write_json_stream(parse_systran("../systran/3.clean.wsd.linear"), file)
 
-parse_for_systran("2015_03_29")
+#parse_for_systran("2015_03_29")
 
-#data = parse_systran("../systran/3.clean.wsd.linear")
-# print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
+data = parse_systran("../systran/3.clean.wsd.linear")
+#data = parse_systran("../systran/2015_01_29/0/0.clean.wsd.linear")
+#print_noun_phrases(data["words"], get_noun_phrases(data["words"]))
 # print(sentence_to_dict(data))
 
 #print_entities_matching(data[0:10])
 
-#print(reduce_names(data[0:1]))
+#reduce_names(data[0:1]))
 
 #for s in reduce_names(data[0:2]):
 #    for word in s["words"]:
 #        print(word["name"])
 
-#reduce_names(data[1:20])
+reduce_names(data)
+#replace_entities(data)
 #demo(data[3:5])
 #print_entities_matching(data[1:20])
+
+#print(len(data))
+#print_noun_phrases(data)
+#nps = get_all_noun_phrases(data)
+#print(nps)
+demo(data)
+#print_all_noun_phrases(data[0:20])
+
+#resolve_anaphoras(data[1:20])
 #demo(data[2:5])
-#nps = [get_noun_phrases(data[3]["words"]), get_noun_phrases(data[4]["words"])]
+# nps = [get_noun_phrases(data[3]["words"]), get_noun_phrases(data[4]["words"])]
 #print(nps)
 #toto = resolve_anaphoras(sents, nps)
 
