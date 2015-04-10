@@ -6,37 +6,71 @@ may also add some information to it.
 
 from abstracter.concepts_network import *
 from abstracter.util.distance import levenshtein
+from abstracter.util.anaphora_resolution import get_word
 
+####################################
+# Default loading of the concepts network.
+###################################
 
 DEFAULT_CN = "rc"
+
+
+#####################################
+# Types of the words implied in reducing names.
+# we don't take acronyms.
+#####################################
+
 NAMES_TYPES = ["noun:propernoun"]
-# don't take acronyms for refactoring
 
 
-def _refactor(names_dict):
-    for name in names_dict:
-        names_dict[name] = names_dict[name].lower().replace('_+_', '_').replace(' ', '_')
+##################################
+# Concepts which indicate that
+# some entity is a human being.
+##################################
+
+HUMAN = ["person"]
+
+
+def is_human(word, cn):
+    """
+    Determine if an entity is a human being.
+
+    This adds new information from the ConceptNetwork, into
+    the systran data.
+    """
+    for h in HUMAN:
+        if cn.has_edge(word, h):
+            # print(word + " is human " + h)
+            return True
+    return False
 
 
 def refactor_word(word):
+    """
+    Transforms a systran-like name (with multiple words),
+    Ex : Sepp_+_Blatter, into a ConceptNetwork-like name,
+    Ex : sepp_blatter.
+    """
     return word.lower().replace('_+_', '_').replace(' ', '_')
 
 
-def reduce_names(sentences, cn=None, use_cn=False):
+def reduce_names(sentences, concepts_network=None):
     """
-    In order to recognize composed names, using the concepts network.
-    We can recognize proper nouns in systran's data.
-    This is an on-the-fly reduction ; we modify the data.
-    """
-    concepts_network = None
-    if cn and use_cn:
-        concepts_network = cn
-    elif use_cn:
-        concepts_network = ConceptNetwork()
-        print("Loading...")
-        concepts_network.load(DEFAULT_CN)
-        print("Loading complete !")
+    Recognize composed names, using the concepts network.
 
+    We transform a succession of proper nouns into one single word.
+    Words id are not changed in the process. Therefore, all functions
+    using words ids should handle the case of a reference to an
+    unexisting word.
+
+    @param sentences Sentences parsed from Systran data.
+    @param concepts_network ConceptNetwork object (optional). If it exists,
+    we will check whether composed names are in the ConceptNetwork or not.
+    If it is None, we will just consider that any succession of words
+    (tagged as propernoun) has to be reduced into one single name.
+    @warning The reduction is done on the data itself
+    (words are destroyed in the process).
+    """
     for sentence in sentences:
         temp = ""
         words = sentence["words"].copy()
@@ -50,13 +84,13 @@ def reduce_names(sentences, cn=None, use_cn=False):
                     temp = temp + "_+_" + w["name"]
                 else:
                     temp = w["name"]
-                if use_cn:
+                if concepts_network:
                     if concepts_network.has_node(refactor_word(temp + "_+_" + w["name"])):
                         sentence["words"][w_id]["name"] = temp + "_+_" + w["name"]
                         del sentence["words"][w_id + 1: w_id + 1 + skip]
                     # sentence["words"] = sentence["words"][0:w_id] + sentence["words"][w_id + skip:len(sentence["words"])]
             elif temp:
-                if not use_cn:
+                if not concepts_network:
                     sentence["words"][w_id - skip2 - skip]["name"] = temp
                     for w in sentence["words"][w_id - skip - skip2 + 1: w_id - skip2]:
                         for tag in w["tags"]:
@@ -70,46 +104,42 @@ def reduce_names(sentences, cn=None, use_cn=False):
                 skip2 += skip - 1
                 skip = 0
                 temp = ""
-        offset = sentence["words"][0]["id"]
-        for w_id in range(len(sentence["words"])):
-            sentence["words"][w_id]["id"] = w_id + offset
+        #offset = sentence["words"][0]["id"]
+        #for w_id in range(len(sentence["words"])):
+        #    sentence["words"][w_id]["id"] = w_id + offset
 #    return sentences
 
 
-def match_entities(sentences, cn=None, activate=False):
+def match_entities(sentences, concepts_network=None, activate=False):
     """
-    Names or subjects that appear in a sentence are linked together and
+    @brief Get the entire name of any entity in the text.
+
+    Entities that appear in a sentence are linked together and
     to entities in the conceptsNetwork.
 
-    @param cn conceptsNetwork
+    @param concepts_network conceptsNetwork. It should not be None, in order
+    to run a search among nodes.
+    @param activate If set to True, we will run a deeper check by activating
+    nodes (not useful, deprecated).
+
     @param sentence A sentence, parsed with the systran parser.
     > {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
     Where each word has the form :
     > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
     @return A dict of id : entity in the ConceptNetwork (or name
-    itself if this entity doesn't exist). Id is a double id, that is,
+    itself if this entity doesn't exist). Id refers to the entity.
+    It is a double id, that is,
     sentence id and word id in the sentence.
     """
-    concepts_network = None
-    if cn:
-        concepts_network = cn
-    else:
-        concepts_network = ConceptNetwork()
-        print("Loading...")
-        concepts_network.load(DEFAULT_CN)
-        print("Loading complete !")
-
+    # create the dictionary and initialize each entitie's normal form
     names_dict = {}
     for sentence in sentences:
         for w in sentence["words"]:
             if w["type"] in NAMES_TYPES:
-                names_dict[(sentence["id"], w["id"])] = w["name"]
+                names_dict[(sentence["id"], w["id"])] = refactor_word(w["name"])
 
-    # first : refactor the names in names_dict (replace spaces with underscores...)
-    _refactor(names_dict)
-
-    # match in the cn
+    # match in the concepts_network (search for existing nodes)
     matched = list()
     to_match = sorted(list(names_dict.keys()))
     for id in names_dict:
@@ -118,25 +148,27 @@ def match_entities(sentences, cn=None, activate=False):
             matched.append(id)
     matched.sort()
     to_match.sort()
-    
+
     # match names together
+    # Any name that is contained in another
+    # (for example, blatter is in sepp_blatter)
+    # is considered as a reference to this one.
     to_match2 = to_match.copy()
     matched2 = matched.copy()
     for i in to_match2:
         for j in matched2:
-            if names_dict[i] in names_dict[j] and j < i:# and j < i
+            if names_dict[i] in names_dict[j] and j < i:
                 names_dict[i] = names_dict[j]
                 if i not in matched:
                     matched.append(i)
                     to_match.remove(i)
     matched.sort()
     to_match.sort()
-    # print([names_dict[i] for i in to_match])
-    # print([names_dict[i] for i in matched])
 
-    # activate and search for complementary names... (does'nt work yet)
+    # activate and search for complementary names... (does'nt work properly)
+    # deprecated, uses a context...
     if activate:
-        possible_matches=list(_activate_entities(context,sorted(list(set([names_dict[i] for i in matched])))))
+        possible_matches = list(_activate_entities(context, sorted(list(set([names_dict[i] for i in matched])))))
         for id in to_match:
             n, d = _minimize_distance(names_dict[id], possible_matches)
             if d < 0.5:
@@ -144,11 +176,11 @@ def match_entities(sentences, cn=None, activate=False):
     return names_dict
 
 
-def _get_word(ids, idw, sents):
+def _get_word(id, sents):
     for sent in sents:
-        if sent["id"] == ids:
+        if sent["id"] == id[0]:
             for word in sent["words"]:
-                if word["id"] == idw:
+                if word["id"] == id[1]:
                     return word
     return None
 
@@ -156,7 +188,27 @@ def _get_word(ids, idw, sents):
 def replace_entities(sentences, cn=None):
     names_dict = match_entities(sentences, cn)
     for full_id in names_dict:
-        _get_word(full_id[0], full_id[1], sentences)["name"] = names_dict[full_id]
+        get_word(full_id, sentences)["name"] = names_dict[full_id]
+
+
+def match_and_replace(sentences, cn=None):
+    if cn:
+        concepts_network = cn
+    else:
+        concepts_network = ConceptNetwork()
+        print("Loading...")
+        concepts_network.load(DEFAULT_CN)
+        print("Loading complete !")
+    reduce_names(sentences)
+    entities_dict = match_entities(sentences, concepts_network)
+    for full_id in entities_dict:
+        w = get_word(full_id, sentences)
+        w["name"] = entities_dict[full_id]
+        if is_human(entities_dict[full_id], concepts_network):
+            get_word(full_id, sentences)["tags"]["HUMAN"] = "1"
+
+
+
 
 
 def print_entities_matching(sentences):

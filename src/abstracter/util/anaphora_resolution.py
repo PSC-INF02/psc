@@ -13,7 +13,7 @@ PRONOUN_TAGS = ["pron"]
 # however, this is not always the case -> have to run some tests
 ##############################
 
-MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB"]
+MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]# added dirobj_of
 
 #####################################
 # When we get a master noun, we want to
@@ -48,18 +48,20 @@ PREV_SENTS = 2
 
 
 def get_word(id, sents):
+    """
+    Utilitary : getting a word in a list of sentences.
+
+    @param sents List of sentences given by the systran parser.
+    @param id Two-tuple : id[0] is the sentence id,
+    id[1] is the word id in the sentence
+    @return A word (dictionary of attributes).
+    """
     for sent in sents:
         if sent["id"] == id[0]:
             for word in sent["words"]:
                 if word["id"] == id[1]:
                     return word
     return None
-
-
-def _get_word2(idw, words):
-    for word in words:
-        if word["id"] == idw:
-            return word
 
 
 def _get_tag(word, tag):
@@ -76,10 +78,10 @@ def is_indefinite(sentences, id_list):
     if it contains a definite article or
     a possessive or demonstrative pronoun.
     """
-    res = False
     for id in id_list:
-        res = res or get_word(id, sentences)["norm"] in INDEFINITE
-    return res
+        if get_word(id, sentences)["norm"] in INDEFINITE:
+            return True
+    return False
 
 
 def is_propernoun(id, sentences):
@@ -87,28 +89,50 @@ def is_propernoun(id, sentences):
 
 
 def _has_tag_in(word, tag_list):
-    res = False
     for tag in tag_list:
-        res = res or _get_tag(word, tag)
-    return res
+        if _get_tag(word, tag):
+            return True
+    return False
+
+
+def get_tag(sents, full_id, tag):
+    tmp = get_word(full_id, sents)
+    return tmp["tags"][tag] if tag in tmp["tags"] else None
 
 
 def get_noun_phrases(sentences):
     """
-    This function get noun phrases from a sentence,
-    (parsed from crego_to_json).
-    The noun phrases are given as a dict.
+    @brief This function get noun phrases from sentences.
+
+    For each sentence, the noun phrases are given as a dict.
     Each one is determined by one element : the master noun.
 
-    @param words A list of words given by the systran parser :
-    each word is a dict like :
-    >> {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
-    @return A dict like :
-    >> {0,0: [], 0,8: [(0,6), (0,7)]}
-    Indicating that there are two noun phrases ;
-    one with the master noun of id 0,0 (first word), which is alone,
-    and a second with the master noun of id 0,8 (eigth word), which contains
-    also id 0,6 and 0,7.
+    The noun phrases are computed with the following algorithm :
+    first, we get all possible master nouns, by recognizing some tags
+    (objects or subjects of verbs, direct objects are good candidates).
+    Then, we expand each noun phrase by adding words that are
+    related to the master noun (adjectives, articles...).
+
+    @param sentences A list of sentences given by the systran parser
+    (function parse_systran).
+    Each sentence is a dict like :
+    > {"id": ..., "Text": ..., "Words": [...]}
+    In the words list, each word is a dict like :
+    > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
+
+    @see abstracter.util.systran_parser.py
+    @return A list of dicts. Each one corresponds to a sentence and
+    has the following form :
+    > {(0, 0): [], (0, 8): [(0, 6), (0, 7)]}
+    Each id is a two-tuple, corresponding to a word (sentence id and word id in the sentence).
+    Thus, the information of the tuple's first element is redundant
+    with the position of the dict in the resulting list. This is more practical.
+
+    For this example, we indicate that there are two noun phrases in
+    the sentence 0 : one with the master noun of id (0, 0)
+    (first word of this sentence), which is alone,
+    and a second with the master noun of id (0, 8) (eigth word), which contains
+    also id (0, 6) and (0, 7).
     """
     res_list = []
     # treat each sentence separately
@@ -117,12 +141,17 @@ def get_noun_phrases(sentences):
         sent_id = sent["id"]
         for word in sent["words"]:
             term_id = (sent_id, word["id"])
-            if word and word["type"] in NOUN_PHRASES_TYPES and _has_tag_in(word, MASTER_NOUN_TAGS):
+            if (word
+               and word["type"] in NOUN_PHRASES_TYPES
+               and _has_tag_in(word, MASTER_NOUN_TAGS)):
                 res[term_id] = []
                 # add related words
                 for tag in TO_ADD:
                     temp = (sent_id, _get_tag(word, tag))
-                    if temp and temp != term_id and temp not in res[term_id] and get_word(temp, sentences) and get_word(temp, sentences)["type"] in NOUN_PHRASES_TYPES:
+                    if (temp and temp != term_id
+                       and temp not in res[term_id]
+                       and get_word(temp, sentences)
+                       and get_word(temp, sentences)["type"] in NOUN_PHRASES_TYPES):
                         res[term_id].append(temp)
 
         # ckeck all words in the phrase, in case we have forgotten one
@@ -141,6 +170,12 @@ def get_noun_phrases(sentences):
 
 
 def refactor_nps(noun_phrases):
+    """
+    Small util to transform the noun_phrases list
+    into a single dict.
+
+    @see get_noun_phrases
+    """
     res_dict = {}
     for d in noun_phrases:
         for k in d:
@@ -151,17 +186,13 @@ def refactor_nps(noun_phrases):
 def print_noun_phrases(sentences):
     """
     Utilitary to check if we've obtained the proper noun phrases.
+
+    @see get_noun_phrases
     """
     noun_phrases = get_noun_phrases(sentences)
     for nps in noun_phrases:
         for p in sorted(nps):
             print(' '.join([get_word(id, sentences)["name"] for id in (nps[p] + [p])]))
-
-
-
-def get_tag(sents, full_id, tag):
-    tmp = get_word(full_id, sents)
-    return tmp["tags"][tag] if tag in tmp["tags"] else None
 
 
 def resolve_anaphoras(sents, nps):
@@ -174,19 +205,22 @@ def resolve_anaphoras(sents, nps):
 
     @see abstracter.util.parse_systran
     @param sents Sentences list. The last is the principal sentence
-    (the one studied).
+    (the one studied). All noun phrases in these sentences are
+    possible candidates.
     Each sentence is a dict, resulting from parse_systran, of the form :
-    >> {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
+    > {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
     Where each word has the form :
-    >> {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
+    > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
     @return A dict of relations between the pronouns of the studied sentence,
     and noun phrases, identified with their master noun.
     Like :
-    >> {29: (1, 28), 30: (0, 15)}
-    Which means the pronoun of id 29 in the last sentence can be linked with
-    the noun phrase identified by 28 in the sentence of id 1.
-    And the pronoun of id 155 in the last sentence can be linked with
+    > {(1, 29): (1, 28), (1, 30): (0, 15)}
+    Which means the pronoun of id 29 in the last sentence (sentence 1)
+    can be linked with
+    the noun phrase identified by 28 in the sentence of id 1
+    (thus the same sentence).
+    And the pronoun of id 30 in the last sentence can be linked with
     the noun phrase identified by 15 in the sentence of id 0.
     """
     assert len(sents) == len(nps)
@@ -218,7 +252,7 @@ def resolve_anaphoras(sents, nps):
             # proximity between noun phrase and pronoun
             # + the noun phrase has to appear before the pronoun
             #if (term_id > full_id[1] or full_id[0] < sent_id):
-            if (term_id > full_id):
+            if (term_id[1] > full_id[1] or full_id[0] < term_id[0]):
                 res[term_id][full_id] = full_id[1] - \
                     term_id[1] - (term_id[0] - full_id[0]) * 7
             else:
@@ -230,9 +264,12 @@ def resolve_anaphoras(sents, nps):
                    and not get_tag(sents, term_id, tag) == temp):
                     res[term_id][full_id] -= 4
             temp = get_tag(sents, full_id, "HUMAN")
-            if (get_tag(sents, term_id, "HUMAN") and get_tag(sents, full_id, "HUMAN")
-               and get_tag(sents, term_id, "HUMAN") == temp):
-                res[term_id][full_id] += 10
+            temp2 = get_tag(sents, term_id, "HUMAN")
+            # print(get_word(full_id, sents)["name"] + "  " + temp.__str__())
+            if (temp and temp2
+               and temp2 == temp):
+                # print(get_word(full_id, sents)["name"] + "  " + get_word(term_id, sents)["name"])
+                res[term_id][full_id] += 100
 
         # check antecedent data (given by systran)
         #for tag in ANTECEDENT_TAGS:
@@ -280,7 +317,7 @@ def resolve_anaphoras(sents, nps):
                 res[term_id][full_id] -= 4
         if is_propernoun(full_id, sents):
             for term_id in res:
-                res[term_id][full_id] += 8
+                res[term_id][full_id] += 100
 
     # 5 : collocation pattenrn
 
@@ -306,8 +343,9 @@ def resolve_all_anaphoras(sents, nps):
     """
     Resolve all anaphoras in a text after computing the noun phrases.
 
-    @param nps Noun phrases (list), already computed.
-    @param sents The sentences.
+    @param nps Noun phrases (list of dicts), already computed.
+    @see get_noun_phrases
+    @param sents The sentences (directly parsed from systran).
     """
     assert len(sents) > 0
     assert len(nps) == len(sents)
@@ -318,6 +356,9 @@ def resolve_all_anaphoras(sents, nps):
 
 
 def print_all_resolution(sents, refactored):
+    """
+    Check the solution obtained.
+    """
     assert len(sents) == len(refactored)
     sent_id = sents[0]["id"]
     for sent in sents:

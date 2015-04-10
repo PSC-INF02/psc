@@ -61,7 +61,8 @@ data = parse_systran("../systran/3.clean.wsd.linear")
 #    for word in s["words"]:
 #        print(word["name"])
 
-reduce_names(data)
+#reduce_names(data)
+match_and_replace(data)
 #replace_entities(data)
 #demo(data[3:5])
 #print_entities_matching(data[1:20])
