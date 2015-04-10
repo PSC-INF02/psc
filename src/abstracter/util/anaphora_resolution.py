@@ -5,22 +5,24 @@ Resolve anaphors.
 
 NOUN_PHRASES_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
                       "det", "adj", "numeric"]
+PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
 PRONOUN_TAGS = ["pron"]
 
 ###################################
 # heuristically, only words tagged as objects or agents of verbs
 # make good noun phrases
-# however, this is not always the case -> have to run some tests
+# however, this is not always the case. After running some tests,
+# we discovered we had to use also direct objects.
 ##############################
 
-MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]# added dirobj_of
+MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
 
 #####################################
-# When we get a master noun, we want to
+# When we get a head noun, we want to
 # construct the whole noun phrase :
-# with TO_ADD, add directly words with the master noun's tags
+# with TO_ADD, add directly words with the head noun's tags
 # with TO_BE_ADDED, add words from the phrase that
-# are linked with the master noun
+# are linked with the head noun
 ###################################
 
 TO_ADD = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ"]# "MODIFIED_ON_RIGHT", ??
@@ -34,7 +36,6 @@ TO_BE_ADDED = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
 INDEFINITE = ["a"]
 
 
-DISCRIMINATIVE_TAGS = ["PL", "SG"]
 ANTECEDENT_TAGS = ["ANTECEDENT"]
 
 
@@ -65,6 +66,13 @@ def get_word(id, sents):
 
 
 def _get_tag(word, tag):
+    """
+    Getting tag information.
+
+    @return The result may be "0", "1" or an integer
+    (if the tag is a link to another word), or None
+    if the tag doesn't appear.
+    """
     return word["tags"][tag] if tag in word["tags"] else None
 
 
@@ -85,7 +93,7 @@ def is_indefinite(sentences, id_list):
 
 
 def is_propernoun(id, sentences):
-    return (get_word(id, sentences)["type"]) in ["noun:propernoun", "noun:acronym"]
+    return (get_word(id, sentences)["type"]) in PROPERNOUNS
 
 
 def _has_tag_in(word, tag_list):
@@ -105,13 +113,13 @@ def get_noun_phrases(sentences):
     @brief This function get noun phrases from sentences.
 
     For each sentence, the noun phrases are given as a dict.
-    Each one is determined by one element : the master noun.
+    Each one is determined by one element : the head noun.
 
     The noun phrases are computed with the following algorithm :
-    first, we get all possible master nouns, by recognizing some tags
+    first, we get all possible head nouns, by recognizing some tags
     (objects or subjects of verbs, direct objects are good candidates).
     Then, we expand each noun phrase by adding words that are
-    related to the master noun (adjectives, articles...).
+    related to the head noun (adjectives, articles...).
 
     @param sentences A list of sentences given by the systran parser
     (function parse_systran).
@@ -124,14 +132,16 @@ def get_noun_phrases(sentences):
     @return A list of dicts. Each one corresponds to a sentence and
     has the following form :
     > {(0, 0): [], (0, 8): [(0, 6), (0, 7)]}
-    Each id is a two-tuple, corresponding to a word (sentence id and word id in the sentence).
+    Each id is a two-tuple, corresponding to a word
+    (sentence id and word id in the sentence).
     Thus, the information of the tuple's first element is redundant
-    with the position of the dict in the resulting list. This is more practical.
+    with the position of the dict in the resulting list.
+    This is more practical.
 
     For this example, we indicate that there are two noun phrases in
-    the sentence 0 : one with the master noun of id (0, 0)
+    the sentence 0 : one with the head noun of id (0, 0)
     (first word of this sentence), which is alone,
-    and a second with the master noun of id (0, 8) (eigth word), which contains
+    and a second with the head noun of id (0, 8) (eigth word), which contains
     also id (0, 6) and (0, 7).
     """
     res_list = []
@@ -187,6 +197,8 @@ def print_noun_phrases(sentences):
     """
     Utilitary to check if we've obtained the proper noun phrases.
 
+    This allows the user to run some tests.
+
     @see get_noun_phrases
     """
     noun_phrases = get_noun_phrases(sentences)
@@ -204,6 +216,7 @@ def resolve_anaphoras(sents, nps):
     then ranks, for each pronoun, the candidates.
 
     @see abstracter.util.parse_systran
+
     @param sents Sentences list. The last is the principal sentence
     (the one studied). All noun phrases in these sentences are
     possible candidates.
@@ -212,8 +225,10 @@ def resolve_anaphoras(sents, nps):
     Where each word has the form :
     > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
+    @param nps Not refactored noun phrases, that is, a list of dictionaries.
+
     @return A dict of relations between the pronouns of the studied sentence,
-    and noun phrases, identified with their master noun.
+    and noun phrases, identified with their head noun.
     Like :
     > {(1, 29): (1, 28), (1, 30): (0, 15)}
     Which means the pronoun of id 29 in the last sentence (sentence 1)
@@ -231,13 +246,17 @@ def resolve_anaphoras(sents, nps):
     # id of the first sentence
     res = {}
 
-    np_keys = []
+    # list of all nps ids
+    all_nps = []
     for d in nps:
-        np_keys += d.keys()
-    # ids in np_keys : sentence id and word id in the sentence
-    # each noun phrase is represented by its master noun
+        all_nps += d.keys()
+
+    # ids in all_nps are two-tuples : sentence id and word id in the sentence
+    # each noun phrase is represented by its head noun
     words = sents[len(sents) - 1]["words"]
-    sent_id = sents[len(sents) - 1]["id"]# the id of the studied sentence
+    # the words of the studied sentence
+    sent_id = sents[len(sents) - 1]["id"]
+    # the id of the studied sentence
 
     # first, recognize pronouns
     for word in words:
@@ -246,78 +265,87 @@ def resolve_anaphoras(sents, nps):
 
     # then, run some checks
     # for each pronoun
-    for term_id in res:
+    for pron_id in res:
         # for each noun phrase
-        for full_id in np_keys:
+        for np_id in all_nps:
             # proximity between noun phrase and pronoun
             # + the noun phrase has to appear before the pronoun
-            #if (term_id > full_id[1] or full_id[0] < sent_id):
-            if (term_id[1] > full_id[1] or full_id[0] < term_id[0]):
-                res[term_id][full_id] = full_id[1] - \
-                    term_id[1] - (term_id[0] - full_id[0]) * 7
+            if (pron_id < np_id):
+                res[pron_id][np_id] = -100
             else:
-                res[term_id][full_id] = -100
+                res[pron_id][np_id] = (np_id[0] - pron_id[0]) * 8
+                res[pron_id][np_id] -= (pron_id[1] - np_id[1])
 
+            # plural or singular
             for tag in ["PL", "SG"]:
-                temp = get_tag(sents, full_id, tag)
-                if (get_tag(sents, term_id, tag) and temp
-                   and not get_tag(sents, term_id, tag) == temp):
-                    res[term_id][full_id] -= 4
-            temp = get_tag(sents, full_id, "HUMAN")
-            temp2 = get_tag(sents, term_id, "HUMAN")
-            # print(get_word(full_id, sents)["name"] + "  " + temp.__str__())
-            if (temp and temp2
-               and temp2 == temp):
-                # print(get_word(full_id, sents)["name"] + "  " + get_word(term_id, sents)["name"])
-                res[term_id][full_id] += 100
+                temp = get_tag(sents, np_id, tag)
+                temp2 = get_tag(sents, pron_id, tag)
+                if (temp2 and temp and temp2 == temp):
+                    res[pron_id][np_id] += 10
+                if (temp2 and temp and not temp2 == temp):
+                    res[pron_id][np_id] -= 20
+
+            # human or not human
+            temp = get_tag(sents, np_id, "HUMAN")
+            temp2 = get_tag(sents, pron_id, "HUMAN")
+            # print(get_word(np_id, sents)["name"] + "  " + temp.__str__())
+            if (temp and temp2 and temp2 == temp):
+                # print(get_word(np_id, sents)["name"] + "  " + get_word(pron_id, sents)["name"])
+                res[pron_id][np_id] += 10
+            if (temp and temp2 and not temp2 == temp):
+                res[pron_id][np_id] -= 30
 
         # check antecedent data (given by systran)
         #for tag in ANTECEDENT_TAGS:
-        #    if get_tag(sents, (sent_id, term_id), tag) and (sent_id, get_tag(sents, (sent_id, term_id), tag)) in res[term_id]:
-        #        res[term_id][(sent_id - len(sents) + 1, _get_tag(words[term_id], tag))] = 1
+        #    if get_tag(sents, (sent_id, pron_id), tag) and (sent_id, get_tag(sents, (sent_id, pron_id), tag)) in res[pron_id]:
+        #        res[pron_id][(sent_id - len(sents) + 1, _get_tag(words[pron_id], tag))] = 1
     # other checkings
     # 1 : noun phrases that appear at the beginning of a sentence
     # get a better score
     for i in range(len(nps)):
         temp = list(nps[i].keys())
         temp.sort()
-        for term_id in res:
+        for pron_id in res:
             if temp:
-                res[term_id][temp[0]] += 5
+                res[pron_id][temp[0]] += 5
 
     # 3 : lexical reiteration (with previous sentences also)
     # we check the head nouns
     # each repeted head noun gains 1
-    # we could include here synonymy data
-    #for id in np_keys:
-    #    temp = 0
-    #    for id2 in np_keys:
-    #        if sents[id2[0] - offset]["words"][id2[1]]["norm"] == sents[id[0] - offset]["words"][id[1]]["norm"]:
-    #            temp += 1
-    #    if temp > 1:
-    #        for term_id in res:
-    #            res[term_id][id] += 1
+    for np_id in all_nps:
+        temp = 0
+        for np_id2 in all_nps:
+            if get_word(np_id, sents)["norm"] == get_word(np_id2, sents)["norm"]:
+                temp += 1
+        if temp > 1:
+            for pron_id in res:
+                res[pron_id][np_id] += 5
 
     # 4 : prepositional or non prepositional NP : "into the VCR"
     # + ranking : subject, direct object, indirect object
     # definite noun phrases also
-    for full_id in np_keys:
+    for np_id in all_nps:
         # prepositional Noun phrases
-        if get_tag(sents, full_id, "MODIFIED_BY_PREP1") is not None:
-            for term_id in res:
-                res[term_id][full_id] -= 2
-        if get_tag(sents, full_id, "AGENT_OF_VERB") is not None:
-            for term_id in res:
-                res[term_id][full_id] += 2
-        if get_tag(sents, full_id, "OBJECT_OF_VERB") is not None:
-            for term_id in res:
-                res[term_id][full_id] -= 2
-        if is_indefinite(sents, nps[full_id[0] - offset][full_id]):
-            for term_id in res:
-                res[term_id][full_id] -= 4
-        if is_propernoun(full_id, sents):
-            for term_id in res:
-                res[term_id][full_id] += 100
+        if get_tag(sents, np_id, "MODIFIED_BY_PREP1") is not None:
+            for pron_id in res:
+                res[pron_id][np_id] -= 2
+        if get_tag(sents, np_id, "AGENT_OF_VERB") is not None:
+            for pron_id in res:
+                res[pron_id][np_id] += 10
+        if get_tag(sents, np_id, "OBJECT_OF_VERB") is not None:
+            for pron_id in res:
+                res[pron_id][np_id] -= 2
+        if get_tag(sents, np_id, "DIROBJ_OF") is not None:
+            for pron_id in res:
+                res[pron_id][np_id] -= 10
+        # indefinite (indefinite article)
+        if is_indefinite(sents, nps[np_id[0] - offset][np_id]):
+            for pron_id in res:
+                res[pron_id][np_id] -= 10
+        # propernoun
+        if is_propernoun(np_id, sents):
+            for pron_id in res:
+                res[pron_id][np_id] += 10
 
     # 5 : collocation pattenrn
 
@@ -327,14 +355,14 @@ def resolve_anaphoras(sents, nps):
 
     # get the better
     result = {}
-    for term_id in res:
+    for pron_id in res:
         temp = -1000
         best = 0
-        for double_id in res[term_id]:
-            if res[term_id][double_id] > temp:
-                temp = res[term_id][double_id]
+        for double_id in res[pron_id]:
+            if res[pron_id][double_id] > temp:
+                temp = res[pron_id][double_id]
                 best = double_id
-        result[term_id] = best
+        result[pron_id] = best
     # print(result)
     return result
 
@@ -343,7 +371,7 @@ def resolve_all_anaphoras(sents, nps):
     """
     Resolve all anaphoras in a text after computing the noun phrases.
 
-    @param nps Noun phrases (list of dicts), already computed.
+    @param nps Noun phrases (list of dicts), already computed (double ids).
     @see get_noun_phrases
     @param sents The sentences (directly parsed from systran).
     """
@@ -358,6 +386,10 @@ def resolve_all_anaphoras(sents, nps):
 def print_all_resolution(sents, refactored):
     """
     Check the solution obtained.
+
+    This allows the user to run some tests.
+    @param refactored Refactored results of resolve_all_anaphoras
+    @see refactor_results
     """
     assert len(sents) == len(refactored)
     sent_id = sents[0]["id"]
@@ -374,16 +406,18 @@ def print_all_resolution(sents, refactored):
 
 def refactor_results(nps, resolve_results):
     """
-    As resolve results are indexed by the master noun,
+    As resolve results are indexed by the head noun,
     this function refactor them in order to print
     them without any nps information.
 
-    @param nps Noun phrases {0: [], 8: [6, 7]}
-    @param resolve_results {29: (1, 28), 30: (0, 15)}
+    @param nps Noun phrases (double ids), as a list of dicts.
+    @see get_noun_phrases
+    @param resolve_results Result of resolve_all_anaphoras.
+    List of dicts also.
 
     @return A list of dicts like :
-    > {1: [(0, 1), (0, 2)]}
-    Where is the pronoun id in the sentence, and
+    > {(1, 1): [(0, 1), (0, 2)]}
+    Where (1, 1) is the pronoun id in the sentences, and
     (0, 1), (0, 2) ids of words forming a noun phrase.
     """
     assert len(nps) == len(resolve_results)
@@ -394,7 +428,7 @@ def refactor_results(nps, resolve_results):
         for id in resolve_results[i]:
             tmp = resolve_results[i][id]
             tmp2 = nps2[tmp]
-            temp[id] = sorted(tmp2 + [tmp]) # [(tmp[0], j) for j in sorted(tmp2 + [tmp[1]])]
+            temp[id] = sorted(tmp2 + [tmp])
         result.append(temp)
     return result
 

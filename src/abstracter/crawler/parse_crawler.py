@@ -218,7 +218,7 @@ def _parse_for_systran_directory(data_directory=DEFAULT_DATA_DIRECTORY,
 
 
 def parse_for_systran(date="2015_01_05"):
-    download_crawler_data(date)
+    # download_crawler_data(date)
     _parse_for_systran_directory(subdirectory=date)
 
 

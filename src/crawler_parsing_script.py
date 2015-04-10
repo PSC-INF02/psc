@@ -9,7 +9,7 @@ from abstracter.crawler.parse_crawler import update, parse_for_systran, download
 # example 1
 ############
 
-# parse_for_systran("2015_03_29")
+parse_for_systran("2015_03_29")
 
 ##################
 # example 2
@@ -21,4 +21,4 @@ from abstracter.crawler.parse_crawler import update, parse_for_systran, download
 # example 3
 #########################
 
-update()
+# update()

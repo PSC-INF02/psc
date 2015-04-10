@@ -18,10 +18,15 @@ def tokenize(text):
     return custom_word_tokenize(_refactor(text))
 
 
+ALWAYS_REPLACE = {"Mc.": "Mc", "M.": "M", "Mr.": "Mr", "Mrs.": "Mrs"}
+
+
 def _refactor(text):
     res = text
     for c in ALWAYS_REMOVE:
         res = res.replace(c, " ")
+    for w in ALWAYS_REPLACE:
+        res = res.replace(w, ALWAYS_REPLACE[w])
     return res
 
 
@@ -47,8 +52,10 @@ def refactor_crawler(text):
     car2 = ' '
     for car in _refactor(text):
         if (car.isupper() and car2.islower()):
-            sents.append(''.join(temp))
-            temp = []
+            l = (''.join(temp)).split(' ')
+            if l[len(l) - 1] not in ["Mc", "M", "Mr", "Ms", "Mrs"]:
+                sents.append(''.join(temp))
+                temp = []
             temp.append(car)
         elif (car == ' ' and car2 == ' '):
             sents.append(''.join(temp))
