@@ -1,6 +1,6 @@
 
 
-class entity:
+class Entity:
 	'''
 	Represents an entity in the text, as in an actual being in the real world that we've seen in the text.
 	it contains :
@@ -13,7 +13,7 @@ class entity:
 		'''
 		Initianalises an entity. All arguments but the name are optional.
 		@param name the name of the entity
-		@param attributes a list of the attribute ids applying to the entity
+		@param attributes a list of the attribute applying to the entity
 		@param references a list of places where that entity is referred to in the text
 		@returns an entity ready to be pushed in the workspace !
 		'''
@@ -24,13 +24,13 @@ class entity:
 		else:
 			self.attributes = []
 		if references:
-			self.references = references;
+			self.references = references
 		else:
 			self.references = []
 
-	def add_attribute(self, attributeID):
+	def add_attribute(self, attribute):
 		'''
-		Adds the id of an attribute object to the attributes list
+		Adds An attribute object to the attributes list
 		@param attributeID the ID of the attribute to add
 		'''
 
@@ -43,3 +43,18 @@ class entity:
 		'''
 
 		self.references.append(reference)
+
+	def get_attributes(self):
+		'''
+		@returns attributes of the entity as a list
+		'''
+
+		return self.attributes
+
+	def remove_attribute(self, attribute):
+		'''
+		Removes an attribute from the entity.
+		@param attribute Attribute to remove.
+		'''
+
+		self.attributes.remove(attribute)
