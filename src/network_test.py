@@ -3,7 +3,7 @@ from abstracter.concepts_network import *
 from abstracter.parsers import retriever as ret
 
 n=ConceptNetwork()
-n.load_from_JSON_stream(nodes_files=["rc/rc_nodes.jsons"],edges_files=["rc/rc_edges.jsons"])
+n.load_from_JSON_stream(nodes_files=["rc2/rc2_nodes.jsons"],edges_files=["rc2/rc2_edges.jsons"])
 c=Context(n)
 
 ######

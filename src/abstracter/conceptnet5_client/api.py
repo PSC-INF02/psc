@@ -14,9 +14,9 @@ for finding concepts similar to a particular concept or a list of concepts.
 """
 
 import urllib.parse
-from abstracter.conceptnet5_client.api.result import parse_relevant_edges, parse_similar_concepts
+from abstracter.conceptnet5_client.result import parse_relevant_edges, parse_similar_concepts
 from abstracter.util.http import make_http_request
-import abstracter.conceptnet5_client.api.settings as settings
+import abstracter.conceptnet5_client.settings as settings
 
 
 def search_concept(concept, limit=1, **kwargs):

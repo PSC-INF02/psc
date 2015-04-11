@@ -7,3 +7,5 @@ rc/
 concepts_names_dicts/
 tfidf/
 data/
+*.zip
+rc2/

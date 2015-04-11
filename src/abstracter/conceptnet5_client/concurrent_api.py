@@ -17,8 +17,8 @@ to a particular concept or a list of concepts.
 
 import urllib.parse
 import abstracter.util.concurrent as co
-from abstracter.conceptnet5_client.api.result import parse_relevant_edges, parse_similar_concepts
-import abstracter.conceptnet5_client.api.settings as settings
+from abstracter.conceptnet5_client.result import parse_relevant_edges, parse_similar_concepts
+import abstracter.conceptnet5_client.settings as settings
 
 
 def lookup_url(concept, filter='/c/en/', limit=10, **kwargs):
