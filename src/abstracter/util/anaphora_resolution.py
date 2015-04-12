@@ -25,7 +25,7 @@ MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
 # are linked with the head noun
 ###################################
 
-TO_ADD = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ"]# "MODIFIED_ON_RIGHT", ??
+TO_ADD = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ"]  # "MODIFIED_ON_RIGHT", ??
 TO_BE_ADDED = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
                "SEMANTIC_MODIFIER_OF"]
 
@@ -124,25 +124,25 @@ def get_noun_phrases(sentences):
     @param sentences A list of sentences given by the systran parser
     (function parse_systran).
     Each sentence is a dict like :
-    > {"id": ..., "Text": ..., "Words": [...]}
+    {"id": ..., "Text": ..., "Words": [...]}
     In the words list, each word is a dict like :
-    > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
+    {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
-    @see abstracter.util.systran_parser.py
     @return A list of dicts. Each one corresponds to a sentence and
     has the following form :
-    > {(0, 0): [], (0, 8): [(0, 6), (0, 7)]}
+    {(0, 0): [], (0, 8): [(0, 6), (0, 7)]}
     Each id is a two-tuple, corresponding to a word
     (sentence id and word id in the sentence).
     Thus, the information of the tuple's first element is redundant
     with the position of the dict in the resulting list.
     This is more practical.
-
     For this example, we indicate that there are two noun phrases in
     the sentence 0 : one with the head noun of id (0, 0)
     (first word of this sentence), which is alone,
     and a second with the head noun of id (0, 8) (eigth word), which contains
     also id (0, 6) and (0, 7).
+
+    @see abstracter.util.systran_parser.py
     """
     res_list = []
     # treat each sentence separately
@@ -221,16 +221,16 @@ def resolve_anaphoras(sents, nps):
     (the one studied). All noun phrases in these sentences are
     possible candidates.
     Each sentence is a dict, resulting from parse_systran, of the form :
-    > {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
+    {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
     Where each word has the form :
-    > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
+    {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
     @param nps Not refactored noun phrases, that is, a list of dictionaries.
 
     @return A dict of relations between the pronouns of the studied sentence,
     and noun phrases, identified with their head noun.
     Like :
-    > {(1, 29): (1, 28), (1, 30): (0, 15)}
+    {(1, 29): (1, 28), (1, 30): (0, 15)}
     Which means the pronoun of id 29 in the last sentence (sentence 1)
     can be linked with
     the noun phrase identified by 28 in the sentence of id 1
@@ -372,8 +372,8 @@ def resolve_all_anaphoras(sents, nps):
     Resolve all anaphoras in a text after computing the noun phrases.
 
     @param nps Noun phrases (list of dicts), already computed (double ids).
-    @see get_noun_phrases
     @param sents The sentences (directly parsed from systran).
+    @see get_noun_phrases
     """
     assert len(sents) > 0
     assert len(nps) == len(sents)
@@ -411,7 +411,6 @@ def refactor_results(nps, resolve_results):
     them without any nps information.
 
     @param nps Noun phrases (double ids), as a list of dicts.
-    @see get_noun_phrases
     @param resolve_results Result of resolve_all_anaphoras.
     List of dicts also.
 
@@ -419,6 +418,7 @@ def refactor_results(nps, resolve_results):
     > {(1, 1): [(0, 1), (0, 2)]}
     Where (1, 1) is the pronoun id in the sentences, and
     (0, 1), (0, 2) ids of words forming a noun phrase.
+    @see get_noun_phrases
     """
     assert len(nps) == len(resolve_results)
     result = []

@@ -388,7 +388,12 @@ def save_dir(name):
 
 
 def print_network_status():
+    q = 0
+    for n in NETWORK.nodes():
+        if NETWORK[n[0]]['a'] > 0:
+            q += 1
     print_log("Current network has %i nodes and %i edges." % (len(NETWORK.nodes()), len(NETWORK.edges())))
+    print_log("%i nodes are activated (thus will be kept)." % q)
     print_log("Current black list has %i entries" % (len(BL)))
     print_log("Current success list has %i entries\n\n" % (len(SL)))
 
@@ -428,26 +433,56 @@ def creation_demo():
 ##############################################
 
 
-LOG_FILE = open("log.txt", 'a')
+def expand_network_by(rcdir, max, to_existing,
+                      from_existing, expand_method, act=False, not_act=False,file_name=None):
+    if not os.path.isdir(rcdir):
+        os.makedirs(rcdir)
+        NETWORK = ConceptNetwork()
+        BL = set()
+        SL = set()
+    else:
+        LOG_FILE = open(rcdir + "/log.txt", 'a')
+    load_dir(rcdir)
+    print_network_status()
+    if file_name:
+        use_method_on_file(file_name, expand_method, max=max, to_existing=to_existing, from_existing=from_existing)
+    else:
+        use_method_on_network(expand_method, max=max, to_existing=to_existing, 
+            from_existing=from_existing, act=act, not_act=not_act)
+    print_network_status()
 
-#load_dir("rc3")
+    save_dir(rcdir)
+    LOG_FILE.close()
+
+
+
+
+
+
+
+
+
+LOG_FILE = open("rc3/log.txt", 'a')
+
+load_dir("rc3")
 print_network_status()
 
 
-use_method_on_file(DATA_DIR + "names_2015_03_29.jsons", expand_names, max=100000, to_existing=False, from_existing=False)
-print_network_status()
+#use_method_on_file(DATA_DIR + "names_2015_03_29.jsons", expand_names, max=100000, to_existing=False, from_existing=False)
+#print_network_status()
 
-use_method_on_file(DATA_DIR + "concepts_2015_03_29.jsons", expand_lookup, max=100000, to_existing=False, from_existing=False)
-print_network_status()
+#use_method_on_file(DATA_DIR + "concepts_2015_03_29.jsons", expand_lookup, max=100000, to_existing=False, from_existing=False)
+#print_network_status()
 
 #très long
 #use_method_on_network(expand_similarity, max=5000, to_existing=False, from_existing=False, act=True, not_act=False)
 #print_network_status()
 
-#use_method_on_network(expand_edges, max=100000, to_existing=False, from_existing=False, not_act=True, act=True)
+#use_method_on_network(expand_edges, max=100000, to_existing=True, from_existing=False, not_act=True, act=False)
 #print_network_status()
 
-#use_method_on_network(expand_edges, max=100000, to_existing=True, from_existing=False, not_act=True, act=False)
+
+#use_method_on_network(expand_edges, max=100000, to_existing=False, from_existing=True, not_act=False, act=True)
 #print_network_status()
 
 #use_method_on_network(expand_edges, max=100000, to_existing=True, from_existing=True, not_act=True, act=False)
@@ -460,7 +495,7 @@ print_network_status()
 #print_network_status()
 
 
-#activate_nodes()
+###activate_nodes()
 #clear_ic(limit=100000)
 #clear_act(limit=100000)
 #deactivate_nodes(limit=100000)
