@@ -156,7 +156,7 @@ def unify(directory=CONCEPTS_NAMES_DATA_DIRECTORY, max_files=1000,
             # avoid bad words
             if match('^[a-zA-Z\s-]*$', c[0]) and len(c[0]) < 20:
                 if c[0] not in thedict:
-                    thedict[c[0]] = 1
+                    thedict[c[0]] = c[1]
                 else:
                     thedict[c[0]] += c[1]
         # print("successful reading of :"+name)
@@ -170,7 +170,7 @@ def unify(directory=CONCEPTS_NAMES_DATA_DIRECTORY, max_files=1000,
             # avoid bad words
             if match('^[a-zA-Z\s-]*$', c[0]) and len(c[0]) < 20:
                 if c[0] not in thedict:
-                    thedict[c[0]] = 1
+                    thedict[c[0]] = c[1]
                 else:
                     thedict[c[0]] += c[1]
         # print("successful reading of :"+name)

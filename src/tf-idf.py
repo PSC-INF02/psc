@@ -30,7 +30,7 @@ def build_database(name="", max_files=100, which="names"):
             # avoid bad words
             if match('^[a-zA-Z\s-]*$', c[0]) and len(c[0]) < 20:
                 if c[0] not in tf_data:
-                    tf_data[c[0]] = 1
+                    tf_data[c[0]] = c[1]
                 else:
                     tf_data[c[0]] += c[1]
         # print("successful reading of :"+filename)
@@ -58,7 +58,9 @@ def build_database(name="", max_files=100, which="names"):
     tfidf_data = dict()
     for c in tf_data:
         if c in idf_data:
-            tfidf_data[c] = tf_data[c] / idf_data[c]
+            tfidf_data[c] = min(tf_data[c] / idf_data[c], 10)
+            #tfidf_data[c] = tf_data[c] / idf_data[c]
+            # 4 = not too much
     sorted_data = sorted(tfidf_data.items(), key=operator.itemgetter(1))
     sorted_data.reverse()
     writer = JSONStreamWriter(DIRECTORY + name + "tfidf_data.jsons")
@@ -75,7 +77,7 @@ def clean_database(name="tfidf_data.jsons"):
     Keep only what's relevant, ie the names and concepts that appear in the network.
     """
     cn = ConceptNetwork()
-    cn.load("rc")
+    cn.load("rc3")
     tfidf_data = dict()
     for entry in read_json_stream(DIRECTORY + name):
         if cn.has_node(entry[0]):
@@ -87,5 +89,72 @@ def clean_database(name="tfidf_data.jsons"):
         writer.write(d)
     writer.close()
 
-#build_database(name="concepts_",which="concepts")
-clean_database("names_tfidf_data.jsons")
+#build_database(name="concepts_", which="concepts")
+#clean_database("concepts_tfidf_data.jsons")
+#build_database(name="names_", which="names")
+#clean_database("names_tfidf_data.jsons")
+
+from abstracter.parsers import retriever as ret
+
+
+def summarize(filename):
+    ntfidf = dict()
+    ctfidf = dict()
+    # load data
+    for entry in read_json_stream(DIRECTORY + "cleared_concepts_tfidf_data.jsons"):
+        ctfidf[entry[0]] = entry[1]
+    for entry in read_json_stream(DIRECTORY + "cleared_names_tfidf_data.jsons"):
+        ntfidf[entry[0]] = entry[1]
+
+    phrases = dict()
+    with open(filename, 'r') as file:
+        for line in file:
+            doublelist = ret.retrieve_words_names(line)
+            nlist = doublelist[1]
+            clist = doublelist[0]
+            if nlist or clist:
+                score = sum([ntfidf[i] if i in ntfidf else 0 for i in nlist] + [ctfidf[i] if i in ctfidf else 0 for i in clist]) / (len(nlist) + len(clist))
+                phrases[line] = score
+        # sort by score
+        sorted_phrases = sorted(phrases.items(), key=operator.itemgetter(1))
+        sorted_phrases.reverse()
+    with open(filename + "_sorted", 'w') as file:
+        for p in sorted_phrases:
+            file.write(p.__repr__() + "\n")
+
+#summarize("../parsed_for_systran/0_1")
+
+import os.path
+
+def summarize_all():
+    ntfidf = dict()
+    ctfidf = dict()
+    # load data
+    for entry in read_json_stream(DIRECTORY + "cleared_concepts_tfidf_data.jsons"):
+        ctfidf[entry[0]] = entry[1]
+    for entry in read_json_stream(DIRECTORY + "cleared_names_tfidf_data.jsons"):
+        ntfidf[entry[0]] = entry[1]
+
+    for i in range(7):
+        for j in range(30):
+            filename = "../parsed_for_systran/%i_%i" % (i, j)
+            if os.path.exists(filename):
+                phrases = dict()
+                with open(filename, 'r') as file:
+                    for line in file:
+                        doublelist = ret.retrieve_words_names(line)
+                        nlist = doublelist[1]
+                        clist = doublelist[0]
+                        if nlist or clist:
+                            score = sum([ntfidf[i] if i in ntfidf else 0 for i in nlist] + [ctfidf[i] if i in ctfidf else 0 for i in clist]) / (len(nlist) + len(clist))
+                            phrases[line] = score
+                    # sort by score
+                    sorted_phrases = sorted(phrases.items(), key=operator.itemgetter(1))
+                    sorted_phrases.reverse()
+                with open(filename + "_sorted", 'w') as file:
+                    for p in sorted_phrases:
+                        file.write(p.__repr__() + "\n")
+
+
+
+summarize_all()

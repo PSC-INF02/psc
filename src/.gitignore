@@ -10,3 +10,4 @@ data/
 *.zip
 rc2/
 rc3/
+tfidfdata/
