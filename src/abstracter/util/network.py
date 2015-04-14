@@ -83,8 +83,14 @@ class Network:
     def shortest_path(self, source=None, target=None, weight=None):
         return nx.shortest_path(self.network, source=source, target=target, weight=weight)
 
+    def add_nodes_from(self, it):
+        self.network.add_nodes_from(it)
+
+    def add_edges_from(self, it):
+        self.network.add_edges_from(it)
+
     ###########################################################
-    ### JSON generating and decoding
+    # JSON generating and decoding
     ##############################################
 
     def save_to_JSON(self, filename="temp.json"):
@@ -96,9 +102,34 @@ class Network:
             self.network = json_graph.node_link_graph(json.load(file))
 
     def draw(self, filename=None):
-        nx.draw(self.network)
-        pos = nx.spring_layout(self.network)
+        pos = nx.spring_layout(self.network, dim=2, weight='w', scale=1)
+        nx.draw_networkx_nodes(self.network, pos=pos, font_family='sans-serif')
+        nx.draw_networkx_edges(self.network, pos=pos, font_family='sans-serif')
         nx.draw_networkx_labels(self.network, pos=pos, font_family='sans-serif')
+        # nx.draw_networkx_edge_labels(self.network, pos=pos, font_family='sans-serif')
         if filename:
             plt.savefig(filename)
+        plt.show()
+
+    def pretty_draw(self, filename=None,
+                    node_size=3500, node_color='blue', node_alpha=0.3,
+                    node_text_size=12,
+                    edge_color='blue', edge_alpha=0.3, edge_tickness=1,
+                    edge_text_pos=0.4,
+                    text_font='sans-serif'):
+        """
+        Pretty drawing, for very small networks only.
+        """
+        graph_pos = nx.spring_layout(self.network, k=0.2, iterations=40)
+        nx.draw_networkx_nodes(self.network, graph_pos, node_size=node_size,
+                               alpha=node_alpha, node_color=node_color)
+        nx.draw_networkx_edges(self.network, graph_pos, width=edge_tickness,
+                               alpha=edge_alpha, edge_color=edge_color)
+        nx.draw_networkx_labels(self.network, graph_pos, font_size=node_text_size,
+                                font_family=text_font)
+        labels = {}
+        for e in self.edges():
+            labels[e] = self.get_edge(e[0], e[1])['r']
+        nx.draw_networkx_edge_labels(self.network, graph_pos, edge_labels=labels,
+                                     label_pos=edge_text_pos)
         plt.show()

@@ -1,0 +1,8 @@
+["wayne_rooney", "athlete", {"w": 39, "r": "IsA"}]
+["wayne_rooney", "soccer_player", {"w": 39, "r": "IsA"}]
+["soccer_player", "athlete", {"w": 47, "r": "IsA"}]
+["soccer_player", "win_match", {"w": 47, "r": "CapableOf"}]
+["soccer_player", "at_soccer_game", {"w": 47, "r": "AtLocation"}]
+["athlete", "sport_event", {"w": 77, "r": "AtLocation"}]
+["athlete", "play_sport", {"w": 90, "r": "CapableOf"}]
+["sport_event", "television", {"w": 60, "r": "AtLocation"}]
