@@ -1,5 +1,6 @@
 class AbstractNetwork:
     """
+    @class AbstractNetwork
     An abstract class containing the interface a network must have
     """
 

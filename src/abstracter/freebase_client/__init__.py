@@ -1,24 +1,22 @@
-"""@package freebase_client
-Client for freebase queries.
+"""Client for freebase queries.
 
 The settings are put in a file settings.py, which has to contain
 the data in file default_settings.py, with a real google api key.
 """
 import urllib.parse
-from abstracter.util.http import *
-from abstracter.freebase_client.settings import *
+from abstracter.freebase_client.settings import USER_KEY, URL, SEARCH_PARAMETERS, MINIMUM_RESULT_SCORE
 from abstracter.util.http import make_https_request
 import abstracter.util.concurrent as co
 
 
 def keep_relevant(query_response):
     """
-    Keep only relevant results.
+    Keep only relevant results (unused).
 
     @param query_response The response to a query, already transformed
     via the .json() method.
     """
-    for result in response['result']:
+    for result in query_response['result']:
         if result['score'] > MINIMUM_RESULT_SCORE:
             yield result
 
@@ -32,12 +30,12 @@ def search(lang='en', limit=10, **kwargs):
 
     Example :
     @code
-    >> search(query='barack_obama',lang='en',
+    search(query='barack_obama',lang='en',
         filter='(any type:/people/person)',limit=2,exact=True)
-    >> search(filter='(all type:/people/person member_of:france)',
+    search(filter='(all type:/people/person member_of:france)',
         limit=10,exact=False)
-    >> search(filter='(all discovered_by:heisenberg)',limit=10)
-    >> for i in (search(query='ezequiel lavezzi',lang='en',
+    search(filter='(all discovered_by:heisenberg)',limit=10)
+    for i in (search(query='ezequiel lavezzi',lang='en',
         filter='(any type:/people/person)',limit=2)):
             print(i)
     @endcode
@@ -64,7 +62,7 @@ def search_name(name):
 
     Examples :
     @code
-    >> search_name("albert rusnak")
+    search_name("albert rusnak")
     @endcode
     """
     data = search(query=name, lang='en', limit=2)
@@ -108,7 +106,7 @@ def search_names(names, **kwargs):
     @return A dict containing, for each name,
     the query result parsed with parse_results.
 
-    @see abstracter.util.concurrent.py
+    @see util.concurrent.py
     """
     urls = {}
     for name in names:

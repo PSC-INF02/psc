@@ -1,22 +1,34 @@
 """@file retriever.py
-Functions to retrieve concepts and names from a text.
+@brief Functions to retrieve concepts and names from a text.
 
 Includes tokenizing, tagging.
+The retriever is mostly used in the crawler parser,
+with the method retrieve_words_names.
+
+However, it has been also used on small texts as a preprocessing
+and a ConceptNetwork activator (we activate concepts and names detected
+in the text, no syntax parsing is required for this task).
 """
 
 import abstracter.parsers.normalizer as norm
 import abstracter.parsers.tokenizer as tok
 import re
 
+###################################
+# Most useful tags to detect concepts
+# in a text which has been parsed with nltk tools.
+# We keep adjectives, nouns, verbs.
+##################################
 
+USEFUL_TAGS = ["JJ", "NN", "NNS", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]
 
-USEFUL_TAGS=["JJ","NN","NNS","VB","VBD","VBG","VBN","VBP","VBZ"];
-
-NOT_USEFUL_TAGS=["CC","NNP","NNPS","RB","RBR","RBS","JJR","JJS","MD"]
-#R : adverbs
-#J : adjectives
-#V : verbs
-#N : nouns
+###############################
+# Most unuseful tags.
+# Here is a list of all nltk POS-tags :
+# R : adverbs
+# J : adjectives
+# V : verbs
+# N : nouns
 # 1.  CC    Coordinating conjunction
 # 2.    CD  Cardinal number
 # 3.    DT  Determiner
@@ -53,6 +65,9 @@ NOT_USEFUL_TAGS=["CC","NNP","NNPS","RB","RBR","RBS","JJR","JJS","MD"]
 # 34.   WP  Wh-pronoun
 # 35.   WP$ Possessive wh-pronoun
 # 36.   WRB Wh-adverb
+###############################
+
+NOT_USEFUL_TAGS = ["CC", "NNP", "NNPS", "RB", "RBR", "RBS", "JJR", "JJS", "MD"]
 
 
 _digits = re.compile('\d')
@@ -86,27 +101,36 @@ def _links_to(entity_list, name):
 
 def get_names(sents):
     """
-    Get all named entities in previously tagged sentences.
+    @brief Get all named entities in previously tagged sentences.
+
+    This is a very simple names detector.
+    It concatenates every object tagged as 'NNP', to
+    obtain single words but also multiple-words names.
 
     @param sents Generator of tagged sentences (list of [word,POS])
     @return A list of named entities.
     """
-    named_entities=[]
+    named_entities = []
     for sent in sents:
-        temp=[]
-        for key,val in sent:
-            if val=='NNP':
+        temp = []
+        for key, val in sent:
+            if val == 'NNP':
                 temp.append(key)
-            else:#end of name
+            else:  # end of name
                 if temp:
                     named_entities.append(' '.join(temp))
-                temp=[]
-    return named_entities    
+                temp = []
+    return named_entities
+
 
 def get_important_words(sents):
     """
-    Get all important words in a list of previously tagged sentences.
+    @brief Get all important words in a list of previously tagged sentences.
+
     Dismiss one letter words, dismiss prepositions...
+    The remaining words are candidates for concepts and names.
+    Their tags are in USEFUL_TAGS.
+
     @see USEFUL_TAGS
 
     @param sents Generator of tagged sentences (list of [word,POS])
@@ -143,10 +167,12 @@ def retrieve_names_only(sents):
     Retrieve names and count their occurrences in a dictionary.\n
     Thus, if a name is used n times, it is counted n times.
 
+    It could still be improved by looking into an already existing
+    list of names, but it is important
+    to begin with no information.
+
     @param sents Generator of tagged sentences (list of [word,POS]).
     @return List of names (string).
-
-    @todo : améliorer ça...
     """
     names = list(s.lower() for s in get_names(sents))
     res = {}

@@ -1,13 +1,19 @@
 """@file api.py
 API for Conceptnet5.
 
-Conceptnet5 supports 3 API :\n
--LookUp\n
--Search (searching for edges)\n
--Association (get similarity between concepts)\n
-Lookup is for when you know the URI of an object in ConceptNet, and want to see a list of edges
-that include it. Search finds a list of edges that match certain criteria. Association is
-for finding concepts similar to a particular concept or a list of concepts.
+Conceptnet5 supports 3 API :
+* LookUp
+* Search (searching for edges)
+* Association (get similarity between concepts)
+
+Lookup is for when you know the URI of an object in ConceptNet,
+and want to see a list of edges that include it.
+Search finds a list of edges that match certain criteria.
+Association is for finding concepts similar
+to a particular concept or a list of concepts.
+
+@warning These methods are mostly unused since the
+introduction of concurrent requests.
 
 @see concurrent_api.py For concurrent requests, a gain of time.
 @see result.py For parsing queries result.
@@ -43,18 +49,6 @@ def search_concept(concept, limit=1, **kwargs):
     return parse_relevant_edges(json_data)
 
 
-def search_source(source_uri='/s/wordnet/3.0'):
-    '''
-    Returns the 50 statements submitted by this source, in raw json data.
-
-    @param source_uri A uri specifying the source, e.g. '/s/contributor/omcs/rspeer',
-    '/s/wordnet/3.0', '/s/rule/sum_edges' etc.
-    '''
-    url = ''.join(['%s%s' % (settings.BASE_LOOKUP_URL, source_uri)])
-    json_data = make_http_request(url)
-    return json_data
-
-
 def get_similar_concepts(concept='dog', filter='/c/en/', limit=10, **kwargs):
     """
     Performs an association query and parses the result.
@@ -85,7 +79,7 @@ def get_similarity(concept1='dog',concept2='dog'):
 
     @param concept1 First concept.
     @param concept2 Second concept.
-    @return A similarity score (real).
+    @return A similarity score (float).
     """
     query_args = {"filter": '/c/' + settings.LANGUAGE + "/" + concept2}
     enc_query_args = urllib.parse.urlencode(query_args)
@@ -140,14 +134,24 @@ def search_edges(filter='/c/en/', limit=10, **kwargs):
 
 
 def search_edges_from(concept='dog'):
-    return search_edges(start='/c/en/' + concept, minWeight=2)
+    """
+    Simple method to search edges starting from a concept.
+    """
+    return search_edges(start='/c/' + settings.LANGUAGE + '/' + concept, minWeight=2)
 
 
 def search_edges_to(concept='dog'):
-    return search_edges(end='/c/en/' + concept, minWeight=2)
+    """
+    Simple method to search edges going to a concept.
+    """
+    return search_edges(end='/c/' + settings.LANGUAGE + '/' + concept, minWeight=2)
 
 
 def search_edge(start, end):
+    """
+    Search one edge only, which starts at start and
+    ends at end.
+    """
     edges = search_edges(start='/c/' + settings.LANGUAGE + '/' + start,
                          end='/c/' + settings.LANGUAGE + '/' + end)
     if edges:

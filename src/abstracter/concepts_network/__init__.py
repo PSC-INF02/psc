@@ -1,15 +1,15 @@
-import networkx as nx
-from networkx.readwrite import json_graph
-from math import log
-import matplotlib.pyplot as plt
-import json
-from abstracter.util.json_stream import *
+from abstracter.util.json_stream import read_json_stream, JSONStreamWriter
 from abstracter.util.network import Network
 
 
 class ConceptNetwork(Network):
     """
-    Class representing our Conceptnetwork.
+    @class ConceptNetwork
+    @brief Class representing our Conceptnetwork.
+
+    The ConceptNetwork is constructed as an extension of Network.
+    We are free to change Network's implementation, since ConceptNetwork
+    does not refer to any other python package.
     """
 
     def __init__(self):
@@ -41,50 +41,64 @@ class ConceptNetwork(Network):
         super(ConceptNetwork, self).add_edge(fromId=fromId, toId=toId, key=key, w=w, r=r)
 
     def shortest_path(self, fromId, toId):
+        """
+        Computes the shortest path between two nodes.
+        """
         return super(ConceptNetwork, self).shortest_path(source=fromId, target=toId, weight=None)
 
     def compute_activation(self, id):
         """
-        computes the new node activation,  using :\n
-        -divlog : logarithmic divisor (connexity)\n
-        -activation of neighbours\n
-        -self-desactivation
+        @brief Computes the new node activation.
+
+        Computes the new node activation,  using :
+        * a logarithmic divisor (depends on the connexity)
+        * its neighbours' activation
+        * its self-desactivation
         """
-        #divlog = log(3 + len(self.inArcs(id))) / log(3)
+        # divlog = log(3 + len(self.inArcs(id))) / log(3)
         divlog = 1  # deactivated for now
         i = 0
         for arc in self.in_arcs(id):
             i = i + (arc[3]['w'] or 0) * self[arc[0]]['a']
         act = self[id]['a']
         i = i / (100 * divlog)  # neighbours
-        d = 100 * act / ((self[id]['ic'] or 100))  # self desactivation
-        self[id]['a'] = int(min(act + i - d,  100))  # we do not go beyond 100,  and activation is an integer
+        d = act * (100 - (self[id]['ic'] or 100)) / 100  # self desactivation
+        self[id]['a'] = int(min(act + i - d, 100))
+        # we do not go beyond 100,  and activation is an integer
 
-
-    # JSON streams
-    ##########################################
-
-    def load_nodes_from_stream(self, filename="temp_nodes.jsons"):
+    def load_nodes_from_stream(self, filename):
+        """
+        Load nodes from a .jsons file and insert them in the ConceptNetwork.
+        """
         self.add_nodes_from(read_json_stream(filename))
 
-    def load_edges_from_stream(self, filename="temp_edges.jsons"):
+    def load_edges_from_stream(self, filename):
+        """
+        Load edges from a .jsons file and insert them in the ConceptNetwork.
+        """
         self.add_edges_from(read_json_stream(filename))
 
     def load_from_JSON_stream(self, nodes_files, edges_files):
         """
-        We load from a bunch of files,  assuming that
+        @brief Loading from multiple jsons files.
+
+        We load from a bunch of files, assuming that
         they contain node and edge data.
+        This function has been unused, since we used only one file.
         """
         for f in nodes_files:
             self.load_nodes_from_stream(f)
         for f in edges_files:
             self.load_edges_from_stream(f)
 
-    def save_to_JSON_stream(self, filenamebase="temp"):
+    def save_to_JSON_stream(self, filenamebase):
         """
-        Saves the network,  creating two files : '_nodes.jsons' and 'edges.jsons'.
+        Saves the network, creating two files :
+        * "..._nodes.jsons"
+        * "..._edges.jsons"
         Those files are encoded in JSONStream format.
 
+        @param filenamebase Name of the ConceptNetwork.
         @see util.json_stream
         """
         nodes_writer = JSONStreamWriter(filenamebase + "_nodes.jsons")
@@ -96,14 +110,22 @@ class ConceptNetwork(Network):
             edges_writer.write(e)
         edges_writer.close()
 
-    def load(self, arg):
-        self.add_nodes_from(read_json_stream(arg + "/" + arg + "_nodes.jsons"))
-        self.add_edges_from(read_json_stream(arg + "/" + arg + "_edges.jsons"))
+    def load(self, arg, directory=""):
+        """
+        Small util to load a network directory.
+        We store a ConceptNetwork object of name "rc" in a directory
+        named "rc", with two files : "rc_nodes.jsons" and "rc_edges.jsons".
+
+        @param arg Name of the ConceptNetwork
+        @param directory May be "" (current directory) or "../", for example.
+        """
+        self.add_nodes_from(read_json_stream(directory + arg + "/" + arg + "_nodes.jsons"))
+        self.add_edges_from(read_json_stream(directory + arg + "/" + arg + "_edges.jsons"))
 
 
 if __name__ == '__main__':
-    def test():
-        n=ConceptNetwork()
+    def _test():
+        n = ConceptNetwork()
         n.add_node(id="toto", a=70, ic=5)
         n.add_node(id="babar", a=0, ic=6)
         n.add_edge(fromId="toto", toId="babar", r="haha", w=50)
@@ -118,8 +140,6 @@ if __name__ == '__main__':
         n.compute_activation("babar")
         print(n["babar"]["a"])
         n.remove_edge("toto", "babar", all=False, key=1)
-        nx.draw(n.network)
-        plt.show()   
 
-    test()
+    _test()
     pass

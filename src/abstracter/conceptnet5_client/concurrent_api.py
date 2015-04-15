@@ -1,10 +1,11 @@
 """@file concurrent_api.py
 Concurrent API for Conceptnet5.
 
-Conceptnet5 supports 3 API :\n
--LookUp\n
--Search (searching for edges)\n
--Association (get similarity between concepts)\n
+Conceptnet5 supports 3 API :
+* LookUp
+* Search (searching for edges)
+* Association (get similarity between concepts)
+
 Lookup is for when you know the URI of an object in ConceptNet,
 and want to see a list of edges that include it.
 Search finds a list of edges that match certain criteria.

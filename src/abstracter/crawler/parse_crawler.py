@@ -1,10 +1,18 @@
-"""@file parse_crawler
+"""@file parse_crawler.py
 
-Utils for downloading and parsing crawler data.
+@brief Utils for downloading and parsing crawler data.
+
+Most of the time, we consider concepts and names separately.
+Names are proper nouns and acronyms, concepts
+are other nouns, adjectives, verbs in normal form.
+
+@warning Several directories are used and created
+to perform those operations.
 """
+
 from abstracter.parsers.retriever import retrieve_words_names
 from abstracter.parsers.tokenizer import refactor_crawler
-from abstracter.util.json_stream import *
+from abstracter.util.json_stream import JSONStreamWriter, read_json_stream
 from abstracter.util.http import make_http_request
 import json
 import os
@@ -14,12 +22,44 @@ from re import match
 from glob import glob
 import datetime as dt
 
+#######################################
+# Directory where we put the raw crawler data.
+########################################
+
 DEFAULT_DATA_DIRECTORY = "../crawlerpsc/"
+
+########################################
+# Directory where we put the raw results of
+# concepts and names retrieving.
+#########################################
+
 DEFAULT_RESULTS_DIRECTORY = "../concepts/"
+
+############################################
+# Directory where we put concepts and
+# names dicts for each day.
+#######################################
+
 CONCEPTS_NAMES_DATA_DIRECTORY = "../concepts_names_data/"
+
+#######################################
+# Directory where we put the biggest files,
+# concepts and names dicts for a bunch of days.
+######################################
+
 BIG_FILES_DIRECTORY = "../concepts_names_dicts/"
+
+#######################################
+# Crawler URL.
+######################################
+
 CRAWLER_URL = 'http://nadrieril.fr/dropbox/crawlerpsc/'
-# default location of the data directory when it is downloaded and uncompressed
+
+#################################
+# Default location of the raw data directory
+# when it is downloaded and uncompressed
+#####################################
+
 DEFAULT_LOCATION = "srv/ftp/crawlerpsc/"
 
 
@@ -59,6 +99,8 @@ def parse_article(filename):
 
     @param filename Name of the file to parse.
     @return A tuple of two lists : [words,names].
+
+    @see parsers.retriever.retrieve_words_names
     """
     with open(filename, 'r') as file:
         text = file.read()
@@ -104,7 +146,7 @@ def unify_day(directory=DEFAULT_RESULTS_DIRECTORY,
     Unify concepts and names files for a day.
 
     The result, two dict objects, is written as JSON streams in two separated files.
-    The value associated with each name counts the number of occurrences.
+    The value associated with each name/concept counts its number of occurrences.
     """
     if not os.path.isdir(CONCEPTS_NAMES_DATA_DIRECTORY):
         os.makedirs(CONCEPTS_NAMES_DATA_DIRECTORY)
@@ -194,6 +236,11 @@ def _parse_for_systran_directory(data_directory=DEFAULT_DATA_DIRECTORY,
                                  results_directory="../parsed_for_systran/",
                                  subdirectory="2014_12_04"):
     """
+    Parse one directory (ie one day) to make it more readable
+    and suppress tokenization artefacts, especially to
+    give it to Systran.
+
+    @see parsers.tokenizer.refactor_crawler
     """
     if not os.path.isdir(results_directory + subdirectory + "/"):
         os.makedirs(results_directory + subdirectory + "/")
@@ -223,6 +270,14 @@ def parse_for_systran(date="2015_01_05"):
 
 
 def update():
+    """
+    Update all crawler data, create up-to-date
+    concepts and names dicts.
+
+    @warning This operation make take a lot of
+    time (1-2 hour) if there is much data to download
+    and to parse.
+    """
     start_date = dt.datetime(2015, 1, 1)
     end_date = (dt.datetime.now() - dt.timedelta(days=1))# .__str__().replace("-","_")
     total_days = (end_date - start_date).days + 1

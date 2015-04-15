@@ -113,9 +113,9 @@ def match_entities(sentences, concepts_network=None, activate=False):
     nodes (not useful, deprecated).
 
     @param sentence A sentence, parsed with the systran parser.
-    > {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
+    * {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
     Where each word has the form :
-    > {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
+    * {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
     @return A dict of id : entity in the ConceptNetwork (or name
     itself if this entity doesn't exist). Id refers to the entity.

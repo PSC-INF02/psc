@@ -1,6 +1,7 @@
 """
 @file json2workspace.py
-@bref interface json and the workspace
+
+@brief Interface json and the Workspace.
 """
 
 import json
@@ -9,6 +10,7 @@ import abstracter.workspace as wks
 
 class Json2W:
     """
+    @class Json2W
     A utility class to convert json objects into workspace entities
     """
 
@@ -28,7 +30,7 @@ class Json2W:
             for word in par:
                 self.parse_word(word, parid)
 
-    def parse_world(self, word, parid):
+    def parse_word(self, word, parid):
         wd = self.workspace.get_word(self, parid + "." + word["id"])
         if wd is None:
             if 'noun' in word["type"]:

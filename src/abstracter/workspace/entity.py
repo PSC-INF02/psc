@@ -2,7 +2,8 @@
 
 class Entity:
     '''
-    Represents an entity in the text,
+    @class Entity
+    @brief Represents an entity in the text,
     as in an actual being in the real world that we've seen in the text.
     it contains :
     * a name
@@ -18,7 +19,7 @@ class Entity:
         @param attributes a list of the attribute applying to the entity
         @param references a list of places
             where that entity is referred to in the text
-        @returns an entity ready to be pushed in the workspace !
+        @return an entity ready to be pushed in the workspace !
         '''
 
         self.name = name

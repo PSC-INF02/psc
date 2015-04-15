@@ -1,13 +1,36 @@
 """@file tokenizer.py
-Tokenizers.
+@brief Tokenizers.
+
+We need several tokenizers to perform information retrieval from texts.
+Those tokenizers may adapt to the errors we find n our data
+(for example with the articles from the crawler).
+Thus, some of them may be unuseful, even bad, for other sets of data.
 """
+
 from nltk import word_tokenize, pos_tag
 
+####################
+# Punctuation
+################
 
 PUNKT2 = ",;/!?:"
 PUNKT = (";.,?!:_()'/’\u2019()[]=")
+
+#######################
+# Characters to always remove
+##########################
 ALWAYS_REMOVE = "=\t\""
+
+########################
+# Sentence boundaries.
+########################
+
 BOUNDARIES = ["!", ".", "?", "\n", "'"]
+
+##########################
+# Crawler sentences boundaries.
+#########################
+
 CRAWLER_BOUNDARIES = ["!", ".", "?", "\n", ":"]
 
 
@@ -18,29 +41,30 @@ def tokenize(text):
     return custom_word_tokenize(_refactor(text))
 
 
-ALWAYS_REPLACE = {"Mc.": "Mc", "M.": "M", "Mr.": "Mr", "Mrs.": "Mrs"}
+_ALWAYS_REPLACE = {"Mc.": "Mc", "M.": "M", "Mr.": "Mr", "Mrs.": "Mrs"}
 
 
 def _refactor(text):
     res = text
     for c in ALWAYS_REMOVE:
         res = res.replace(c, " ")
-    for w in ALWAYS_REPLACE:
-        res = res.replace(w, ALWAYS_REPLACE[w])
+    for w in _ALWAYS_REPLACE:
+        res = res.replace(w, _ALWAYS_REPLACE[w])
     return res
 
 
 def refactor_crawler(text):
     """
-    Refactor crawler data.
+    @brief Refactor crawler data.
 
-    The text data from the crawler has several problems :\n
-    -Titles without space, as in :
+    The text data from the crawler has several problems :
+    * Titles without space, as in :
     "...in the Capital One CupThe semi-final..." which is
-    in fact two sentences, has to be cut between "Cup" and "The".\n
-    -Too much spaces and tabulations.\n
-    -punctuation sometimes remains at the beginning.\n
-    -we want to add a dot at the end of the sentence.\n
+    in fact two sentences, has to be cut between "Cup" and "The".
+    * Too much spaces and tabulations.
+    * punctuation sometimes remains at the beginning.
+    * we want to add a dot at the end of the sentence.
+
     This function intends to make the data useful, for some natural language
     tools (for example Systran's tools).
 
@@ -149,16 +173,4 @@ def custom_word_tokenize(text):
 
 
 if __name__ == "__main__":
-    _text = """Peyton Manning will have a new left tackle protecting his blindside after the Denver Broncos placed Ryan Clady on season-ending injured reserve Wednesday.
-
-Clady hurt his left foot Sunday when New York Giants defensive lineman Cullen Jenkins rolled up on him while the Broncos were trying to run out the clock in their 41-23 win. Clady will soon undergo surgery for what's being called a Lisfranc tear, which involves a separation of ligaments and joints in the foot.
-
-Chris Clark, a fifth-year journeyman, will take the place of Clady - the undisputed leader on the line - and make his first career start at left tackle Monday night when the Broncos (2-0) host the Oakland Raiders (1-1).
-
-''Stepping up into a role like this, it's not going to be hard for me to adjust,'' said Clark, who received a two-year contract extension on Monday. ''It's not about filling a guy's shoes for me. It's about me creating my legacy, just helping the team the best way I can and doing my job.''
-
-Still, those are some big cleats for Clark to fill.
-"""
-
-    for w in (tokenize_and_tag(_text)):
-        print(w)
+    pass

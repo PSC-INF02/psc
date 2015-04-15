@@ -1,11 +1,34 @@
-"""@file anaphor_resolution.py
+"""@file anaphora_resolution.py
 
-Resolve anaphors.
+@brief Resolve anaphoras in a text.
+
+The problem of anaphora resolution is the following : we want
+to discover which name or noun phrase a pronoun refers to.
+
+This package uses the Systran parser, but it can be adapted to
+other syntax parsing tools, as soon as
+the json data provided contains enough information (such as types and tags).
+
+@see util.systran_parser.py
 """
+
+##############################
+# Types of words in noun phrases (systrans's types)
+########################
 
 NOUN_PHRASES_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
                       "det", "adj", "numeric"]
+
+################################
+# Types of proper nouns
+############################
+
 PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
+
+##########################
+# Types of pronouns
+############################
+
 PRONOUN_TAGS = ["pron"]
 
 ###################################
@@ -221,9 +244,9 @@ def resolve_anaphoras(sents, nps):
     (the one studied). All noun phrases in these sentences are
     possible candidates.
     Each sentence is a dict, resulting from parse_systran, of the form :
-    {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
+    * {"words": [{...}, {...}, {...}], "text": "...", "id": 6}
     Where each word has the form :
-    {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
+    * {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
     @param nps Not refactored noun phrases, that is, a list of dictionaries.
 
@@ -388,7 +411,8 @@ def print_all_resolution(sents, refactored):
     Check the solution obtained.
 
     This allows the user to run some tests.
-    @param refactored Refactored results of resolve_all_anaphoras
+    @param sents Sentences.
+    @param refactored Refactored results of resolve_all_anaphoras on sents.
     @see refactor_results
     """
     assert len(sents) == len(refactored)
@@ -415,7 +439,7 @@ def refactor_results(nps, resolve_results):
     List of dicts also.
 
     @return A list of dicts like :
-    > {(1, 1): [(0, 1), (0, 2)]}
+    * {(1, 1): [(0, 1), (0, 2)]}
     Where (1, 1) is the pronoun id in the sentences, and
     (0, 1), (0, 2) ids of words forming a noun phrase.
     @see get_noun_phrases

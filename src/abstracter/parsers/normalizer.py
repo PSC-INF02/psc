@@ -1,12 +1,12 @@
 """@file normalizer.py
-Contains the code of a normalizer using wordnet & nltk.
+Contains the code of a normalizer using wordnet and nltk.
 Most of it comes from conceptnet5.
 
 @see https://github.com/commonsense/conceptnet5/blob/1e86e2426af3ce4bea3b1d15dc02ebdfe9107544/conceptnet5/language/english.py
 """
 
 from nltk.corpus import wordnet
-import re
+
 morphy = wordnet._morphy
 
 STOPWORDS = ['the', 'a', 'an']
@@ -15,8 +15,8 @@ EXCEPTIONS = {
     # Avoid obsolete and obscure roots, the way lexicographers don't.
     'wrought': 'wrought',   # not 'work'
     'media': 'media',       # not 'medium'
-    'installed': 'install', # not 'instal'
-    'installing': 'install',# not 'instal'
+    'installed': 'install',  # not 'instal'
+    'installing': 'install',  # not 'instal'
     'synapses': 'synapse',  # not 'synapsis'
     'soles': 'sole',        # not 'sol'
     'pubes': 'pube',        # not 'pubis'
@@ -82,8 +82,6 @@ AMBIGUOUS_EXCEPTIONS = {
 }
 
 
-
-
 def _word_badness(word):
     """
     Assign a heuristic to possible outputs from Morphy. Minimizing this
@@ -119,14 +117,15 @@ def _morphy_best(word, pos=None):
 
 def morphy_stem(word, pos=None):
     """
-    Get the most likely stem for a word. 
+    @brief Get the most likely stem for a word.
 
-    If a part of speech is supplied, the stem will be more accurate.\n
-    Valid parts of speech are:\n
-    - 'n' or 'NN' for nouns\n
-    - 'v' or 'VB' for verbs\n
-    - 'a' or 'JJ' for adjectives\n
-    - 'r' or 'RB' for adverbs\n
+    If a part of speech is supplied, the stem will be more accurate.
+
+    Valid parts of speech are:
+    * 'n' or 'NN' for nouns
+    * 'v' or 'VB' for verbs
+    * 'a' or 'JJ' for adjectives
+    * 'r' or 'RB' for adverbs
     Any other part of speech will be treated as unknown.
     """
     # FIXME: strip punctuation that may still be attached to the word
@@ -169,7 +168,7 @@ def normalize(words):
     @param words List of [word,POS].
     @return A list of words in normal form.
     """
-    pieces = [morphy_stem(word,pos) for word,pos in words]
+    pieces = [morphy_stem(word, pos) for word, pos in words]
     pieces = [piece for piece in pieces if _good_lemma(piece)]
     if not pieces:
         return []
