@@ -11,7 +11,7 @@ c = Context(n)
 ######
 
 c.activate("wayne_rooney", 60)
-c.run(20)
+c.run(10)
 
 
 def print_activated_nodes(network):

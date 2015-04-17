@@ -16,3 +16,4 @@ systran/
 parsed_for_systran/
 tfidf/
 resume_test/
+*.zip

@@ -1,5 +1,6 @@
 from abstracter.util.json_stream import read_json_stream, JSONStreamWriter
 from abstracter.util.network import Network
+from math import log
 
 
 class ConceptNetwork(Network):
