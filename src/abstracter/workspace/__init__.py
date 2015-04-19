@@ -1,7 +1,7 @@
 from abstracter.util.network import *
 
 
-class Workspace(Network):
+class OldWorkspace(Network):
     """
     The workspace is supposed to be smaller than the concept network.
     It is also stored as a network object, using networkx.

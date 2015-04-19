@@ -141,7 +141,6 @@ def parse_systran(file):
     return data
 
 
-
 if __name__ == "__main__":
     import sys
     file = sys.argv[1]

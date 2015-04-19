@@ -1,9 +1,8 @@
+from abstracter.workspace.workspace import Workspace
+from abstracter.util.systran_parser import parse_systran
+from abstracter.adapter.json2workspace import Json2W
 
-from abstracter.workspace import *
-from abstracter.util import *
-from abstracter.adapter import Json2W
-
-parsedText = parse_systran("11.clean.wsd.liner")
-wks = workspace.Workspace()
-jsn = adapter.Json2W(workspace)
+parsedText = parse_systran("11.clean.wsd.linear")
+wks = Workspace()
+jsn = Json2W(wks)
 jsn.parse(parsedText)
