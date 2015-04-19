@@ -9,7 +9,7 @@ from abstracter.crawler.parse_crawler import update, parse_for_systran, download
 # example 1
 ############
 
-parse_for_systran("2015_03_29")
+#parse_for_systran("2015_03_29")
 
 ##################
 # example 2
@@ -22,3 +22,8 @@ parse_for_systran("2015_03_29")
 #########################
 
 # update()
+
+
+#from abstracter.tfidf import build_database
+
+#build_database(name="names__", which="names")

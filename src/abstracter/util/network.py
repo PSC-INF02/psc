@@ -128,7 +128,7 @@ class Network:
         nx.draw_networkx_labels(self.network, graph_pos, font_size=node_text_size,
                                 font_family=text_font)
         labels = {}
-        for e in self.edges():
+        for e in self.edges(data=False):
             labels[e] = self.get_edge(e[0], e[1])['r']
         nx.draw_networkx_edge_labels(self.network, graph_pos, edge_labels=labels,
                                      label_pos=edge_text_pos)
