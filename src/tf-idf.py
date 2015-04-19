@@ -3,15 +3,35 @@
 """
 import os
 from glob import glob
-from abstracter.util.json_stream import *
+from abstracter.util.json_stream import read_json_stream, JSONStreamWriter
 from re import match
 import json
 import operator
 from math import log
+import os.path
+from abstracter.concepts_network import *
+from abstracter.parsers import retriever as ret
+
+
+############################
+# Directories of crawler results (we also may get them from
+# a separate settings file)
+##############################
 
 DEFAULT_RESULTS_DIRECTORY = "../concepts/"
 CONCEPTS_NAMES_DATA_DIRECTORY = "../concepts_names_data/"
+
+############################
+# Directory where we store tf-idf databases.
+#############################
+
 DIRECTORY = "../tfidf/"
+
+########################
+# Default concepts network to load.
+########################
+
+NETWORK = "rc3"
 
 
 def build_database(name="", max_files=100, which="names"):
@@ -75,7 +95,8 @@ def build_database(name="", max_files=100, which="names"):
     print("Builiding tf-idf database...")
     for c in tf_data:
         if c in idf_data:
-            #tfidf_data[c] = min(tf_data[c] * idf_data[c], 10)
+            # other possibility
+            # tfidf_data[c] = min(tf_data[c] * idf_data[c], 10)
             tfidf_data[c] = tf_data[c] * idf_data[c]
             # 4 = not too much
     sorted_data = sorted(tfidf_data.items(), key=operator.itemgetter(1))
@@ -86,15 +107,18 @@ def build_database(name="", max_files=100, which="names"):
     writer.close()
 
 
-from abstracter.concepts_network import *
-
-
 def clean_database(name="tfidf_data.jsons"):
     """
-    Keep only what's relevant, ie the names and concepts that appear in the network.
+    @brief Keep names and concepts that appear in the network.
+
+    We have to load a ConceptNetwork : NETWORK.
+
+    @param name The name of the file's database.
+    it has to be a json stream, and it has
+    to be stored in the directory DIRECTORY.
     """
     cn = ConceptNetwork()
-    cn.load("rc3")
+    cn.load(NETWORK)
     tfidf_data = dict()
     print("Cleaning " + name)
     for entry in read_json_stream(DIRECTORY + name):
@@ -108,22 +132,28 @@ def clean_database(name="tfidf_data.jsons"):
     writer.close()
     print("Done.")
 
-#build_database(name="concepts_", which="concepts")
-#clean_database("concepts_tfidf_data.jsons")
-#clean_database("concepts_tf_data.jsons")
-#clean_database("concepts_idf_data.jsons")
-#build_database(name="names_", which="names")
-#clean_database("names_tfidf_data.jsons")
-#clean_database("names_tf_data.jsons")
-#clean_database("names_idf_data.jsons")
+
+def build_databases_example():
+    build_database(name="concepts_", which="concepts")
+    clean_database("concepts_tfidf_data.jsons")
+    clean_database("concepts_tf_data.jsons")
+    clean_database("concepts_idf_data.jsons")
+    build_database(name="names_", which="names")
+    clean_database("names_tfidf_data.jsons")
+    clean_database("names_tf_data.jsons")
+    clean_database("names_idf_data.jsons")
 
 
-from abstracter.parsers import retriever as ret
-
-
-def summarize(filename):
+def sort_sents(filename):
     """
-    Summarize with static tfidf database.
+    @brief Sort sentences of a text by decreasing TF-IDF mean.
+
+    Two TF-IDF databases are loaded, "cleared_concepts_tfidf_data.jsons"
+    and "cleared_names_tfidf_data.jsons". They have to be stored in
+    the directory DIRECTORY.
+    A new file named filename_sorted is written.
+
+    @param filename A file.
     """
     ntfidf = dict()
     ctfidf = dict()
@@ -140,8 +170,10 @@ def summarize(filename):
             nlist = doublelist[1]
             clist = doublelist[0]
             if nlist or clist:
-                score = sum([ntfidf[i] if i in ntfidf else 0 for i in nlist] + [ctfidf[i] if i in ctfidf else 0 for i in clist]) / (len(nlist) + len(clist))
+                score = sum([ntfidf[i] if i in ntfidf else 0 for i in nlist] +
+                            [ctfidf[i] if i in ctfidf else 0 for i in clist]) / (len(nlist) + len(clist))
                 phrases[line] = score
+
         # sort by score
         sorted_phrases = sorted(phrases.items(), key=operator.itemgetter(1))
         sorted_phrases.reverse()
@@ -149,11 +181,20 @@ def summarize(filename):
         for p in sorted_phrases:
             file.write(p.__repr__() + "\n")
 
-#summarize("../parsed_for_systran/0_1")
 
-import os.path
+def sort_sentences(dir="../parsed_for_systran/"):
+    """
+    @brief Sort sentences by decreasing TF-IDF mean.
 
-def summarize_all():
+    We use this function on a directory where files are named i_j
+    (for example, the result of a pre-parsing of the crawler's files).
+    Two TF-IDF databases are loaded, "cleared_concepts_tfidf_data.jsons"
+    and "cleared_names_tfidf_data.jsons". They have to be stored in
+    the directory DIRECTORY.
+    New files named filename_sorted are created.
+
+    @param dir Data directory.
+    """
     ntfidf = dict()
     ctfidf = dict()
     # load data
@@ -164,7 +205,7 @@ def summarize_all():
 
     for i in range(7):
         for j in range(30):
-            filename = "../parsed_for_systran/%i_%i" % (i, j)
+            filename = dir + "%i_%i" % (i, j)
             if os.path.exists(filename):
                 phrases = dict()
                 with open(filename, 'r') as file:
@@ -173,7 +214,8 @@ def summarize_all():
                         nlist = doublelist[1]
                         clist = doublelist[0]
                         if nlist or clist:
-                            score = sum([ntfidf[i] if i in ntfidf else 0 for i in nlist] + [ctfidf[i] if i in ctfidf else 0 for i in clist]) / (len(nlist) + len(clist))
+                            score = sum([ntfidf[i] if i in ntfidf else 0 for i in nlist] +
+                                        [ctfidf[i] if i in ctfidf else 0 for i in clist]) / (len(nlist) + len(clist))
                             phrases[line] = score
                     # sort by score
                     sorted_phrases = sorted(phrases.items(), key=operator.itemgetter(1))
@@ -184,7 +226,26 @@ def summarize_all():
                         file.write(p.__repr__() + "\n")
 
 
-def summarize_all2(nbphrases=None):
+def summarize_all(dir="../parsed_for_systran/", nbphrases=None):
+    """
+    @brief Summarize.
+    We take the first sentence of the
+    text and its most scored sentences by TF-IDF, which
+    are put in their order of occuring in the text.
+
+    We use this function on a directory where files are named i_j
+    (for example, the result of a pre-parsing of the crawler's files).
+    Two TF-IDF databases are loaded, "cleared_concepts_tfidf_data.jsons"
+    and "cleared_names_tfidf_data.jsons". They have to be stored in
+    the directory DIRECTORY.
+    New files named "filename_summary2" are created.
+
+    @param dir The directory containing the files.
+    @param nbphrases The number of sentences of the summary.
+    Default is None, which means we take one quarter of
+    the total number of sentences of the text (it adapts
+    to the text's length).
+    """
     ntfidf = dict()
     ctfidf = dict()
     # load data
@@ -197,7 +258,7 @@ def summarize_all2(nbphrases=None):
 
     for i in range(8):
         for j in range(30):
-            filename = "../parsed_for_systran/%i_%i" % (i, j)
+            filename = dir + "%i_%i" % (i, j)
             if os.path.exists(filename):
                 phrases = dict()
                 sents = dict()
@@ -226,8 +287,6 @@ def summarize_all2(nbphrases=None):
                 if sorted_phrases:
                     temp = sorted_phrases[0:(tot + 1)]
                     temp2 = sorted(temp, key=operator.itemgetter(0))
-                    #for p in temp2:
-                    #    print(p)
                     temp3 = [(sents[p[0]], p[1]) for p in temp2]
                 with open(filename + "_summary2", 'w') as file:
                     file.write("Summary : First sentence of the text + " + tot.__str__() + " most scored sentences, in the right order.\n\n")
@@ -235,4 +294,24 @@ def summarize_all2(nbphrases=None):
                     for p in temp3:
                         file.write(p[0] + "\n")
 
-summarize_all2()
+
+def modify_rc_ics(newname):
+    """
+    Load default TF-IDF databases and modify ics in the network
+    according to them.
+    """
+    cn = ConceptNetwork()
+    cn.load(NETWORK)
+    ntfidf = dict()
+    ctfidf = dict()
+    # load data
+    for entry in read_json_stream(DIRECTORY + "cleared_concepts_tfidf_data.jsons"):
+        ctfidf[entry[0]] = entry[1]
+    for entry in read_json_stream(DIRECTORY + "cleared_names_tfidf_data.jsons"):
+        ntfidf[entry[0]] = entry[1]
+
+    for c in ctfidf:
+        if cn.has_node(c):
+            cn[c]["ic"] = 
+
+

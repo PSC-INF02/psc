@@ -11,7 +11,7 @@ class Workspace:
             raise RuntimeError("The word must not be null")
         else:
             wid = parid + "." + word["id"]
-            self.words[id] = word
+            self.words[wid] = word
             return wid
 
     def get_word(self, wid):

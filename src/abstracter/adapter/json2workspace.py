@@ -24,11 +24,12 @@ class Json2W:
         @param jsn The json tree to parse
         @param workspace Current workspace
         """
-        text = json.loads(jsn)
+        text = jsn  # json.loads(jsn)
 
-        for parid, par in enumerate(text):
-            for word in par:
-                self.parse_word(word, parid)
+        #  for parid, par in enumerate(text):
+        for sent in text:
+            for word in sent["words"]:
+                self.parse_word(word, sent["id"])
 
     def parse_word(self, word, parid):
         wd = self.workspace.get_word(self, parid + "." + word["id"])
