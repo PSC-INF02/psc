@@ -34,13 +34,13 @@ class Json2W:
         wd = self.workspace.get_word(self, parid + "." + word["id"])
         if wd is None:
             if 'noun' in word["type"]:
-		# Must test if word is head of chunk
-		if word["tags"]["relations"]:
+               	# Must test if word is head of chunk
+                if word["tags"]["relations"]:
                     wd = wks.Entity()
                     for beginRepr, endRepr in word["tags"]["relations"]:
                         wd.add_reference((parid, beginRepr, endRepr))
-		else:
-		    wd = wks.Attribute()
+                else:
+                    wd = wks.Attribute()
             elif 'adj' in word["type"]:
                 wd = wks.Attribute()
             elif 'verb' in word["type"]:
