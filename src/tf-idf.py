@@ -300,18 +300,33 @@ def modify_rc_ics(newname):
     Load default TF-IDF databases and modify ics in the network
     according to them.
     """
+    print("Loading...")
     cn = ConceptNetwork()
     cn.load(NETWORK)
     ntfidf = dict()
     ctfidf = dict()
     # load data
+    i = 0
     for entry in read_json_stream(DIRECTORY + "cleared_concepts_tfidf_data.jsons"):
-        ctfidf[entry[0]] = entry[1]
+        i += 1
+        ctfidf[entry[0]] = i
+    j = 0
     for entry in read_json_stream(DIRECTORY + "cleared_names_tfidf_data.jsons"):
-        ntfidf[entry[0]] = entry[1]
-
-    for c in ctfidf:
+        j += 1
+        ntfidf[entry[0]] = j
+    print("Running...")
+    for n in ctfidf:
+        c = n.lower().replace(' ', '_')
         if cn.has_node(c):
-            cn[c]["ic"] = 
+            cn[c]['ic'] = int(min((i - ctfidf[n]) / i * 100 + 5, 100))
+    for n in ntfidf:
+        c = n.lower().replace(' ', '_')
+        if cn.has_node(c):
+            cn[c]['ic'] = int(min((j - ntfidf[n]) / j * 100 + 15, 100))
+    print("Saving...")
+    if not os.path.isdir(newname):
+        os.makedirs(newname)
+    cn.save_to_JSON_stream(newname + "/" + newname)
 
 
+modify_rc_ics("rc4")

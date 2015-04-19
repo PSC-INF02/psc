@@ -24,7 +24,7 @@ class Context:
             print("Loading default network...")
             self.load_network()
             print("Done loading.")
-        self.workspace = Workspace(self)
+        self.workspace = OldWorkspace(self)
 
     def load_network(self, name="rc"):
         self.network.load(name)

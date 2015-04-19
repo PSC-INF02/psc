@@ -77,8 +77,8 @@ class Network:
     def nodes(self, data=True):
         return self.network.nodes(data)
 
-    def edges(self):
-        return self.network.edges()
+    def edges(self, data=True):
+        return self.network.edges(data=data)
 
     def shortest_path(self, source=None, target=None, weight=None):
         return nx.shortest_path(self.network, source=source, target=target, weight=weight)
