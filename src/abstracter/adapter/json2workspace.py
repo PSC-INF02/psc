@@ -5,7 +5,7 @@
 """
 
 import json
-import abstracter.workspace as wks
+import abstracter.workspace.workspace as wks
 
 
 class Json2W:
@@ -32,18 +32,18 @@ class Json2W:
                 self.parse_word(word, sent["id"])
 
     def parse_word(self, word, parid):
-        wd = self.workspace.get_word(self, parid + "." + word["id"])
+        wd = self.workspace.get_word(parid,word["id"])
         if wd is None:
             if 'noun' in word["type"]:
-                # Must test if word is head of chunk
-                if word["tags"]["relations"]:
-                    wd = wks.Entity()
-                    for beginRepr, endRepr in word["tags"]["relations"]:
-                        wd.add_reference((parid, beginRepr, endRepr))
-                else:
-                    wd = wks.Attribute()
+                wd = wks.Entity()
+                wd.add_reference((parid, word["id"]), (parid, word["id"]))
+                for beginRepr, endRepr in word["tags"]["relations"]:
+                    for i in range(beginRepr, endRepr):
+                        if not (parid,i) in wd.get_attributes():
+			   wd.add_attribute((parid, i))
             elif 'adj' in word["type"]:
-                wd = wks.Attribute()
+                wd = wks.Attribute(word["norm"])
             elif 'verb' in word["type"]:
                 # Verbs are very probably events or should be treated as such.
-                wd = wks.Event()
+                # wd = wks.Event()
+                pass

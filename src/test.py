@@ -1,4 +1,4 @@
-from abstracter.workspace.workspace import Workspace
+from abstracter.workspace.workspace import * 
 from abstracter.util.systran_parser import parse_systran
 from abstracter.adapter.json2workspace import Json2W
 
