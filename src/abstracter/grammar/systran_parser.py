@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """
 @file systran_parser.py
-@brief Util to transform systran files into json objects.
+@brief Transform systran files into json objects.
 """
 
 import re

@@ -13,101 +13,38 @@ the json data provided contains enough information (such as types and tags).
 
 Example :
 @code
+from abstracter.grammar.systran_parser import parse_systran
+from abstracter.grammar.noun_phrases import get_noun_phrases
+
+sents = parse_systran("../systran/3.clean.wsd.linear")
 nps = get_noun_phrases(sents)
 ref = refactor_nps(nps) # one dict only, by two-tuples indices
 resolve_anaphoras_in_place(sents, nps) # add the refersTo tags
+print_solution_in_place(sents, nps)
 @endcode
+
+Anaphoras can also be resolved without adding the refersTo tags :
+@code
+sents = systran_parsed_data
+nps = get_noun_phrases(sents)
+print(nps)
+res = resolve_all_anaphoras(sents, nps)
+print(res)
+truc = refactor_results(nps, res)
+print_all_resolution(sents, truc)
+@endcode
+
+See the functions documentation.
 """
-
-##############################
-# Types of words in noun phrases (systrans's types)
-########################
-
-NOUN_PHRASES_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
-                      "det", "adj", "numeric"]
-
-################################
-# Types of proper nouns
-############################
-
-PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
-
-##########################
-# Types of pronouns
-############################
-
-PRONOUN_TAGS = ["pron"]
-
-###################################
-# heuristically, only words tagged as objects or agents of verbs
-# make good noun phrases
-# however, this is not always the case. After running some tests,
-# we discovered we had to use also direct objects.
-##############################
-
-MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
-
-#####################################
-# When we get a head noun, we want to
-# construct the whole noun phrase :
-# with TO_ADD, add directly words with the head noun's tags
-# with TO_BE_ADDED, add words from the phrase that
-# are linked with the head noun
-###################################
-
-TO_ADD = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ"]  # "MODIFIED_ON_RIGHT", ??
-TO_BE_ADDED = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
-               "SEMANTIC_MODIFIER_OF"]
-
-#######################################
-# indefinite articles
-##############################
-
-INDEFINITE = ["a"]
-
-
-ANTECEDENT_TAGS = ["ANTECEDENT"]
+from abstracter.grammar.utils import *
+from abstracter.grammar.noun_phrases import get_noun_phrases, refactor_nps
 
 
 #####################
-# how many previous sentences to check
+# how many previous sentences to check for pronouns
 ###################
 
 PREV_SENTS = 2
-
-#######################################
-
-
-def get_word(id, sents):
-    """
-    Utilitary : getting a word in a list of sentences.
-
-    @param sents List of sentences given by the systran parser.
-    @param id Two-tuple : id[0] is the sentence id,
-    id[1] is the word id in the sentence
-    @return A word (dictionary of attributes).
-    """
-    for sent in sents:
-        if sent["id"] == id[0]:
-            for word in sent["words"]:
-                if word["id"] == id[1]:
-                    return word
-    return None
-
-
-def _get_tag(word, tag):
-    """
-    Getting tag information.
-
-    @return The result may be "0", "1" or an integer
-    (if the tag is a link to another word), or None
-    if the tag doesn't appear.
-    """
-    return word["tags"][tag] if tag in word["tags"] else None
-
-
-def _has_type_in(word, type_list):
-    return word["type"] in type_list
 
 
 def is_indefinite(sentences, id_list):
@@ -124,117 +61,6 @@ def is_indefinite(sentences, id_list):
 
 def is_propernoun(id, sentences):
     return (get_word(id, sentences)["type"]) in PROPERNOUNS
-
-
-def _has_tag_in(word, tag_list):
-    for tag in tag_list:
-        if _get_tag(word, tag):
-            return True
-    return False
-
-
-def get_tag(sents, full_id, tag):
-    tmp = get_word(full_id, sents)
-    return tmp["tags"][tag] if tag in tmp["tags"] else None
-
-
-def get_noun_phrases(sentences):
-    """
-    @brief This function get noun phrases from sentences.
-
-    For each sentence, the noun phrases are given as a dict.
-    Each one is determined by one element : the head noun.
-
-    The noun phrases are computed with the following algorithm :
-    first, we get all possible head nouns, by recognizing some tags
-    (objects or subjects of verbs, direct objects are good candidates).
-    Then, we expand each noun phrase by adding words that are
-    related to the head noun (adjectives, articles...).
-
-    @param sentences A list of sentences given by the systran parser
-    (function parse_systran).
-    Each sentence is a dict like :
-    {"id": ..., "Text": ..., "Words": [...]}
-    In the words list, each word is a dict like :
-    {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
-
-    @return A list of dicts. Each one corresponds to a sentence and
-    has the following form :
-    {(0, 0): [], (0, 8): [(0, 6), (0, 7)]}
-    Each id is a two-tuple, corresponding to a word
-    (sentence id and word id in the sentence).
-    Thus, the information of the tuple's first element is redundant
-    with the position of the dict in the resulting list.
-    This is more practical.
-    For this example, we indicate that there are two noun phrases in
-    the sentence 0 : one with the head noun of id (0, 0)
-    (first word of this sentence), which is alone,
-    and a second with the head noun of id (0, 8) (eigth word), which contains
-    also id (0, 6) and (0, 7).
-
-    @see abstracter.util.systran_parser.py
-    """
-    res_list = []
-    # treat each sentence separately
-    for sent in sentences:
-        res = {}
-        sent_id = sent["id"]
-        for word in sent["words"]:
-            term_id = (sent_id, word["id"])
-            if (word
-               and word["type"] in NOUN_PHRASES_TYPES
-               and _has_tag_in(word, MASTER_NOUN_TAGS)):
-                res[term_id] = []
-                # add related words
-                for tag in TO_ADD:
-                    temp = (sent_id, _get_tag(word, tag))
-                    if (temp and temp != term_id
-                       and temp not in res[term_id]
-                       and get_word(temp, sentences)
-                       and get_word(temp, sentences)["type"] in NOUN_PHRASES_TYPES):
-                        res[term_id].append(temp)
-
-        # ckeck all words in the phrase, in case we have forgotten one
-        for word in sent["words"]:
-            term_id = (sent_id, word["id"])
-            if term_id not in res and _has_type_in(word, NOUN_PHRASES_TYPES):
-                for tag in TO_BE_ADDED:
-                    temp = (sent_id, _get_tag(word, tag))
-                    if temp in res:
-                        if temp != term_id and term_id not in res[temp]:
-                            res[temp].append(term_id)
-        for term_id in res:
-            res[term_id].sort()
-        res_list.append(res)
-    return res_list
-
-
-def refactor_nps(noun_phrases):
-    """
-    Small util to transform the noun_phrases list
-    into a single dict.
-
-    @see get_noun_phrases
-    """
-    res_dict = {}
-    for d in noun_phrases:
-        for k in d:
-            res_dict[k] = d[k]
-    return res_dict
-
-
-def print_noun_phrases(sentences):
-    """
-    Utilitary to check if we've obtained the proper noun phrases.
-
-    This allows the user to run some tests.
-
-    @see get_noun_phrases
-    """
-    noun_phrases = get_noun_phrases(sentences)
-    for nps in noun_phrases:
-        for p in sorted(nps):
-            print(' '.join([get_word(id, sentences)["name"] for id in (nps[p] + [p])]))
 
 
 def resolve_anaphoras(sents, nps):
@@ -290,7 +116,7 @@ def resolve_anaphoras(sents, nps):
 
     # first, recognize pronouns
     for word in words:
-        if _has_type_in(word, PRONOUN_TAGS):
+        if has_type_in(word, PRONOUN_TAGS):
             res[(sent_id, word["id"])] = {}
 
     # then, run some checks

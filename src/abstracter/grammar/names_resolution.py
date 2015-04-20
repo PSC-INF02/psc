@@ -2,11 +2,20 @@
 @file names_resolution.py
 @brief Resolve names in systran parsed data,
 may also add some information to it.
+
+Example :
+@code
+from abstracter.grammar.systran_parser import parse_systran
+
+data = parse_systran("../systran/3.clean.wsd.linear")
+reduce_names(data)
+match_and_replace(data)
+@endcode
 """
 
 from abstracter.concepts_network import *
 from abstracter.util.distance import levenshtein
-from abstracter.util.anaphora_resolution import get_word
+from abstracter.grammar.utils import get_word
 
 ####################################
 # Default loading of the concepts network.
@@ -100,7 +109,7 @@ def reduce_names(sentences, concepts_network=None):
                 temp = ""
 
 
-def match_entities(sentences, concepts_network=None, activate=False):
+def match_entities(sentences, concepts_network=None):
     """
     @brief Get the entire name of any entity in the text.
 
@@ -155,14 +164,6 @@ def match_entities(sentences, concepts_network=None, activate=False):
     matched.sort()
     to_match.sort()
 
-    # activate and search for complementary names... (does'nt work properly)
-    # deprecated, uses a context...
-    if activate:
-        possible_matches = list(_activate_entities(context, sorted(list(set([names_dict[i] for i in matched])))))
-        for id in to_match:
-            n, d = _minimize_distance(names_dict[id], possible_matches)
-            if d < 0.5:
-                names_dict[id] = n
     return names_dict
 
 
@@ -212,23 +213,3 @@ def match_and_replace(sentences, cn=None):
         w["name"] = entities_dict[full_id]
         if is_human(entities_dict[full_id], concepts_network):
             get_word(full_id, sentences)["tags"]["HUMAN"] = "1"
-
-
-# deprecated
-def _minimize_distance(name,name_list):
-    result=name,-1
-    for name2 in name_list:
-        d=levenshtein(name,name2, normalized=True, max_dist=-1)
-        if result[1]<0:
-            result=name2,d
-        if d<result[1]:
-            result=name2,d
-    return result
-
-
-def _activate_entities(context,entities_list):
-    for e in entities_list:
-        context.activate(e,50)
-    context.run(len(entities_list)*5)
-    return context.get_activated_nodes()
-    #print(list(context.get_activated_nodes()))
