@@ -166,7 +166,12 @@ def parse_systran(file):
                         tag = r.group(1)
                         v = r.group(2)
 
-                        if tag in KEPT_TAGS:
+                        if tag == "nb" or tag == "per":
+                            if "PERSONS" not in tags:
+                                tags["PERSONS"] = []
+                            tags["PERSONS"].append(v)
+
+                        elif tag in KEPT_TAGS:
                             tag = TAGS_INFO[tag]
                             if tag['type'] == "relation":
                                 v = int(v[1:])
@@ -178,6 +183,12 @@ def parse_systran(file):
                     else:
                         x = map(int, t.split("_@_"))
                         tags["relations"].append(tuple(x))
+
+                if "PERSONS" in tags:
+                    persons = tags["PERSONS"]
+                    nbs = persons[::2]
+                    pers = [int(x[:-2]) for x in persons[1::2]]
+                    tags["PERSONS"] = zip(pers, nbs)
 
                 words.append({
                     "id": len(words),
