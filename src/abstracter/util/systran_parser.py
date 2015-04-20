@@ -151,6 +151,13 @@ def parse_systran(file):
             paragraph_text = []
             for word in paragraph.split(" "):
                 word_details = word.split("-|-")
+                if len(word_details) != 4:
+                    words.append({
+                        "id": len(words),
+                        "error": "error",
+                        "word": word
+                    })
+                    continue
 
                 tags = {"relations": []}
                 for t in word_details[3].split(";"):
