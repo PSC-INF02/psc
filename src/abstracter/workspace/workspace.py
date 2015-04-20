@@ -10,12 +10,12 @@ class Workspace:
         if word is None:
             raise RuntimeError("The word must not be null")
         else:
-            wid = (parid,word["id"])
+            wid = (parid, word["id"])
             self.words[wid] = word
             return wid
 
     def get_word(self, parid, lid):
-        return self.words.get((parid,lid), None)
+        return self.words.get((parid, lid), None)
 
 
 class Entity:
@@ -48,7 +48,7 @@ class Entity:
         if references:
             self.references = references
         else:
-            self.references = {} 
+            self.references = {}
 
     def add_attribute(self, attributeID):
         '''
@@ -87,7 +87,7 @@ class Attribute:
     '''
     @class Attribute
     @brief Represents an attribute to an entity.
-    Since an attribute is generally associated to only one entity and 
+    Since an attribute is generally associated to only one entity and
     entities have a list of attributes, an attribute will only consist in :
     * A name, which will essentially be a concept for the attribute. "Captain", for instance.
     * A logical modifier (such as "not" for "not captain", no other example at the moment)
@@ -124,16 +124,16 @@ class Event:
     with the nature of the relationship between the two events (sameTime, consequence, etc.)
     '''
 
-    def __init__(self, origin, destination, events=None):
+    def __init__(self, origin, destinations, events=None):
         '''
         Creates an event, ready to be pushed in the workspace.
         @param origin Attribute or Entity before the change.
-        @param destination Attribute or Entity after the change.
+        @param destinations list of Attributes or Entities after the change.
         @param events An optional list of other events this one is linked to
         '''
 
         self.origin = origin
-        self.destination = destination
+        self.destinations = destinations
 
         if events:
             self.events = events
@@ -147,11 +147,11 @@ class Event:
 
     def remove_event(self, event):
         '''
-        Deletes the link between this event and another, whatever the relationship was.
+        Deletes the link between this event and another,
+            whatever the relationship was.
         @param event The event to be separated from this one
         '''
 
         for e in self.events:
             if e[1] == event:
                 self.events.remove(e)
-
