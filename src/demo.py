@@ -71,7 +71,7 @@ match_and_replace(data)
 #print_noun_phrases(data)
 #nps = get_all_noun_phrases(data)
 #print(nps)
-demo(data)
+demo2(data)
 #print_all_noun_phrases(data[0:20])
 
 #resolve_anaphoras(data[1:20])

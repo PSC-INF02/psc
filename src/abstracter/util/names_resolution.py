@@ -12,7 +12,7 @@ from abstracter.util.anaphora_resolution import get_word
 # Default loading of the concepts network.
 ###################################
 
-DEFAULT_CN = "rc"
+DEFAULT_CN = "rc3"
 
 
 #####################################

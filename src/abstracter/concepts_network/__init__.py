@@ -67,6 +67,46 @@ class ConceptNetwork(Network):
         self[id]['a'] = int(min(act + i - d, 100))
         # we do not go beyond 100,  and activation is an integer
 
+    def activate(self, id_list, act=60):
+        for id in id_list:
+            self[id]['a'] += act
+
+    def propagate(self):
+        """
+        Compute the activation of all already activated nodes
+        and their neighbours.
+        """
+        to_deactivate = list()
+        # get all neighbours
+        neighbours = dict()
+        for n, d in self.nodes():
+            if d['a'] > 0:
+                to_deactivate.append(n)
+                neighbours[n] = 0
+                for arc in self.out_arcs(n):
+                    neighbours[arc[1]] = 0
+        # compute activation for all neighbours
+        for n in neighbours:
+            divlog = 1
+            i = 0
+            for arc in self.in_arcs(n):
+                i = i + (arc[3]['w'] or 0) * self[arc[0]]['a']
+            i = i / (100 * divlog)
+            neighbours[n] = int(min(self[n]['a'] + i, 100))
+        # change activation
+        for n in neighbours:
+            self[n]['a'] = neighbours[n]
+        # deactivate
+        for n in to_deactivate:
+            self[n]['a'] = int(self[n]['a'] * (self[n]['ic'] or 100) / 100) # int(min(self[n]['a'] * (100 - (self[id]['ic'] or 100)) / 100))
+
+    def print_activated_nodes(self, offset=0):
+        for n, d in self.nodes():
+            if d['a'] > offset:
+                print(n + " : " + d['a'].__str__())
+
+    ###########################################
+
     def load_nodes_from_stream(self, filename):
         """
         Load nodes from a .jsons file and insert them in the ConceptNetwork.

@@ -1,8 +1,10 @@
-from abstracter.workspace.workspace import * 
-from abstracter.util.systran_parser import parse_systran
-from abstracter.adapter.json2workspace import Json2W
+from abstracter.concepts_network import *
 
-parsedText = parse_systran("11.clean.wsd.linear")
-wks = Workspace()
-jsn = Json2W(wks)
-jsn.parse(parsedText)
+cn = ConceptNetwork()
+
+cn.load("rc4")
+
+cn.activate(["wayne_rooney", "steven_gerrard"])
+cn.propagate()
+cn.propagate()
+cn.print_activated_nodes(20)
