@@ -15,6 +15,15 @@ class Json2W:
 
     def __init__(self, workspace):
         self.workspace = workspace
+        self.tags_event_dest = ["OBJECT_OF_ACTION", "INDIROBJ"]
+        self.tags_entity_attributes = [
+            "MODIFIED_BY_ADVERB",
+            "MODIFIED_BY_PREP1",
+            "MODIFIED_BY_PREP2",
+            "MODIFIED_BY_PREP3",
+            "MODIFIED_BY_ADj",
+            "GOVERNS_ANOTHER_NOUN"
+        ]
 
     def parse(self, jsn):
         """
@@ -33,10 +42,11 @@ class Json2W:
     def parse_noun(self, word, parid):
         wd = wks.Entity()
         wd.add_reference((parid, word["id"]), (parid, word["id"]))
-        for beginRepr, endRepr in word["tags"]["relations"]:
-            for i in range(beginRepr, endRepr):
-                if not (parid, i) in wd.get_attributes():
-                    wd.add_attribute((parid, i))
+        for tag in self.tags_entity_attributes:
+            if tag in word["tags"]:
+                wd.add_attribute((parid, word["tags"][tag]))
+        for representant in word["tags"]["relations"]:
+            wd.add_reference(representant)
 
     def parse_adj(self, word, parid):
         return wks.Attribute(word["norm"])
@@ -44,7 +54,7 @@ class Json2W:
     def parse_event(self, word, parid):
         # Verbs are very probably events or should be treated as such.
         dests = []
-        for tag in ["OBJECT_OF_ACTION", "INDIROBJ"]:
+        for tag in self.tags_event_dest:
             if tag in word["tags"]:
                 dests.append((parid, word["tags"][tag]))
         return wks.Event((parid, word["tags"]["AGENT_OF_ACTION"]), dests)
