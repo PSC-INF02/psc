@@ -10,6 +10,13 @@ other syntax parsing tools, as soon as
 the json data provided contains enough information (such as types and tags).
 
 @see util.systran_parser.py
+
+Example :
+@code
+nps = get_noun_phrases(sents)
+ref = refactor_nps(nps) # one dict only, by two-tuples indices
+resolve_anaphoras_in_place(sents, nps) # add the refersTo tags
+@endcode
 """
 
 ##############################
@@ -297,7 +304,7 @@ def resolve_anaphoras(sents, nps):
                 res[pron_id][np_id] = -100
             else:
                 res[pron_id][np_id] = (np_id[0] - pron_id[0]) * 8
-                res[pron_id][np_id] -= (pron_id[1] - np_id[1])
+                res[pron_id][np_id] -= (pron_id[1] - np_id[1]) * 0.5
 
             # plural or singular
             for tag in ["PL", "SG"]:
@@ -306,7 +313,7 @@ def resolve_anaphoras(sents, nps):
                 if (temp2 and temp and temp2 == temp):
                     res[pron_id][np_id] += 10
                 if (temp2 and temp and not temp2 == temp):
-                    res[pron_id][np_id] -= 20
+                    res[pron_id][np_id] -= 100
 
             # human or not human
             temp = get_tag(sents, np_id, "HUMAN")
@@ -397,6 +404,10 @@ def resolve_all_anaphoras(sents, nps):
     @param nps Noun phrases (list of dicts), already computed (double ids).
     @param sents The sentences (directly parsed from systran).
     @see get_noun_phrases
+
+    @return A list of dicts like :
+    * {(1, 29): (1, 28), (1, 30): (0, 15)}
+    For each sentence.
     """
     assert len(sents) > 0
     assert len(nps) == len(sents)
@@ -404,6 +415,23 @@ def resolve_all_anaphoras(sents, nps):
     for i in range(len(sents)):
         res.append(resolve_anaphoras(sents[max(i - PREV_SENTS, 0): i + 1], nps[max(i - PREV_SENTS, 0):i + 1]))
     return res
+
+
+def resolve_anaphoras_in_place(sents, nps=None):
+    """
+    Resolve all anaphoras by adding a tag "refersTo" pointing
+    to the specified head noun.
+
+    @warning : The tag "refersTo" gives a two-tuple.
+    """
+    # in case the noun phrases were'nt computed
+    if not nps:
+        nps = get_noun_phrases(sents)
+    resolve_results = resolve_all_anaphoras(sents, nps)
+    for i in range(len(sents)):
+        for pron_id in resolve_results[i]:
+            # we find the pronoun and modify it
+            get_word(pron_id, sents)["tags"]["refersTo"] = resolve_results[i][pron_id]
 
 
 def print_all_resolution(sents, refactored):
@@ -457,6 +485,21 @@ def refactor_results(nps, resolve_results):
     return result
 
 
+def print_solution_in_place(sents, nps):
+    refactored_nps = refactor_nps(nps)
+    for i in range(len(sents)):
+        sent = sents[i]
+        for word in sent["words"]:
+            if not _has_tag_in(word, ["refersTo"]):
+                print(word["name"], end=" ")
+            else:
+                the_head_noun = word["tags"]["refersTo"]
+                the_prop = sorted(refactored_nps[the_head_noun] + [the_head_noun])
+                the_words = [get_word(full_id, sents)["name"] for full_id in the_prop]
+                print(word["name"] + " ( " + ' '.join(the_words) + " ) ", end="")
+        print("\n")
+
+
 def demo(systran_parsed_data):
     sents = systran_parsed_data
     nps = get_noun_phrases(sents)
@@ -465,3 +508,11 @@ def demo(systran_parsed_data):
     print(res)
     truc = refactor_results(nps, res)
     print_all_resolution(sents, truc)
+
+
+def demo2(sents):
+    nps = get_noun_phrases(sents)
+    print(nps)
+    print_noun_phrases(sents)
+    resolve_anaphoras_in_place(sents, nps)
+    print_solution_in_place(sents, nps)
