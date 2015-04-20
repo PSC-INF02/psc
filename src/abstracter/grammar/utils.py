@@ -9,6 +9,36 @@ of the default ConceptNetwork to be loaded to perform
 operations that need it (especially names resolution).
 """
 
+
+###############################"
+#
+###############################
+
+VERB_GROUPS_TYPES = ["aux:plain",
+                     "verb:inf",
+                     "prtcl",
+                     "aux:plain_x_aux:inf",
+                     "verb:plain_x_adv",
+                     "verb:pastpart",
+                     "verb:prespart",
+                     "aux:plain_x_adv",
+                     "aux:pastpart",
+                     "verb:plain",
+                     "aux:plain_x_aux:pastpart",
+                     "aux:prespart",
+                     # "verb:plain_x_pron",
+                     "aux:inf",
+                     "adv_x_aux:plain",
+                     "adv",
+                     "aux:plain_x_aux:plain"]
+
+
+MASTER_VERB_TAGS = ["PASSIVE", "PAST", "PERFECT", "PRESENT", "FUTURE", "DIROBJ"]
+
+TO_ADD_VB = ["MODIFIED_BY_ADVERB"]
+
+TO_BE_ADDED_VB = ["MODIFIES"]
+
 ####################################
 # Default loading of the concepts network.
 ###################################
