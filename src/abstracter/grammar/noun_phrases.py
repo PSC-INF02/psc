@@ -1,19 +1,19 @@
 """@file noun_phrases.py
 @brief Getting noun phrases in a text (parsed to json).
+
+Example :
+@code
+from abstracter.grammar.systran_parser import parse_systran
+from abstracter.grammar.noun_phrases import get_noun_phrases, print_noun_phrases
+
+sents = parse_systran("../systran/3.clean.wsd.linear")
+nps = get_noun_phrases(sents)
+print(nps)
+print_noun_phrases(sents)
+@endcode
 """
 
-from abstracter.grammar.utils import *
-
-
-def _get_tag(word, tag):
-    """
-    Getting tag information.
-
-    @return The result may be "0", "1" or an integer
-    (if the tag is a link to another word), or None
-    if the tag doesn't appear.
-    """
-    return word["tags"][tag] if tag in word["tags"] else None
+from abstracter.grammar.utils import NOUN_PHRASES_TYPES, has_tag_in, has_type_in, MASTER_NOUN_TAGS, get_word, TO_BE_ADDED, TO_ADD
 
 
 def get_noun_phrases(sentences):
@@ -65,7 +65,7 @@ def get_noun_phrases(sentences):
                 res[term_id] = []
                 # add related words
                 for tag in TO_ADD:
-                    temp = (sent_id, _get_tag(word, tag))
+                    temp = (sent_id, word["tags"].get(tag, None))
                     if (temp and temp != term_id
                        and temp not in res[term_id]
                        and get_word(temp, sentences)
@@ -77,7 +77,7 @@ def get_noun_phrases(sentences):
             term_id = (sent_id, word["id"])
             if term_id not in res and has_type_in(word, NOUN_PHRASES_TYPES):
                 for tag in TO_BE_ADDED:
-                    temp = (sent_id, _get_tag(word, tag))
+                    temp = (sent_id, word["tags"].get(tag, None))
                     if temp in res:
                         if temp != term_id and term_id not in res[temp]:
                             res[temp].append(term_id)

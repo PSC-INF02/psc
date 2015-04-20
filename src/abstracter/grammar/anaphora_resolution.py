@@ -312,6 +312,10 @@ def refactor_results(nps, resolve_results):
 
 
 def print_solution_in_place(sents, nps):
+    """
+    Print the anaphora resolution, by reading the
+    "refersTo" tags.
+    """
     refactored_nps = refactor_nps(nps)
     for i in range(len(sents)):
         sent = sents[i]

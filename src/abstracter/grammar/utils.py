@@ -2,7 +2,34 @@
 @file utils.py
 @brief Util functions and parameters to treat systran
 raw data and itself parsed to json.
+
+In particular, we have here the lists of tags and types
+that are considered for anaphora resolution, and the name
+of the default ConceptNetwork to be loaded to perform
+operations that need it (especially names resolution).
 """
+
+####################################
+# Default loading of the concepts network.
+###################################
+
+DEFAULT_CN = "rc3"
+
+
+#####################################
+# Types of the words implied in reducing names.
+# we don't take acronyms.
+#####################################
+
+NAMES_TYPES = ["noun:propernoun"]
+
+
+##################################
+# Concepts which indicate that
+# some entity is a human being.
+##################################
+
+HUMAN = ["person"]
 
 
 ##########################
@@ -58,8 +85,7 @@ TO_BE_ADDED = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
 
 
 def get_tag(sents, full_id, tag):
-    tmp = get_word(full_id, sents)
-    return tmp["tags"][tag] if tag in tmp["tags"] else None
+    return get_word(full_id, sents)["tags"].get(tag, None)
 
 
 def get_word(id, sents):

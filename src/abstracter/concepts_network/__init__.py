@@ -1,6 +1,54 @@
+"""@package concepts_network
+
+@brief The ConceptNetwork.
+
+Example :
+
+@code
+from abstracter.concepts_network import ConceptNetwork
+
+NETWORK = ConceptNetwork()
+edges = [["wayne_rooney", "athlete", {"w": 39, "r": "IsA"}],
+         ["wayne_rooney", "soccer_player", {"w": 39, "r": "IsA"}],
+         ["soccer_player", "athlete", {"w": 47, "r": "IsA"}],
+         ["soccer_player", "win_match", {"w": 47, "r": "CapableOf"}],
+         ["soccer_player", "at_soccer_game", {"w": 47, "r": "AtLocation"}],
+         ["athlete", "sport_event", {"w": 77, "r": "AtLocation"}],
+         ["athlete", "play_sport", {"w": 90, "r": "CapableOf"}],
+         ["sport_event", "television", {"w": 60, "r": "AtLocation"}]]
+
+for e in edges:
+    NETWORK.add_edge(e[0], e[1], w=e[2]["w"], r=e[2]["r"])
+
+NETWORK.pretty_draw()
+@endcode
+
+Example of activation :
+@code
+from abstracter.concepts_network import *
+
+cn = ConceptNetwork()
+
+cn.load("rc4")
+
+cn.activate(["wayne_rooney", "steven_gerrard"])
+for i in range(4):
+    cn.propagate()
+cn.print_activated_nodes(9)
+@endcode
+
+"""
+
 from abstracter.util.json_stream import read_json_stream, JSONStreamWriter
 from abstracter.util.network import Network
 from math import log
+
+
+def divlog(nb):
+    """
+    Heuristic logarithmic divisor used in activation propagation.
+    """
+    return log(13 + nb) / log(13)
 
 
 class ConceptNetwork(Network):
@@ -87,18 +135,17 @@ class ConceptNetwork(Network):
                     neighbours[arc[1]] = 0
         # compute activation for all neighbours
         for n in neighbours:
-            divlog = 1
             i = 0
             for arc in self.in_arcs(n):
                 i = i + (arc[3]['w'] or 0) * self[arc[0]]['a']
-            i = i / (100 * divlog)
+            i = i / (100 * divlog(len(list(self.in_arcs(n)))))
             neighbours[n] = int(min(self[n]['a'] + i, 100))
         # change activation
         for n in neighbours:
             self[n]['a'] = neighbours[n]
         # deactivate
         for n in to_deactivate:
-            self[n]['a'] = int(self[n]['a'] * (self[n]['ic'] or 100) / 100) # int(min(self[n]['a'] * (100 - (self[id]['ic'] or 100)) / 100))
+            self[n]['a'] = int(self[n]['a'] * (self[n]['ic'] or 100) / 100)  # int(min(self[n]['a'] * (100 - (self[id]['ic'] or 100)) / 100))
 
     def print_activated_nodes(self, offset=0):
         for n, d in self.nodes():

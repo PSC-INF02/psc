@@ -17,28 +17,6 @@ from abstracter.concepts_network import *
 from abstracter.util.distance import levenshtein
 from abstracter.grammar.utils import get_word
 
-####################################
-# Default loading of the concepts network.
-###################################
-
-DEFAULT_CN = "rc3"
-
-
-#####################################
-# Types of the words implied in reducing names.
-# we don't take acronyms.
-#####################################
-
-NAMES_TYPES = ["noun:propernoun"]
-
-
-##################################
-# Concepts which indicate that
-# some entity is a human being.
-##################################
-
-HUMAN = ["person"]
-
 
 def is_human(word, cn):
     """
