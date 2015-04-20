@@ -57,7 +57,8 @@ class Json2W:
         for tag in self.tags_event_dest:
             if tag in word["tags"]:
                 dests.append((parid, word["tags"][tag]))
-        return wks.Event((parid, word["tags"]["AGENT_OF_ACTION"]), dests)
+        return wks.Event(word["norm"],
+                         (parid, word["tags"]["AGENT_OF_ACTION"]), dests)
 
     def parse_word(self, word, parid):
         wd = self.workspace.get_word(parid, word["id"])

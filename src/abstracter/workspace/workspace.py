@@ -124,7 +124,7 @@ class Event:
     with the nature of the relationship between the two events (sameTime, consequence, etc.)
     '''
 
-    def __init__(self, origin, destinations, events=None):
+    def __init__(self, name, origin, destinations, events=None):
         '''
         Creates an event, ready to be pushed in the workspace.
         @param origin Attribute or Entity before the change.
@@ -134,6 +134,7 @@ class Event:
 
         self.origin = origin
         self.destinations = destinations
+        self.name = name
 
         if events:
             self.events = events
