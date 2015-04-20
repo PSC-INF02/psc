@@ -90,7 +90,8 @@ def parse_systran(file):
                     })
                     continue
 
-                tags = {"relations": []}
+                tags = {}
+                relations = []
                 for t in word_details[3].split(";"):
                     r = re.match(r"(.+)=(.+)", t)
                     if r is not None:
@@ -113,7 +114,7 @@ def parse_systran(file):
                             tags[tag] = v
 
                     else:
-                        tags["relations"].append(tuple(map(int, t.split("_@_"))))
+                        relations.append(tuple(map(int, t.split("_@_"))))
 
                 if "PERSONS" in tags:
                     persons = tags["PERSONS"]
@@ -121,12 +122,14 @@ def parse_systran(file):
                     pers = [int(x[:-2]) for x in persons[1::2]]
                     tags["PERSONS"] = list(zip(pers, nbs))
 
+                tags["relations"] = relations  # TODO: remove (retrocompatibility)
                 words.append({
                     "id": len(words),
                     "name": word_details[0],
                     "norm": word_details[1],
                     "type": word_details[2],
-                    "tags": tags
+                    "tags": tags,
+                    "relations": relations
                 })
                 paragraph_text.append(word_details[0])
             data.append({
