@@ -1,21 +1,32 @@
+import abstracter.util.network as network
+
+
 class Workspace:
     """
     THE Workspace
     """
 
     def __init__(self):
-        self.words = {}
+        # self.words = {}
+        self.network = network.Network()
 
     def add_word(self, parid, word=None):
         if word is None:
             raise RuntimeError("The word must not be null")
         else:
-            wid = (parid, word["id"])
-            self.words[wid] = word
-            return wid
+            wid = (parid, word.id)
+            self.network.add_edge(wid, {})
+
+            for lbl, relations in word.get_relations():
+                for relation in relations:
+                    self.network.add_edge(
+                        wid, relation, {"type": lbl}
+                    )
+            # self.words[wid] = word
+            # return wid
 
     def get_word(self, parid, lid):
-        return self.words.get((parid, lid), None)
+        return self.network.get_node((parid, lid))
 
 
 class Entity:
@@ -30,7 +41,7 @@ class Entity:
         under the norm (paragraphNumber, wordNumber)
     '''
 
-    def __init__(self, name=None, attributes=None, references=None):
+    def __init__(self, id, name=None, attributes=None, references=None):
         '''
         Initianalises an entity. All arguments but the name are optional.
         @param name the name of the entity
@@ -39,7 +50,7 @@ class Entity:
             where that entity is referred to in the text
         @return an entity ready to be pushed in the workspace !
         '''
-
+        self.id = id
         self.name = name
         if attributes:
             self.attributes = attributes
@@ -82,6 +93,9 @@ class Entity:
 
         self.attributes.remove(attribute)
 
+    def get_relations(self):
+        return {"attribute": self.attributes}
+
 
 class Attribute:
     '''
@@ -89,17 +103,21 @@ class Attribute:
     @brief Represents an attribute to an entity.
     Since an attribute is generally associated to only one entity and
     entities have a list of attributes, an attribute will only consist in :
-    * A name, which will essentially be a concept for the attribute. "Captain", for instance.
-    * A logical modifier (such as "not" for "not captain", no other example at the moment)
+    * A name, which will essentially be a concept for the attribute.
+        "Captain", for instance.
+    * A logical modifier (such as "not" for "not captain",
+        no other example at the moment)
     '''
 
-    def __init__(self, name, modifier=None):
+    def __init__(self, id, name, modifier=None):
         '''
-        Creates an instance of the object, ready to be added to an entity or pushed in the workspace.
+        Creates an instance of the object,
+        ready to be added to an entity or pushed in the workspace.
         @param name Title for the attribute
         @param modifier An optional logical modifier for the title.
         '''
 
+        self.id = id
         self.name = name
         if modifier:
             self.modifier = modifier
@@ -112,6 +130,9 @@ class Attribute:
         '''
         self.modifier = modifier
 
+    def get_relations(self):
+        return {}
+
 
 class Event:
     '''
@@ -121,10 +142,11 @@ class Event:
     * An entity or attribute of origin (before the change)
     * An entity or attribute of destination (after the change)
     * A list of other events that this one is linked to. The links are labeled
-    with the nature of the relationship between the two events (sameTime, consequence, etc.)
+    with the nature of the relationship between the two events
+        (sameTime, consequence, etc.)
     '''
 
-    def __init__(self, name, origin, destinations, events=None):
+    def __init__(self, id, name, origin, destinations, events=None):
         '''
         Creates an event, ready to be pushed in the workspace.
         @param origin Attribute or Entity before the change.
@@ -132,6 +154,7 @@ class Event:
         @param events An optional list of other events this one is linked to
         '''
 
+        self.id = id
         self.origin = origin
         self.destinations = destinations
         self.name = name
@@ -142,7 +165,8 @@ class Event:
     def add_event(self, event):
         '''
         Adds an event linked to this one.
-        @param event A tuple like (relationship, event_object) to link with this one
+        @param event A tuple like (relationship, event_object)
+            to link with this one
         '''
         self.events.append(event)
 
@@ -156,3 +180,9 @@ class Event:
         for e in self.events:
             if e[1] == event:
                 self.events.remove(e)
+
+    def get_relations(self):
+        return {
+            "origin": [self.origin],
+            "dest": [self.destinations]
+        }

@@ -40,7 +40,7 @@ class Json2W:
                 self.parse_word(word, sent["id"])
 
     def parse_noun(self, word, parid):
-        wd = wks.Entity()
+        wd = wks.Entity(word["id"])
         wd.add_reference((parid, word["id"]), (parid, word["id"]))
         for tag in self.tags_entity_attributes:
             if tag in word["tags"]:
@@ -49,7 +49,7 @@ class Json2W:
             wd.add_reference(representant)
 
     def parse_adj(self, word, parid):
-        return wks.Attribute(word["norm"])
+        return wks.Attribute(word["id"], word["norm"])
 
     def parse_event(self, word, parid):
         # Verbs are very probably events or should be treated as such.
@@ -57,7 +57,7 @@ class Json2W:
         for tag in self.tags_event_dest:
             if tag in word["tags"]:
                 dests.append((parid, word["tags"][tag]))
-        return wks.Event(word["norm"],
+        return wks.Event(word["id"], word["norm"],
                          (parid, word["tags"]["AGENT_OF_ACTION"]), dests)
 
     def parse_word(self, word, parid):
