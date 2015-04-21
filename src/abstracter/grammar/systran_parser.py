@@ -140,6 +140,35 @@ def parse_systran(file):
     return data
 
 
+from abstracter.grammar.grammartree import GrammarTree, Word
+def to_grammar_tree(data):
+    tree = GrammarTree()
+    for x in data:
+        for w in x['words']:
+            w['text'] = w['name']
+            del w['name']
+            del w['tags']['relations']  # TODO: remove (retrocompatibility)
+            w['kind'] = w['type']
+
+            if len(w['relations']) != 0:
+                relations = set(x for r in w['relations'] for x in r)
+                relations.add(w['id'])
+                w['relations'] = list(relations)
+
+
+        t = GrammarTree(Word(w) for w in x['words'])
+        t['kind'] = 'paragraph'
+        tree.add(t)
+
+        # Change relation ids to paths in the tree
+        for w in t.leaves():
+            for tag, relid in w.relation_tags():
+                w['tags'][tag] = [t.id, relid]
+            w['relations'] = [[t.id, r] for r in w['relations']]
+
+    return tree
+
+
 if __name__ == "__main__":
     import sys
     file = sys.argv[1]
