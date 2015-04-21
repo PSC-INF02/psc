@@ -32,7 +32,7 @@ def get_noun_phrases(sentences):
     @param sentences A list of sentences given by the systran parser
     (function parse_systran).
     Each sentence is a dict like :
-    {"id": ..., "Text": ..., "Words": [...]}
+    {"id": ..., "text": ..., "words": [...]}
     In the words list, each word is a dict like :
     {"type": ..., "tags": {...}, "name": ..., "norm": ..., "id": ...}
 
@@ -103,7 +103,7 @@ def refactor_nps(noun_phrases):
 
 def print_noun_phrases(sentences):
     """
-    Utilitary to check if we've obtained the proper noun phrases.
+    Utility to check if we've obtained the proper noun phrases.
 
     This allows the user to run some tests.
 

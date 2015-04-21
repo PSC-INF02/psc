@@ -43,7 +43,7 @@ class Entity:
 
     def __init__(self, id, name=None, attributes=None, references=None):
         '''
-        Initianalises an entity. All arguments but the name are optional.
+        Initialises an entity. All arguments but the name are optional.
         @param name the name of the entity
         @param attributes a list of the attribute applying to the entity
         @param references a list of places

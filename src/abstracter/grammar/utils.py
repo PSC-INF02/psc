@@ -161,7 +161,7 @@ PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
 # heuristically, only words tagged as objects or agents of verbs
 # make good noun phrases
 # however, this is not always the case. After running some tests,
-# we discovered we had to use also direct objects.
+# it appeared we had to use also direct objects.
 ##############################
 
 MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
