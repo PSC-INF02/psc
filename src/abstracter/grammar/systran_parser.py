@@ -2,12 +2,24 @@
 """
 @file systran_parser.py
 @brief Transform systran files into json objects.
+
+The analyser of systran produces files with a special syntax.
+We transform these files into json objects. This allows
+us, for example, to change the analyser if we wish to, as long
+as the json structure produced is the same (and, of course, the
+information provided in it).
 """
 
 import re
 import json
 from abstracter.grammar.utils import TAGS_INFO
 
+
+####################################
+# Mapping systran tags into
+# generic ones (which are more
+# ore less copies of the previous ones)
+##################################
 
 TAGS_MAP = {
     "abstract": "ABSTRACT",
@@ -75,6 +87,11 @@ TAGS_MAP = {
 
 
 def parse_systran(file):
+    """
+    Parses a systran file and returns the JSON data.
+
+    @param file Name of the file to parse.
+    """
     data = []
     with open(file, "r") as f:
         for paragraph in f:
@@ -141,6 +158,8 @@ def parse_systran(file):
 
 
 from abstracter.grammar.grammartree import GrammarTree, Word
+
+
 def to_grammar_tree(data):
     tree = GrammarTree()
     for x in data:
