@@ -71,7 +71,10 @@ TAGS_INFO = {
     "SKIP_BEGIN": {"type": "relation"},
     "SKIP_END": {"type": "relation"},
     "SUPERLATIVE": {"type": "boolean"},
-    "TIME": {"type": "boolean"}
+    "TIME": {"type": "boolean"},
+
+    # Custom tags
+    "HEAD_NOUNS": {"type": "relation"}
 }
 
 def is_relation_tag(tag):
