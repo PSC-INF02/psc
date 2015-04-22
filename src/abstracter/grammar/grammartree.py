@@ -197,18 +197,15 @@ class GrammarTree:
         d = len(self.path())
 
         # Redirect tags to new ids
-        for w in self.root.leaves():
-            for tag, val in w['tags'].items():
-                if is_relation_tag(tag) and val[:d] == path:
-                    w['tags'][tag] = val[:d] + id_map[val[d]] + val[d + 1:]
-            if 'relations' in w:
-                relations = []
-                for r in w['relations']:
+        for n in self.root.nodes():
+            if 'tags' in n:
+                for tag, val in n.relation_tags():
+                    if val[:d] == path:
+                        n['tags'][tag] = val[:d] + id_map[val[d]] + val[d + 1:]
+            if 'relations' in n:
+                for i, r in enumerate(n['relations']):
                     if r[:d] == path:
-                        relations.append(r[:d] + id_map[r[d]] + r[d + 1:])
-                    else:
-                        relations.append(r)
-                w['relations'] = relations
+                        n['relations'][i] = r[:d] + id_map[r[d]] + r[d + 1:]
 
         # Compute node text from descendants
         for x in new_groups:
