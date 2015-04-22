@@ -74,6 +74,8 @@ TAGS_INFO = {
     "TIME": {"type": "boolean"}
 }
 
+def is_relation_tag(tag):
+    return TAGS_INFO.get(tag, {}).get('type') == 'relation'
 
 ###############################"
 #

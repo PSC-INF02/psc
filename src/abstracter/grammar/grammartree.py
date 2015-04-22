@@ -6,6 +6,7 @@ class GrammarTree:
     def __init__(self, children=[]):
         self.id = None
         self.parent = None
+        self.root = self
         self.children = list(children)
         self.contents = {}
 
@@ -102,6 +103,8 @@ class GrammarTree:
         subtree.id = len(self.children)
         subtree.parent = self
         self.children.append(subtree)
+        for n in subtree.nodes():
+            n.root = self.root
 
     def subpath(self, path):
         d = 0  # Depth in the root tree
@@ -185,9 +188,8 @@ class GrammarTree:
         # Redirect tags to new ids
         for w in root.leaves():
             for tag, val in w['tags'].items():
-                if TAGS_INFO.get(tag, {}).get('type') == 'relation':
-                    if val[:d] == path:
-                        w['tags'][tag] = val[:d] + id_map[val[d]] + val[d + 1:]
+                if is_relation_tag(tag) and val[:d] == path:
+                    w['tags'][tag] = val[:d] + id_map[val[d]] + val[d + 1:]
             if 'relations' in w:
                 w['relations'] = [r[:d] + id_map[r[d]] + r[d + 1:] for r in w['relations'] if r[:d] == path] + [r for r in w['relations'] if r[:d] != path]
 
@@ -239,24 +241,32 @@ class Word(GrammarTree):
 
     def relation_tags(self):
         for tag, path in self['tags'].items():
-            if TAGS_INFO.get(tag, {}).get('type') == 'relation':
+            if is_relation_tag(tag):
                 yield (tag, path)
 
 
 
 class GrammarTreeEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, Word):
-            obj.contents['id'] = obj.id
-            return obj.contents
-        elif isinstance(obj, GrammarTree):
+        if isinstance(obj, GrammarTree):
             o = obj.contents.copy()
             if obj.id:
                 o['id'] = obj.id
-            o['children'] = obj.children
+
+            # Make relations human-readable
+            for tag, path in o.get('tags', {}).items():
+                if is_relation_tag(tag):
+                    o['tags'][tag] = ", ".join(map(str, path)) + ": " + obj.root[path]['text']
+
+            if isinstance(obj, Word):
+                o['relations'] = [", ".join(map(str, path)) + ": " + obj.root[path]['text'] for path in o['relations']]
+            else:
+                o['children'] = obj.children
+
             return o
 
-        return json.JSONEncoder.default(self, obj)
+        else:
+            return json.JSONEncoder.default(self, obj)
 
 
 
