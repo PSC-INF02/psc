@@ -275,7 +275,7 @@ class GrammarTreeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, GrammarTree):
             o = obj.contents.copy()
-            if obj.id:
+            if obj.id is not None:
                 o['id'] = obj.id
 
             # Make relations human-readable
