@@ -106,19 +106,30 @@ class GrammarTree:
         for n in subtree.nodes():
             n.root = self.root
 
-    def subpath(self, path):
-        d = 0  # Depth in the root tree
-        rpath = []
+    # Todo: cache
+    def path(self):
+        path = []
         root = self
         while root.parent is not None:
-            d += 1
-            rpath = [root.id] + rpath
+            path.append(root.id)
             root = root.parent
+        path.reverse()
+        return path
+
+    def subpath(self, path):
+        rpath = self.path()
+        d = len(rpath)
 
         if rpath == path[:d]:
             return path[d:]
         else:
             raise IndexError("%s is not a path of tree %s" % (str(path), str(rpath)))
+
+    def contains_path(self, path):
+        rpath = self.path()
+        d = len(rpath)
+        return rpath == path[:d]
+
 
 
     def group_children(self, groups):
@@ -176,25 +187,25 @@ class GrammarTree:
     def group_words(self, groups, kind=None):
         id_map, new_groups = self.group_children(groups)
 
-        # Get the root and the path from root to self
-        d = 0  # Depth in the root tree
-        path = []
-        root = self
-        while root.parent is not None:
-            d += 1
-            path = [root.id] + path
-            root = root.parent
+        path = self.path()
+        d = len(self.path())
 
         # Redirect tags to new ids
-        for w in root.leaves():
+        for w in self.root.leaves():
             for tag, val in w['tags'].items():
                 if is_relation_tag(tag) and val[:d] == path:
                     w['tags'][tag] = val[:d] + id_map[val[d]] + val[d + 1:]
             if 'relations' in w:
-                w['relations'] = [r[:d] + id_map[r[d]] + r[d + 1:] for r in w['relations'] if r[:d] == path] + [r for r in w['relations'] if r[:d] != path]
+                relations = []
+                for r in w['relations']:
+                    if r[:d] == path:
+                        relations.append(r[:d] + id_map[r[d]] + r[d + 1:])
+                    else:
+                        relations.append(r)
+                w['relations'] = relations
 
-        # Compute node name from descendants
-        for x in self.children:
+        # Compute node text from descendants
+        for x in new_groups:
             if hasattr(x, 'children'):
                 x['text'] = " ".join(y['text'] for y in x.children)
 
