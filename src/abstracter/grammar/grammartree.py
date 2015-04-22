@@ -138,7 +138,7 @@ class GrammarTree:
 
 
 
-    def group_children(self, groups):
+    def group_children(self, groups, flatten_singletons=True):
         """
         Groups the children according to a given equivalence relation.
 
@@ -156,15 +156,20 @@ class GrammarTree:
             raise IndexError("%s is not a subset of [0 .. %d]" % (str(list(uf)), len(self.children) - 1))
 
         # Compute the set of all singletons
-        singletons = set(range(len(self.children)))
-        for i in range(len(self.children)):
-            j = uf[i]
-            if i != j:
-                singletons.discard(i)
-                singletons.discard(j)
+        flat_singletons = set(range(len(self.children)))
+        if flatten_singletons:
+            # Flatten all singleton groups
+            for i in range(len(self.children)):
+                j = uf[i]
+                if i != j:
+                    flat_singletons.discard(i)
+                    flat_singletons.discard(j)
+        else:
+            # Flatten only singletons of objects not in groups
+            flat_singletons.difference_update(x for g in groups for x in g)
 
         # Map an id from each (non-singleton) equivalence class to a new empty tree
-        group_map = {i:GrammarTree() for i in range(len(self.children)) if uf[i] == i and i not in singletons}
+        group_map = {i:GrammarTree() for i in range(len(self.children)) if uf[i] == i and i not in flat_singletons}
         new_groups = list(group_map.values())
 
         # Add each object to its group, and reconstruct the tree
@@ -173,7 +178,7 @@ class GrammarTree:
         # added_groups = set()
         id_map = {}
         for i, o in enumerate(children):
-            if i in singletons:
+            if i in flat_singletons:
                 self.add(o)
                 id_map[i] = [o.id]
 
@@ -190,8 +195,8 @@ class GrammarTree:
 
         return id_map, new_groups
 
-    def group_words(self, groups, merge_tags=False, kind=None):
-        id_map, new_groups = self.group_children(groups)
+    def group_words(self, groups, merge_tags=False, kind=None, flatten_singletons=True):
+        id_map, new_groups = self.group_children(groups, flatten_singletons)
 
         path = self.path()
         d = len(self.path())
