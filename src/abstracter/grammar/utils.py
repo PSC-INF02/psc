@@ -137,7 +137,7 @@ ANTECEDENT_TAGS = ["ANTECEDENT"]
 #############################
 
 NOUN_PHRASE_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
-                     "det", "adj", "numeric"]
+                     "det", "adj", "numeric", "compound_propernoun"]
 
 HEAD_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
 
