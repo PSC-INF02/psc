@@ -131,6 +131,12 @@ class GrammarTree:
         return rpath == path[:d]
 
 
+    def relation_tags(self):
+        for tag, path in self['tags'].items():
+            if is_relation_tag(tag):
+                yield (tag, path)
+
+
 
     def group_children(self, groups):
         """
@@ -184,7 +190,7 @@ class GrammarTree:
 
         return id_map, new_groups
 
-    def group_words(self, groups, kind=None):
+    def group_words(self, groups, merge_tags=False, kind=None):
         id_map, new_groups = self.group_children(groups)
 
         path = self.path()
@@ -208,6 +214,23 @@ class GrammarTree:
         for x in new_groups:
             if hasattr(x, 'children'):
                 x['text'] = " ".join(y['text'] for y in x.children)
+
+        if merge_tags:
+            for g in new_groups:
+                tags = {}
+                for x in g:
+                    # if 'tags' in x:
+                    for tag, val in x['tags'].items():
+                        if tag not in tags:
+                            tags[tag] = val
+                        elif tags[tag] != val:  # Conflicting values
+                            tags[tag] = None
+
+                g['tags'] = {}
+                for tag, val in tags.items():
+                    if val is not None and not (is_relation_tag(tag) and g.contains_path(val)):
+                        g['tags'][tag] = tags[tag]
+
 
         if kind is not None:
             for g in new_groups:
@@ -249,12 +272,6 @@ class Word(GrammarTree):
 
     def group_words(self, groups, kind=None):
         pass
-
-    def relation_tags(self):
-        for tag, path in self['tags'].items():
-            if is_relation_tag(tag):
-                yield (tag, path)
-
 
 
 class GrammarTreeEncoder(json.JSONEncoder):
