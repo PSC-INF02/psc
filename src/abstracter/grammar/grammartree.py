@@ -269,6 +269,39 @@ class GrammarTreeEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
+class GrammarTreeDecoder(json.JSONDecoder):
+    @staticmethod
+    def object_to_tree(o):
+        if 'children' in o:
+            ret = GrammarTree()
+            ret.children = [GrammarTreeDecoder.object_to_tree(x) for x in o['children']]
+            del o['children']
+            ret.contents = o
+        else:
+            ret = Word(o)
+            ret['relations'] = [[int(x) for x in val.split(':')[0].split(', ')] for val in o['relations']]
+
+        if 'tags' in ret:
+            for tag, val in ret['tags'].items():
+                if is_relation_tag(tag):
+                    ret['tags'][tag] = [int(x) for x in val.split(':')[0].split(', ')]
+                else:
+                    ret['tags'][tag] = val
+
+        if 'id' in ret:
+            ret.id = ret['id']
+
+        return ret
+
+    def decode(self, s):
+        tree = GrammarTreeDecoder.object_to_tree(super().decode(s))
+
+        for n in tree.nodes():
+            n.root = tree
+
+        return tree
+
+
 
 def group_grammar_tree(gtree):
     for paragraph in gtree:
