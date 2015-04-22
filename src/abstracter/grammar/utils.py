@@ -75,6 +75,7 @@ TAGS_INFO = {
 
     # Custom tags
     "HEAD_NOUN": {"type": "relation"},
+    "HEAD_VERB": {"type": "relation"}
 }
 
 def is_relation_tag(tag):
@@ -84,30 +85,6 @@ def is_relation_tag(tag):
 #
 ###############################
 
-VERB_GROUPS_TYPES = ["aux:plain",
-                     "verb:inf",
-                     "prtcl",
-                     "aux:plain_x_aux:inf",
-                     "verb:plain_x_adv",
-                     "verb:pastpart",
-                     "verb:prespart",
-                     "aux:plain_x_adv",
-                     "aux:pastpart",
-                     "verb:plain",
-                     "aux:plain_x_aux:pastpart",
-                     "aux:prespart",
-                     # "verb:plain_x_pron",
-                     "aux:inf",
-                     "adv_x_aux:plain",
-                     "adv",
-                     "aux:plain_x_aux:plain"]
-
-
-MASTER_VERB_TAGS = ["PASSIVE", "PAST", "PERFECT", "PRESENT", "FUTURE", "DIROBJ"]
-
-TO_ADD_VB = ["MODIFIED_BY_ADVERB"]
-
-TO_BE_ADDED_VB = ["MODIFIES"]
 
 ####################################
 # Default loading of the concepts network.
@@ -167,6 +144,25 @@ HEAD_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
 RELATED_FROM_HEAD_NOUN_TAGS = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ", "MODIFIED_ON_RIGHT"]
 RELATED_TO_HEAD_NOUN_TAGS = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
                              "SEMANTIC_MODIFIER_OF"]
+
+
+
+#############################
+# Verb phrases
+#############################
+
+VERB_PHRASE_TYPES = ["aux:plain", "verb:inf", "prtcl", "aux:plain_x_aux:inf",
+                     "verb:plain_x_adv", "verb:pastpart", "verb:prespart",
+                     "aux:plain_x_adv", "aux:pastpart", "verb:plain",
+                     "aux:plain_x_aux:pastpart", "aux:prespart",
+                     # "verb:plain_x_pron",
+                     "aux:inf", "adv_x_aux:plain", "adv", "aux:plain_x_aux:plain"]
+
+HEAD_VERB_TAGS = ["PASSIVE", "PAST", "PERFECT", "PRESENT", "FUTURE", "DIROBJ"]
+
+RELATED_FROM_HEAD_VERB_TAGS = ["MODIFIED_BY_ADVERB"]
+
+RELATED_TO_HEAD_VERB_TAGS = ["MODIFIES"]
 
 
 ################################

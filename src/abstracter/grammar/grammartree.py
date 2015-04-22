@@ -389,3 +389,34 @@ def group_grammar_tree(gtree):
                 if w['kind'] in NOUN_PHRASE_TYPES and not set(HEAD_NOUN_TAGS).isdisjoint(w['tags']):
                     head_nouns.append(w.path())
             np['tags']['HEAD_NOUN'] = head_nouns[0]
+
+
+        # Group verb phrases
+        verb_phrases_eq = []
+        head_verbs = set()
+        for w in sentence:
+            if w['kind'] in VERB_PHRASE_TYPES and not set(HEAD_VERB_TAGS).isdisjoint(w['tags']):
+                head_verbs.add(w.id)
+                eq = [w.id]
+                for tag in RELATED_FROM_HEAD_VERB_TAGS:
+                    target = w['tags'].get(tag)
+                    if target is not None and w.root[target]['kind'] in VERB_PHRASE_TYPES:
+                        eq.append(sentence.subpath(target)[0])
+                verb_phrases_eq.append(eq)
+
+        for w in sentence:
+            if w['kind'] in VERB_PHRASE_TYPES:
+                for tag in RELATED_TO_HEAD_VERB_TAGS:
+                    target = w['tags'].get(tag)
+                    if target is not None:
+                        target = sentence.subpath(target)[0]
+                        if target in head_verbs:
+                            verb_phrases_eq.append([w.id, target])
+
+        verb_phrases = sentence.group_words(verb_phrases_eq, kind='verb_phrase', merge_tags=True)
+        for vp in verb_phrases:
+            head_verbs = []
+            for w in vp:
+                if w['kind'] in VERB_PHRASE_TYPES and not set(HEAD_VERB_TAGS).isdisjoint(w['tags']):
+                    head_verbs.append(w.path())
+            vp['tags']['HEAD_VERB'] = head_verbs[0]
