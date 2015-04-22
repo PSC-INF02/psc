@@ -322,42 +322,30 @@ def group_grammar_tree(gtree):
 
         # Group noun phrases
         noun_phrases_eq = []
-        for g in sentence:
-            gid = g.id
-            eq = [gid]
-            for w in g.leaves():
-                if w['type'] in NOUN_PHRASES_TYPES and has_tag_in(w, MASTER_NOUN_TAGS):
-                    for tag in TO_ADD:
-                        target = w['tags'].get(tag)
-                        if target is not None and gtree[target]['type'] in NOUN_PHRASES_TYPES:
-                            eq.append(sentence.subpath(target)[0])
+        head_nouns = set()
+        for w in sentence:
+            if w['kind'] in NOUN_PHRASES_TYPES and not set(MASTER_NOUN_TAGS).isdisjoint(w['tags']):
+                head_nouns.add(w.id)
+                eq = [w.id]
+                for tag in RELATED_FROM_HEAD_NOUN_TAGS:
+                    target = w['tags'].get(tag)
+                    if target is not None and w.root[target]['kind'] in NOUN_PHRASES_TYPES:
+                        eq.append(sentence.subpath(target)[0])
+                noun_phrases_eq.append(eq)
 
-            noun_phrases_eq.append(eq)
+        for w in sentence:
+            if w['kind'] in NOUN_PHRASES_TYPES:
+                for tag in RELATED_TO_HEAD_NOUN_TAGS:
+                    target = w['tags'].get(tag)
+                    if target is not None:
+                        target = sentence.subpath(target)[0]
+                        if target in head_nouns:
+                            noun_phrases_eq.append([w.id, target])
 
-        sentence.group_words(noun_phrases_eq, kind='noun_phrase')
-
-
-
-        # res = {}
-        # sent_id = sent["id"]
-        # for word in sent["words"]:
-        #     term_id = (sent_id, word["id"])
-        #     if (word["type"] in NOUN_PHRASES_TYPES
-        #        and has_tag_in(word, MASTER_NOUN_TAGS)):
-        #         res[term_id] = set()
-        #         # add related words
-        #         for tag in TO_ADD:
-        #             temp = (sent_id, _get_tag(word, tag))
-        #             if get_word(temp, sentences)["type"] in NOUN_PHRASES_TYPES:
-        #                 res[term_id].append(temp)
-        #
-        # # ckeck all words in the phrase, in case we have forgotten one
-        # for word in sent["words"]:
-        #     term_id = (sent_id, word["id"])
-        #     if term_id not in res and has_type_in(word, NOUN_PHRASES_TYPES):
-        #         for tag in TO_BE_ADDED:
-        #             temp = (sent_id, _get_tag(word, tag))
-        #             if temp in res:
-        #                 if temp != term_id and term_id not in res[temp]:
-        #                     res[temp].append(term_id)
-        # res_list.append(res)
+        noun_phrases = sentence.group_words(noun_phrases_eq, kind='noun_phrase', merge_tags=True)
+        for np in noun_phrases:
+            head_nouns = []
+            for w in np:
+                if w['kind'] in NOUN_PHRASES_TYPES and not set(MASTER_NOUN_TAGS).isdisjoint(w['tags']):
+                    head_nouns.append(w.path())
+            np['tags']['HEAD_NOUNS'] = head_nouns

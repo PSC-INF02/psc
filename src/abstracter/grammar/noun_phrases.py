@@ -13,7 +13,7 @@ print_noun_phrases(sents)
 @endcode
 """
 
-from abstracter.grammar.utils import NOUN_PHRASES_TYPES, has_tag_in, has_type_in, MASTER_NOUN_TAGS, get_word, TO_BE_ADDED, TO_ADD
+from abstracter.grammar.utils import NOUN_PHRASES_TYPES, has_tag_in, has_type_in, MASTER_NOUN_TAGS, get_word, RELATED_TO_HEAD_NOUN_TAGS, RELATED_FROM_HEAD_NOUN_TAGS
 
 
 def get_noun_phrases(sentences):
@@ -64,7 +64,7 @@ def get_noun_phrases(sentences):
                and has_tag_in(word, MASTER_NOUN_TAGS)):
                 res[term_id] = []
                 # add related words
-                for tag in TO_ADD:
+                for tag in RELATED_FROM_HEAD_NOUN_TAGS:
                     temp = (sent_id, word["tags"].get(tag, None))
                     if (temp and temp != term_id
                        and temp not in res[term_id]
@@ -76,7 +76,7 @@ def get_noun_phrases(sentences):
         for word in sent["words"]:
             term_id = (sent_id, word["id"])
             if term_id not in res and has_type_in(word, NOUN_PHRASES_TYPES):
-                for tag in TO_BE_ADDED:
+                for tag in RELATED_TO_HEAD_NOUN_TAGS:
                     temp = (sent_id, word["tags"].get(tag, None))
                     if temp in res:
                         if temp != term_id and term_id not in res[temp]:

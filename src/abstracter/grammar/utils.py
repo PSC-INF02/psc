@@ -145,12 +145,27 @@ INDEFINITE = ["a"]
 
 ANTECEDENT_TAGS = ["ANTECEDENT"]
 
-##############################
-# Types of words in noun phrases (systrans's types)
-########################
+#############################
+# Noun phrases
+#
+# To construct a noun phrase, we first have to find a head noun
+# We then construct the rest of the phrase:
+# with RELATED_FROM_HEAD_NOUN_TAGS, we add words related to the head noun
+#  from its tags
+# with RELATED_TO_HEAD_NOUN_TAGS, we add other words from the phrase that
+#  are related to the head noun from their tags
+#############################
 
 NOUN_PHRASES_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
                       "det", "adj", "numeric"]
+
+MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]  # TODO: rename
+HEAD_NOUN_TAGS = MASTER_NOUN_TAGS
+
+RELATED_FROM_HEAD_NOUN_TAGS = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ", "MODIFIED_ON_RIGHT"]
+RELATED_TO_HEAD_NOUN_TAGS = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
+                             "SEMANTIC_MODIFIER_OF"]
+
 
 ################################
 # Types of proper nouns
@@ -159,26 +174,6 @@ NOUN_PHRASES_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
 PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
 
 
-###################################
-# heuristically, only words tagged as objects or agents of verbs
-# make good noun phrases
-# however, this is not always the case. After running some tests,
-# it appeared we had to use also direct objects.
-##############################
-
-MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
-
-#####################################
-# When we get a head noun, we want to
-# construct the whole noun phrase :
-# with TO_ADD, add directly words with the head noun's tags
-# with TO_BE_ADDED, add words from the phrase that
-# are linked with the head noun
-###################################
-
-TO_ADD = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ"]  # "MODIFIED_ON_RIGHT", ??
-TO_BE_ADDED = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
-               "SEMANTIC_MODIFIER_OF"]
 
 
 def get_tag(sents, full_id, tag):
