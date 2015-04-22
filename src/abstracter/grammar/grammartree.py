@@ -340,6 +340,21 @@ def group_grammar_tree(gtree):
         paragraph.group_words(any_eq, kind='sentence')
 
     for sentence in gtree.nodes(depth=2, kind='sentence'):
+        # Group compound propernouns
+        propernoun_eq = []
+        for w in sentence:
+            if w['type'] in PROPERNOUNS:
+                for tag, path in w.relation_tags():
+                    if tag in PROPERNOUNS_RELATIONS:
+                        propernoun_eq.append([w.id, sentence.subpath(path)[0]])
+
+        propernouns = sentence.group_words(propernoun_eq, kind='compound_propernoun', merge_tags=True)
+        for n in propernouns:
+            if any(w['tags'].get('HUMAN') for w in n):
+                n['tags']['HUMAN'] = True
+
+
+
         # # Use given 'relations' attribute
         # relations_eq = []
         # for w in sentence.leaves():

@@ -172,7 +172,7 @@ RELATED_TO_HEAD_NOUN_TAGS = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
 ############################
 
 PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
-
+PROPERNOUNS_RELATIONS = ["HAS_APPOSITION"]
 
 
 
