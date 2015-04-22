@@ -13,7 +13,7 @@ print_noun_phrases(sents)
 @endcode
 """
 
-from abstracter.grammar.utils import NOUN_PHRASES_TYPES, has_tag_in, has_type_in, MASTER_NOUN_TAGS, get_word, RELATED_TO_HEAD_NOUN_TAGS, RELATED_FROM_HEAD_NOUN_TAGS
+from abstracter.grammar.utils import NOUN_PHRASE_TYPES, has_tag_in, has_type_in, HEAD_NOUN_TAGS, get_word, RELATED_TO_HEAD_NOUN_TAGS, RELATED_FROM_HEAD_NOUN_TAGS
 
 
 def get_noun_phrases(sentences):
@@ -60,8 +60,8 @@ def get_noun_phrases(sentences):
         for word in sent["words"]:
             term_id = (sent_id, word["id"])
             if (word
-               and word["type"] in NOUN_PHRASES_TYPES
-               and has_tag_in(word, MASTER_NOUN_TAGS)):
+               and word["type"] in NOUN_PHRASE_TYPES
+               and has_tag_in(word, HEAD_NOUN_TAGS)):
                 res[term_id] = []
                 # add related words
                 for tag in RELATED_FROM_HEAD_NOUN_TAGS:
@@ -69,13 +69,13 @@ def get_noun_phrases(sentences):
                     if (temp and temp != term_id
                        and temp not in res[term_id]
                        and get_word(temp, sentences)
-                       and get_word(temp, sentences)["type"] in NOUN_PHRASES_TYPES):
+                       and get_word(temp, sentences)["type"] in NOUN_PHRASE_TYPES):
                         res[term_id].append(temp)
 
         # ckeck all words in the phrase, in case we have forgotten one
         for word in sent["words"]:
             term_id = (sent_id, word["id"])
-            if term_id not in res and has_type_in(word, NOUN_PHRASES_TYPES):
+            if term_id not in res and has_type_in(word, NOUN_PHRASE_TYPES):
                 for tag in RELATED_TO_HEAD_NOUN_TAGS:
                     temp = (sent_id, word["tags"].get(tag, None))
                     if temp in res:

@@ -367,17 +367,17 @@ def group_grammar_tree(gtree):
         noun_phrases_eq = []
         head_nouns = set()
         for w in sentence:
-            if w['kind'] in NOUN_PHRASES_TYPES and not set(MASTER_NOUN_TAGS).isdisjoint(w['tags']):
+            if w['kind'] in NOUN_PHRASE_TYPES and not set(HEAD_NOUN_TAGS).isdisjoint(w['tags']):
                 head_nouns.add(w.id)
                 eq = [w.id]
                 for tag in RELATED_FROM_HEAD_NOUN_TAGS:
                     target = w['tags'].get(tag)
-                    if target is not None and w.root[target]['kind'] in NOUN_PHRASES_TYPES:
+                    if target is not None and w.root[target]['kind'] in NOUN_PHRASE_TYPES:
                         eq.append(sentence.subpath(target)[0])
                 noun_phrases_eq.append(eq)
 
         for w in sentence:
-            if w['kind'] in NOUN_PHRASES_TYPES:
+            if w['kind'] in NOUN_PHRASE_TYPES:
                 for tag in RELATED_TO_HEAD_NOUN_TAGS:
                     target = w['tags'].get(tag)
                     if target is not None:
@@ -389,6 +389,6 @@ def group_grammar_tree(gtree):
         for np in noun_phrases:
             head_nouns = []
             for w in np:
-                if w['kind'] in NOUN_PHRASES_TYPES and not set(MASTER_NOUN_TAGS).isdisjoint(w['tags']):
+                if w['kind'] in NOUN_PHRASE_TYPES and not set(HEAD_NOUN_TAGS).isdisjoint(w['tags']):
                     head_nouns.append(w.path())
-            np['tags']['HEAD_NOUNS'] = head_nouns
+            np['tags']['HEAD_NOUN'] = head_nouns[0]

@@ -74,7 +74,7 @@ TAGS_INFO = {
     "TIME": {"type": "boolean"},
 
     # Custom tags
-    "HEAD_NOUNS": {"type": "relation"}
+    "HEAD_NOUN": {"type": "relation"},
 }
 
 def is_relation_tag(tag):
@@ -159,11 +159,10 @@ ANTECEDENT_TAGS = ["ANTECEDENT"]
 #  are related to the head noun from their tags
 #############################
 
-NOUN_PHRASES_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
-                      "det", "adj", "numeric"]
+NOUN_PHRASE_TYPES = ["noun:propernoun", "noun:common", "noun:acronym",
+                     "det", "adj", "numeric"]
 
-MASTER_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]  # TODO: rename
-HEAD_NOUN_TAGS = MASTER_NOUN_TAGS
+HEAD_NOUN_TAGS = ["OBJECT_OF_VERB", "AGENT_OF_VERB", "DIROBJ_OF"]
 
 RELATED_FROM_HEAD_NOUN_TAGS = ["MODIFIED_ON_LEFT", "MODIFIED_BY_ADJ", "MODIFIED_ON_RIGHT"]
 RELATED_TO_HEAD_NOUN_TAGS = ["MODIFIES_RIGHT_HEAD", "MODIFIES_ANOTHER_NOUN",
