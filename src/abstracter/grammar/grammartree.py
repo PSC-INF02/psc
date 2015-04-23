@@ -289,7 +289,8 @@ class GrammarTreeEncoder(json.JSONEncoder):
                     o['tags'][tag] = ", ".join(map(str, path)) + ": " + obj.root[path]['text']
 
             if isinstance(obj, Word):
-                o['relations'] = [", ".join(map(str, path)) + ": " + obj.root[path]['text'] for path in o['relations']]
+                if 'relations' in o:
+                    o['relations'] = [", ".join(map(str, path)) + ": " + obj.root[path]['text'] for path in o['relations']]
             else:
                 o['children'] = obj.children
 
@@ -356,15 +357,6 @@ def group_grammar_tree(gtree):
                 n['tags']['HUMAN'] = True
 
 
-
-        # # Use given 'relations' attribute
-        # relations_eq = []
-        # for w in sentence.leaves():
-        #     relations_eq.append([sentence.subpath(rel)[0] for rel in w["relations"]])
-        #     del w['relations']
-        #
-        # sentence.group_words(relations_eq, kind='group')
-
         # Group noun phrases
         noun_phrases_eq = []
         head_nouns = set()
@@ -425,3 +417,13 @@ def group_grammar_tree(gtree):
                 if w['kind'] in VERB_PHRASE_TYPES and not set(HEAD_VERB_TAGS).isdisjoint(w['tags']):
                     head_verbs.append(w.path())
             vp['tags']['HEAD_VERB'] = head_verbs[0]
+
+
+        # Use given 'relations' attribute
+        relations_eq = []
+        for w in sentence.leaves():
+            if 'relations' in w:
+                relations_eq.append([sentence.subpath(rel)[0] for rel in w["relations"]])
+                del w['relations']
+
+        sentence.group_words(relations_eq, kind='syntagme')
