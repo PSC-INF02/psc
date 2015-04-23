@@ -169,7 +169,7 @@ RELATED_TO_HEAD_VERB_TAGS = ["MODIFIES"]
 # Types of proper nouns
 ############################
 
-PROPERNOUNS = ["noun:propernoun", "noun:acronym"]
+PROPERNOUNS = ["noun:propernoun", "noun:acronym", "compound_propernoun"]
 PROPERNOUNS_RELATIONS = ["HAS_APPOSITION"]
 
 
