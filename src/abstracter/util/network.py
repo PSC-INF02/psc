@@ -132,4 +132,7 @@ class Network:
             labels[e] = self.get_edge(e[0], e[1])['r']
         nx.draw_networkx_edge_labels(self.network, graph_pos, edge_labels=labels,
                                      label_pos=edge_text_pos)
-        plt.show()
+        if filename:
+            plt.savefig(filename)
+        else:
+            plt.show()
