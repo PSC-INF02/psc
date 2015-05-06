@@ -134,5 +134,6 @@ class Network:
                                      label_pos=edge_text_pos)
         if filename:
             plt.savefig(filename)
+            plt.clf()
         else:
             plt.show()

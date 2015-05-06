@@ -1,38 +1,10 @@
-from abstracter import Context
-from abstracter.concepts_network import *
-from abstracter.parsers import retriever as ret
+from abstracter.concepts_network import ConceptNetwork
 
-n = ConceptNetwork()
-n.load_from_JSON_stream(nodes_files=["rc4/rc4_nodes.jsons"],edges_files=["rc4/rc4_edges.jsons"])
-c = Context(n)
+cn = ConceptNetwork()
 
-######
-## test 1
-######
+cn.load("rc4")
 
-c.activate("wayne_rooney", 60)
-c.run(10)
-
-
-def print_activated_nodes(network):
-    for n, d in network.nodes():
-        if d['a'] > 0:
-            print(n + " : " + d['a'].__str__())
-
-
-print_activated_nodes(n)
-
-
-####
-##test 2
-###
-
-#text="Wayne Rooney was in a bad mood yesterday because I don't know yet."
-#doublelist=ret.retrieve_words_names(text)
-#print(doublelist)
-#for w in doublelist[0]:
-#    c.activate(w.replace(" ","_"),30)
-#for w in doublelist[1]:
-#    c.activate(w.replace(" ","_"),50)
-#c.run(10)
-#print_activated_nodes(n)
+for n, d in cn.nodes():
+    toto = len(list(cn.in_arcs(n)))
+    if toto > 500:
+        print(n + " : " + toto.__str__())

@@ -152,6 +152,11 @@ class ConceptNetwork(Network):
             if d['a'] > offset:
                 print(n + " : " + d['a'].__str__())
 
+    def get_activated_nodes(self, offset=0):
+        for n, d in self.nodes():
+            if d['a'] > offset:
+                yield n
+
     def print_activated_arcs(self, offset=0):
         for n1, n2, d in self.edges():
             if self[n1]['a'] > offset and self[n2]['a'] > offset:
