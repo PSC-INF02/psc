@@ -338,11 +338,26 @@ class GrammarTreeDecoder(json.JSONDecoder):
 
 def group_grammar_tree(gtree):
     for paragraph in gtree:
-        # Group any connected words into 'sentences'
-        any_eq = []
-        for w in paragraph.leaves():
-            any_eq.append([paragraph.subpath(path)[0] for _, path in w.relation_tags()] + [w.id])
-        paragraph.group_words(any_eq, kind='sentence')
+        # Try to group together 'sentences'
+        sentence_eq = [[]]
+        for w in paragraph:
+            if w['text'] in ['.', '\"', ':']:
+                sentence_eq.append([])
+            else:
+                sentence_eq[-1].append(w.id)
+        paragraph.group_words(sentence_eq, kind='sentence')
+
+    # for paragraph in gtree:
+    #     # Group any connected words into 'phrases'
+    #     any_eq = []
+    #     for w in paragraph.leaves():
+    #         any_eq.append([paragraph.subpath(path)[0] for _, path in w.relation_tags()] + [w.id])
+    #     # Add words in-between
+    #     # for e in any_eq:
+    #     #     e.sort()
+    #     # any_eq = [list(range(e[0], e[-1])) for e in any_eq]
+    #     paragraph.group_words(any_eq, kind='phrase')
+
 
     for sentence in gtree.nodes(depth=2, kind='sentence'):
         # Group compound propernouns
