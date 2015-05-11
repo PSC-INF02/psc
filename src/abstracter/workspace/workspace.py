@@ -7,29 +7,43 @@ class Workspace:
     """
 
     def __init__(self):
-        # self.words = {}
         self.network = network.Network()
 
-    def add_word(self, parid, word=None):
+    def add_node(self, id, word=None, **kwargs):
         if word is None:
             raise RuntimeError("The word must not be null")
         else:
-            wid = (parid, word.id)
-            self.network.add_edge(wid, {})
+            self.network.add_node(id, kwargs)
 
             for lbl, relations in word.get_relations():
                 for relation in relations:
                     self.network.add_edge(
-                        wid, relation, {"type": lbl}
+                        id, relation, relation_type=lbl
                     )
-            # self.words[wid] = word
-            # return wid
 
-    def get_word(self, parid, lid):
+    def get_node(self, parid, lid):
         return self.network.get_node((parid, lid))
 
 
-class Entity:
+class Syntagm:
+
+    def __init__(self, id, name=None, number_children=0):
+        self.id = id
+        self.name = name
+        self.number_children = number_children
+
+    def get_relations(self):
+        parent = id[0:-1]
+        return [
+            ("parent_of", self.id.append(son_id))
+            for son_id in range(0, self.number_children - 1)
+        ].append(("son_of", parent))
+
+    def set_number_children(self, number):
+        self.number_children = number
+
+
+class Entity(Syntagm):
     '''
     @class Entity
     @brief Represents an entity in the text,
@@ -41,7 +55,7 @@ class Entity:
         under the norm (paragraphNumber, wordNumber)
     '''
 
-    def __init__(self, id, name=None, attributes=None, references=None):
+    def __init__(self, id, name=None, attributes=[], references={}, tags={}):
         '''
         Initialises an entity. All arguments but the name are optional.
         @param name the name of the entity
@@ -50,16 +64,13 @@ class Entity:
             where that entity is referred to in the text
         @return an entity ready to be pushed in the workspace !
         '''
-        self.id = id
-        self.name = name
-        if attributes:
-            self.attributes = attributes
-        else:
-            self.attributes = []
-        if references:
-            self.references = references
-        else:
-            self.references = {}
+        super(Entity, self).__init__(id, name)
+        self.attributes = attributes
+        self.references = references
+        self.tags = tags
+
+    def add_tag(self, tag, value):
+        self.tags[tag] = value
 
     def add_attribute(self, attributeID):
         '''
@@ -94,10 +105,14 @@ class Entity:
         self.attributes.remove(attribute)
 
     def get_relations(self):
-        return {"attribute": self.attributes}
+        return [
+            ("has_attribute", attribute) for attribute in self.attributes
+        ].extend(
+            super(Entity, self).get_relations()
+        )
 
 
-class Attribute:
+class Attribute(Syntagm):
     '''
     @class Attribute
     @brief Represents an attribute to an entity.
@@ -117,8 +132,7 @@ class Attribute:
         @param modifier An optional logical modifier for the title.
         '''
 
-        self.id = id
-        self.name = name
+        super(Attribute, self).__init__(id, name)
         if modifier:
             self.modifier = modifier
 
@@ -130,11 +144,8 @@ class Attribute:
         '''
         self.modifier = modifier
 
-    def get_relations(self):
-        return {}
 
-
-class Event:
+class Event(Syntagm):
     '''
     @class Event
     Represents an event, or a change, related in the text that we have somehow
@@ -154,10 +165,9 @@ class Event:
         @param events An optional list of other events this one is linked to
         '''
 
-        self.id = id
+        super(Event, self).__init__(id, name)
         self.origin = origin
         self.destinations = destinations
-        self.name = name
 
         if events:
             self.events = events
@@ -182,7 +192,11 @@ class Event:
                 self.events.remove(e)
 
     def get_relations(self):
-        return {
-            "origin": [self.origin],
-            "dest": [self.destinations]
-        }
+        super(Entity, self).get_relations().exend(
+            [
+                ("dest", destination)
+                for destination in self.destinations
+            ].append(
+                ("origin", self.origin)
+            )
+        )
