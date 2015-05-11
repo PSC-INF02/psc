@@ -21,7 +21,7 @@ class jsonTree2W:
             "MODIFIED_BY_PREP1",
             "MODIFIED_BY_PREP2",
             "MODIFIED_BY_PREP3",
-            "MODIFIED_BY_ADj",
+            "MODIFIED_BY_ADJ",
             # "GOVERNS_ANOTHER_NOUN"
         ]
 
