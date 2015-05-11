@@ -1,4 +1,3 @@
-import sys
 import json
 from abstracter.grammar.utils import *
 from abstracter.util.unionfind import UnionFind
@@ -177,7 +176,6 @@ class GrammarTree:
         # Add each object to its group, and reconstruct the tree
         children = self.children
         self.children = []
-        # added_groups = set()
         id_map = {}
         for i, o in enumerate(children):
             if i in flat_singletons:
@@ -189,7 +187,6 @@ class GrammarTree:
                 group = group_map[parent_id]
 
                 if group.id is None:
-                    # added_groups.add(parent_id)
                     self.add(group)
 
                 group.add(o)
@@ -333,137 +330,3 @@ class GrammarTreeDecoder(json.JSONDecoder):
             n.root = tree
 
         return tree
-
-
-
-def group_grammar_tree(gtree):
-    for paragraph in gtree:
-        # Try to group together 'sentences'
-        sentence_eq = [[]]
-        for w in paragraph:
-            if w['text'] in ['.', '\"', ':']:
-                sentence_eq.append([])
-            else:
-                sentence_eq[-1].append(w.id)
-        paragraph.group_words(sentence_eq, kind='sentence')
-
-    # for paragraph in gtree:
-    #     # Group any connected words into 'phrases'
-    #     any_eq = []
-    #     for w in paragraph.leaves():
-    #         any_eq.append([paragraph.subpath(path)[0] for _, path in w.relation_tags()] + [w.id])
-    #     # Add words in-between
-    #     # for e in any_eq:
-    #     #     e.sort()
-    #     # any_eq = [list(range(e[0], e[-1])) for e in any_eq]
-    #     paragraph.group_words(any_eq, kind='phrase')
-
-
-    for sentence in gtree.nodes(depth=2, kind='sentence'):
-        # Group compound propernouns
-        propernoun_eq = []
-        for w in sentence:
-            if w['type'] in PROPERNOUNS:
-                for tag, path in w.relation_tags():
-                    if tag in PROPERNOUNS_RELATIONS:
-                        try:
-                            propernoun_eq.append([w.id, sentence.subpath(path)[0]])
-                        except IndexError as ex:  # target is not in the same sentence
-                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'compound_propernoun', str(ex)), file=sys.stderr)
-
-        propernouns = sentence.group_words(propernoun_eq, kind='compound_propernoun', merge_tags=True)
-        for n in propernouns:
-            if any(w['tags'].get('HUMAN') for w in n):
-                n['tags']['HUMAN'] = True
-
-
-        # Group noun phrases
-        noun_phrases_eq = []
-        head_nouns = set()
-        for w in sentence:
-            if w['kind'] in NOUN_PHRASE_TYPES and not set(HEAD_NOUN_TAGS).isdisjoint(w['tags']):
-                head_nouns.add(w.id)
-                eq = [w.id]
-                for tag in RELATED_FROM_HEAD_NOUN_TAGS:
-                    target = w['tags'].get(tag)
-                    if target is not None and w.root[target]['kind'] in NOUN_PHRASE_TYPES:
-                        try:
-                            eq.append(sentence.subpath(target)[0])
-                        except IndexError as ex:  # target is not in the same sentence
-                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'noun_phrase', str(ex)), file=sys.stderr)
-                noun_phrases_eq.append(eq)
-
-        for w in sentence:
-            if w['kind'] in NOUN_PHRASE_TYPES:
-                for tag in RELATED_TO_HEAD_NOUN_TAGS:
-                    target = w['tags'].get(tag)
-                    if target is not None:
-                        try:
-                            target = sentence.subpath(target)[0]
-                            if target in head_nouns:
-                                noun_phrases_eq.append([w.id, target])
-                        except IndexError as ex:  # target is not in the same sentence
-                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'noun_phrase', str(ex)), file=sys.stderr)
-
-        noun_phrases = sentence.group_words(noun_phrases_eq, kind='noun_phrase', merge_tags=True)
-        for np in noun_phrases:
-            head_nouns = []
-            for w in np:
-                if w['kind'] in NOUN_PHRASE_TYPES and not set(HEAD_NOUN_TAGS).isdisjoint(w['tags']):
-                    head_nouns.append(w.path())
-            np['tags']['HEAD_NOUN'] = head_nouns[0]
-
-
-        # Group verb phrases
-        verb_phrases_eq = []
-        head_verbs = set()
-        for w in sentence:
-            if w['kind'] in VERB_PHRASE_TYPES and not set(HEAD_VERB_TAGS).isdisjoint(w['tags']):
-                head_verbs.add(w.id)
-                eq = [w.id]
-                for tag in RELATED_FROM_HEAD_VERB_TAGS:
-                    target = w['tags'].get(tag)
-                    if target is not None and w.root[target]['kind'] in VERB_PHRASE_TYPES:
-                        try:
-                            eq.append(sentence.subpath(target)[0])
-                        except IndexError as ex:  # target is not in the same sentence
-                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'noun_phrase', str(ex)), file=sys.stderr)
-
-                verb_phrases_eq.append(eq)
-
-        for w in sentence:
-            if w['kind'] in VERB_PHRASE_TYPES:
-                for tag in RELATED_TO_HEAD_VERB_TAGS:
-                    target = w['tags'].get(tag)
-                    if target is not None:
-                        try:
-                            target = sentence.subpath(target)[0]
-                            if target in head_verbs:
-                                verb_phrases_eq.append([w.id, target])
-                        except IndexError as ex:  # target is not in the same sentence
-                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'verb_phrase', str(ex)), file=sys.stderr)
-
-
-        verb_phrases = sentence.group_words(verb_phrases_eq, kind='verb_phrase', merge_tags=True)
-        for vp in verb_phrases:
-            head_verbs = []
-            for w in vp:
-                if w['kind'] in VERB_PHRASE_TYPES and not set(HEAD_VERB_TAGS).isdisjoint(w['tags']):
-                    head_verbs.append(w.path())
-            vp['tags']['HEAD_VERB'] = head_verbs[0]
-
-
-        # Use given 'relations' attribute
-        relations_eq = []
-        for w in sentence.leaves():
-            if 'relations' in w:
-                eq = []
-                for rel in w["relations"]:
-                    try:
-                        eq.append(sentence.subpath(rel)[0])
-                    except IndexError as ex:  # target is not in the same sentence
-                        print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'syntagme', str(ex)), file=sys.stderr)
-                relations_eq.append(eq)
-                del w['relations']
-
-        sentence.group_words(relations_eq, kind='syntagme')
