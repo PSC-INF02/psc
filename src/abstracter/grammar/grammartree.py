@@ -309,7 +309,8 @@ class GrammarTreeDecoder(json.JSONDecoder):
             ret.contents = o
         else:
             ret = Word(o)
-            ret['relations'] = [[int(x) for x in val.split(':')[0].split(', ')] for val in o['relations']]
+            if 'relations' in ret:
+                ret['relations'] = [[int(x) for x in val.split(':')[0].split(', ')] for val in o['relations']]
 
         if 'tags' in ret:
             for tag, val in ret['tags'].items():
