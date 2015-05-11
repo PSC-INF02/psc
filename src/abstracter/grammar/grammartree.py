@@ -1,6 +1,8 @@
+import sys
 import json
 from abstracter.grammar.utils import *
 from abstracter.util.unionfind import UnionFind
+
 
 class GrammarTree:
     def __init__(self, children=[]):
@@ -123,7 +125,7 @@ class GrammarTree:
         if rpath == path[:d]:
             return path[d:]
         else:
-            raise IndexError("%s is not a path of tree %s" % (str(path), str(rpath)))
+            raise IndexError("%s (%s) is not a path of tree %s (%s)" % (str(path), self.root[path]['text'], str(rpath), self.root[rpath]['text']))
 
     def contains_path(self, path):
         rpath = self.path()
@@ -349,7 +351,10 @@ def group_grammar_tree(gtree):
             if w['type'] in PROPERNOUNS:
                 for tag, path in w.relation_tags():
                     if tag in PROPERNOUNS_RELATIONS:
-                        propernoun_eq.append([w.id, sentence.subpath(path)[0]])
+                        try:
+                            propernoun_eq.append([w.id, sentence.subpath(path)[0]])
+                        except IndexError as ex:  # target is not in the same sentence
+                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'compound_propernoun', str(ex)), file=sys.stderr)
 
         propernouns = sentence.group_words(propernoun_eq, kind='compound_propernoun', merge_tags=True)
         for n in propernouns:
@@ -367,7 +372,10 @@ def group_grammar_tree(gtree):
                 for tag in RELATED_FROM_HEAD_NOUN_TAGS:
                     target = w['tags'].get(tag)
                     if target is not None and w.root[target]['kind'] in NOUN_PHRASE_TYPES:
-                        eq.append(sentence.subpath(target)[0])
+                        try:
+                            eq.append(sentence.subpath(target)[0])
+                        except IndexError as ex:  # target is not in the same sentence
+                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'noun_phrase', str(ex)), file=sys.stderr)
                 noun_phrases_eq.append(eq)
 
         for w in sentence:
@@ -375,9 +383,12 @@ def group_grammar_tree(gtree):
                 for tag in RELATED_TO_HEAD_NOUN_TAGS:
                     target = w['tags'].get(tag)
                     if target is not None:
-                        target = sentence.subpath(target)[0]
-                        if target in head_nouns:
-                            noun_phrases_eq.append([w.id, target])
+                        try:
+                            target = sentence.subpath(target)[0]
+                            if target in head_nouns:
+                                noun_phrases_eq.append([w.id, target])
+                        except IndexError as ex:  # target is not in the same sentence
+                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'noun_phrase', str(ex)), file=sys.stderr)
 
         noun_phrases = sentence.group_words(noun_phrases_eq, kind='noun_phrase', merge_tags=True)
         for np in noun_phrases:
@@ -398,7 +409,11 @@ def group_grammar_tree(gtree):
                 for tag in RELATED_FROM_HEAD_VERB_TAGS:
                     target = w['tags'].get(tag)
                     if target is not None and w.root[target]['kind'] in VERB_PHRASE_TYPES:
-                        eq.append(sentence.subpath(target)[0])
+                        try:
+                            eq.append(sentence.subpath(target)[0])
+                        except IndexError as ex:  # target is not in the same sentence
+                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'noun_phrase', str(ex)), file=sys.stderr)
+
                 verb_phrases_eq.append(eq)
 
         for w in sentence:
@@ -406,9 +421,13 @@ def group_grammar_tree(gtree):
                 for tag in RELATED_TO_HEAD_VERB_TAGS:
                     target = w['tags'].get(tag)
                     if target is not None:
-                        target = sentence.subpath(target)[0]
-                        if target in head_verbs:
-                            verb_phrases_eq.append([w.id, target])
+                        try:
+                            target = sentence.subpath(target)[0]
+                            if target in head_verbs:
+                                verb_phrases_eq.append([w.id, target])
+                        except IndexError as ex:  # target is not in the same sentence
+                            print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'verb_phrase', str(ex)), file=sys.stderr)
+
 
         verb_phrases = sentence.group_words(verb_phrases_eq, kind='verb_phrase', merge_tags=True)
         for vp in verb_phrases:
@@ -423,7 +442,13 @@ def group_grammar_tree(gtree):
         relations_eq = []
         for w in sentence.leaves():
             if 'relations' in w:
-                relations_eq.append([sentence.subpath(rel)[0] for rel in w["relations"]])
+                eq = []
+                for rel in w["relations"]:
+                    try:
+                        eq.append(sentence.subpath(rel)[0])
+                    except IndexError as ex:  # target is not in the same sentence
+                        print("Warning while merging word '%s' in a %s: %s" % (w['text'], 'syntagme', str(ex)), file=sys.stderr)
+                relations_eq.append(eq)
                 del w['relations']
 
         sentence.group_words(relations_eq, kind='syntagme')
