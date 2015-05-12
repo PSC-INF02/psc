@@ -57,7 +57,8 @@ class jsonTree2W:
         return wd
 
     def parse_node(self, parid, node):
-        id = parid.append(node.id)
+        id = parid.copy()
+        id.append(node.id)
         if id is None:
             id = []
         if type(node) == gt.GrammarTree:
