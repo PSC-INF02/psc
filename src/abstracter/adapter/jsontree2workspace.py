@@ -5,6 +5,11 @@
 """
 
 import abstracter.workspace.workspace as wks
+import abstracter.grammar.grammartree as gt
+
+
+def debug(x):
+    print(x)
 
 
 class jsonTree2W:
@@ -21,7 +26,7 @@ class jsonTree2W:
             "MODIFIED_BY_PREP1",
             "MODIFIED_BY_PREP2",
             "MODIFIED_BY_PREP3",
-            "MODIFIED_BY_ADJ",
+            "MODIFIED_BY_ADj",
             # "GOVERNS_ANOTHER_NOUN"
         ]
 
@@ -39,36 +44,42 @@ class jsonTree2W:
                 relations["modified_by"] = self.deserialize_id(val)
         return relations
 
-    def parse_noun(self, noun):
-        wd = wks.Entity(noun)
+    def parse_noun(self, id, noun):
+        wd = wks.Entity(id, noun)
         return wd
 
-    def parse_verb(self, verb):
-        wd = wks.Event(verb)
+    def parse_event(self, id, verb):
+        wd = wks.Event(id, verb)
         return wd
 
-    def parse_adj(self, adj):
-        wd = wks.Attribute(adj)
+    def parse_adj(self, id, adj):
+        wd = wks.Attribute(id, adj)
         return wd
 
     def parse_node(self, parid, node):
-        id = parid.append(node["id"])
-        nb_childs = len(node["children"])
-        self.parse_forest(id, node["children"])
-        if 'noun' in node["kind"]:
-            wd = self.parse_noun(node)
-        elif 'adj' in node["kind"]:
-            wd = self.parse_adj(node)
+        id = parid.append(node.id)
+        if id is None:
+            id = []
+        if type(node) == gt.GrammarTree:
+            nb_childs = len(node.children)
+            self.parse_forest(id, node.children, node)
         else:
-            wd = self.parse_event(node)
+            nb_childs = 0
+        if 'noun' in node.contents["kind"]:
+            wd = self.parse_noun(id, node)
+        elif 'adj' in node.contents["kind"]:
+            wd = self.parse_adj(id, node)
+        else:
+            wd = self.parse_event(id, node)
         wd.set_number_children(nb_childs)
-        if "tags" in node:
-            for tag, val in node["tags"]:
+        if "tags" in node.contents:
+            for tag, val in node.contents["tags"].items():
                 wd.add_tag(tag, val)
-        self.workspace.add_node(wd)
+        if wd is None:
+            debug("word " + str(id) + " is None !")
+        self.workspace.add_node(id, node=wd)
+        debug("word " + str(id) + " added to workspace")
 
     def parse_forest(self, id, forest, parent):
         for son in forest:
-            if parent is not None:
-                son["tags"]["parent"] = parent
             self.parse_node(id, son)

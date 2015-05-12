@@ -9,16 +9,17 @@ class Workspace:
     def __init__(self):
         self.network = network.Network()
 
-    def add_node(self, id, word=None, **kwargs):
-        if word is None:
-            raise RuntimeError("The word must not be null")
+    def add_node(self, id, node=None, **kwargs):
+        id = tuple(id)
+        if node is None:
+            raise RuntimeError("The node must not be null")
         else:
-            self.network.add_node(id, kwargs)
+            self.network.add_node(id)
 
-            for lbl, relations in word.get_relations():
-                for relation in relations:
+            for lbl, dest_id in node.get_relations():
+                if dest_id is not None:
                     self.network.add_edge(
-                        id, relation, relation_type=lbl
+                        id, tuple(dest_id), relation_type=lbl
                     )
 
     def get_node(self, parid, lid):
@@ -27,20 +28,25 @@ class Workspace:
 
 class Syntagm:
 
-    def __init__(self, id, name=None, number_children=0):
+    def __init__(self, id, name=None, tags={}, number_children=0):
         self.id = id
         self.name = name
         self.number_children = number_children
+        self.tags = tags
 
     def get_relations(self):
-        parent = id[0:-1]
-        return [
+        parent = self.id[0:-1]
+        sons = [
             ("parent_of", self.id.append(son_id))
             for son_id in range(0, self.number_children - 1)
-        ].append(("son_of", parent))
+        ]
+        return [("son_of", parent)] + sons
 
     def set_number_children(self, number):
         self.number_children = number
+
+    def add_tag(self, tag, value):
+        self.tags[tag] = value
 
 
 class Entity(Syntagm):
@@ -64,13 +70,9 @@ class Entity(Syntagm):
             where that entity is referred to in the text
         @return an entity ready to be pushed in the workspace !
         '''
-        super(Entity, self).__init__(id, name)
+        super(Entity, self).__init__(id, name, tags=tags)
         self.attributes = attributes
         self.references = references
-        self.tags = tags
-
-    def add_tag(self, tag, value):
-        self.tags[tag] = value
 
     def add_attribute(self, attributeID):
         '''
@@ -105,10 +107,11 @@ class Entity(Syntagm):
         self.attributes.remove(attribute)
 
     def get_relations(self):
-        return [
-            ("has_attribute", attribute) for attribute in self.attributes
-        ].extend(
-            super(Entity, self).get_relations()
+        return (
+            super(Entity, self).get_relations() +
+            [
+                ("has_attribute", attribute) for attribute in self.attributes
+            ]
         )
 
 
@@ -157,7 +160,7 @@ class Event(Syntagm):
         (sameTime, consequence, etc.)
     '''
 
-    def __init__(self, id, name, origin, destinations, events=None):
+    def __init__(self, id, name, origin=None, destinations=[], events=None):
         '''
         Creates an event, ready to be pushed in the workspace.
         @param origin Attribute or Entity before the change.
@@ -192,11 +195,13 @@ class Event(Syntagm):
                 self.events.remove(e)
 
     def get_relations(self):
-        super(Entity, self).get_relations().exend(
+        return (
+            super(Event, self).get_relations() +
             [
                 ("dest", destination)
                 for destination in self.destinations
-            ].append(
+            ] +
+            [
                 ("origin", self.origin)
+            ]
             )
-        )
