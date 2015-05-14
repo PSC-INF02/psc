@@ -27,8 +27,15 @@ class jsonTree2W:
             "MODIFIED_BY_PREP2",
             "MODIFIED_BY_PREP3",
             "MODIFIED_BY_ADj",
-            # "GOVERNS_ANOTHER_NOUN"
         ]
+
+        self.parsers = {
+            "noun": self.parse_noun,
+            "adj": self.parse_adj,
+            "verb": self.parse_event,
+            "aux": self.parse_event,
+            "other": self.parse_other,
+        }
 
     def deserialize_id(self, serial):
         return [int(x) for x in serial.split(":")[0].split(", ")]
@@ -56,10 +63,20 @@ class jsonTree2W:
         wd = wks.Attribute(id, adj)
         return wd
 
+    def parse_other(self, id, adj):
+        wd = wks.Syntagm(id, adj)
+        return wd
+
     def add_tags(self, word, contents):
         if "tags" in contents:
             for tag, val in contents["tags"].items():
                 word.add_tag(tag, val)
+
+    def get_nature(self, kind):
+        for nature in self.parsers:
+            if nature in kind:
+                return nature
+        return "other"
 
     def parse_node(self, parid, node):
         id = parid.copy()
@@ -74,12 +91,7 @@ class jsonTree2W:
         if ("kind" not in node.contents or
                 node.contents["kind"] in ["paragraph", "sentence"]):
             return
-        if 'noun' in node.contents["kind"]:
-            wd = self.parse_noun(id, node)
-        elif 'adj' in node.contents["kind"]:
-            wd = self.parse_adj(id, node)
-        else:
-            wd = self.parse_event(id, node)
+        wd = self.parsers[self.get_nature(node.contents["kind"])](id, node)
         wd.set_number_children(nb_childs)
         self.add_tags(wd, node.contents)
         if wd is None:
