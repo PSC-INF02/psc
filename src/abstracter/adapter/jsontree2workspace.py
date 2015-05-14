@@ -52,19 +52,19 @@ class jsonTree2W:
         return relations
 
     def parse_noun(self, id, noun):
-        wd = wks.Entity(id, noun)
+        wd = wks.Entity(id, name=noun.contents["text"], tags=noun.contents)
         return wd
 
     def parse_event(self, id, verb):
-        wd = wks.Event(id, verb)
+        wd = wks.Event(id, name=verb.contents["text"], tags=verb.contents)
         return wd
 
     def parse_adj(self, id, adj):
-        wd = wks.Attribute(id, adj)
+        wd = wks.Attribute(id, name=adj.contents["text"], tags=adj.contents)
         return wd
 
-    def parse_other(self, id, adj):
-        wd = wks.Syntagm(id, adj)
+    def parse_other(self, id, word):
+        wd = wks.Syntagm(id, name=word.contents["text"], tags=word.contents)
         return wd
 
     def add_tags(self, word, contents):

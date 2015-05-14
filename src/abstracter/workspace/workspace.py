@@ -14,7 +14,9 @@ class Workspace:
         if node is None:
             raise RuntimeError("The node must not be null")
         else:
-            self.network.add_node(id)
+            self.network.add_node(id, **node.get_tags())
+
+            # for lbl, val in node.get_tags():
 
             for lbl, dest_id in node.get_relations():
                 if dest_id is not None:
@@ -33,6 +35,15 @@ class Syntagm:
         self.name = name
         self.number_children = number_children
         self.tags = tags
+        if 'id' in self.tags:
+            del self.tags['id']
+
+    def add_atribute(self, **kwargs):
+        for attr, val in kwargs.items():
+            self.tags[attr] = val
+
+    def get_tags(self):
+        return self.tags
 
     def get_relations(self):
         parent = self.id[0:-1]
@@ -127,7 +138,7 @@ class Attribute(Syntagm):
         no other example at the moment)
     '''
 
-    def __init__(self, id, name, modifier=None):
+    def __init__(self, id, name, modifier=None, tags={}):
         '''
         Creates an instance of the object,
         ready to be added to an entity or pushed in the workspace.
@@ -135,7 +146,7 @@ class Attribute(Syntagm):
         @param modifier An optional logical modifier for the title.
         '''
 
-        super(Attribute, self).__init__(id, name)
+        super(Attribute, self).__init__(id, name, tags=tags)
         if modifier:
             self.modifier = modifier
 
@@ -160,7 +171,8 @@ class Event(Syntagm):
         (sameTime, consequence, etc.)
     '''
 
-    def __init__(self, id, name, origin=None, destinations=[], events=None):
+    def __init__(self, id, name, origin=None,
+                 destinations=[], events=None, tags={}):
         '''
         Creates an event, ready to be pushed in the workspace.
         @param origin Attribute or Entity before the change.
