@@ -9,7 +9,8 @@ import abstracter.grammar.grammartree as gt
 
 
 def debug(x):
-    print(x)
+    pass
+    # print(x)
 
 
 class jsonTree2W:
@@ -35,6 +36,9 @@ class jsonTree2W:
             "verb": self.parse_event,
             "aux": self.parse_event,
             "other": self.parse_other,
+            "paragraph": self.parse_word_group,
+            "sentence": self.parse_word_group,
+            "word_group": self.parse_word_group,
         }
 
     def deserialize_id(self, serial):
@@ -67,14 +71,22 @@ class jsonTree2W:
         wd = wks.Syntagm(id, name=word.contents["text"], tags=word.contents)
         return wd
 
+    def parse_word_group(self, id,  wg):
+        # name = if "text" in wg.contents then wg.contents["text"] else
+        name = wg.contents["text"] if "text" in wg.contents else ""
+        wd = wks.Syntagm(id, name=name, tags=wg.contents)
+        return wd
+
     def add_tags(self, word, contents):
         if "tags" in contents:
             for tag, val in contents["tags"].items():
                 word.add_tag(tag, val)
 
-    def get_nature(self, kind):
+    def get_nature(self, contents):
+        if "kind" not in contents:
+            return "word_group"
         for nature in self.parsers:
-            if nature in kind:
+            if nature in contents['kind']:
                 return nature
         return "other"
 
@@ -88,10 +100,7 @@ class jsonTree2W:
             self.parse_forest(id, node.children, node)
         else:
             nb_childs = 0
-        if ("kind" not in node.contents or
-                node.contents["kind"] in ["paragraph", "sentence"]):
-            return
-        wd = self.parsers[self.get_nature(node.contents["kind"])](id, node)
+        wd = self.parsers[self.get_nature(node.contents)](id, node)
         wd.set_number_children(nb_childs)
         self.add_tags(wd, node.contents)
         if wd is None:

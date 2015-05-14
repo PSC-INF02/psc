@@ -14,9 +14,7 @@ class Workspace:
         if node is None:
             raise RuntimeError("The node must not be null")
         else:
-            self.network.add_node(id, **node.get_tags())
-
-            # for lbl, val in node.get_tags():
+            self.network.add_node(id, syntagm=node)
 
             for lbl, dest_id in node.get_relations():
                 if dest_id is not None:
@@ -180,7 +178,7 @@ class Event(Syntagm):
         @param events An optional list of other events this one is linked to
         '''
 
-        super(Event, self).__init__(id, name)
+        super(Event, self).__init__(id, name, tags)
         self.origin = origin
         self.destinations = destinations
 
@@ -217,3 +215,7 @@ class Event(Syntagm):
                 ("origin", self.origin)
             ]
             )
+
+
+class WordGroup(Syntagm):
+    pass
