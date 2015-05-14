@@ -56,6 +56,11 @@ class jsonTree2W:
         wd = wks.Attribute(id, adj)
         return wd
 
+    def add_tags(self, word, contents):
+        if "tags" in contents:
+            for tag, val in contents["tags"].items():
+                word.add_tag(tag, val)
+
     def parse_node(self, parid, node):
         id = parid.copy()
         id.append(node.id)
@@ -66,6 +71,9 @@ class jsonTree2W:
             self.parse_forest(id, node.children, node)
         else:
             nb_childs = 0
+        if ("kind" not in node.contents or
+                node.contents["kind"] in ["paragraph", "sentence"]):
+            return
         if 'noun' in node.contents["kind"]:
             wd = self.parse_noun(id, node)
         elif 'adj' in node.contents["kind"]:
@@ -73,9 +81,7 @@ class jsonTree2W:
         else:
             wd = self.parse_event(id, node)
         wd.set_number_children(nb_childs)
-        if "tags" in node.contents:
-            for tag, val in node.contents["tags"].items():
-                wd.add_tag(tag, val)
+        self.add_tags(wd, node.contents)
         if wd is None:
             debug("word " + str(id) + " is None !")
         self.workspace.add_node(id, node=wd)

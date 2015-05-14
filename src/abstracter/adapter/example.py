@@ -11,4 +11,4 @@ with open("../../fichiers_parses/0.grammartree.json") as jfile:
     piloup = json.load(jfile, cls=gt.GrammarTreeDecoder)
 
 blah = j2w.jsonTree2W(wks)
-blah.parse_forest([], piloup.children, piloup)
+blah.parse_forest([], piloup, piloup)
