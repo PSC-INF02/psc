@@ -1,9 +1,15 @@
+"""@file grammartree.py
+
+"""
 import json
 from abstracter.grammar.utils import *
 from abstracter.util.unionfind import UnionFind
 
 
 class GrammarTree:
+    """
+    @class GrammarTree
+    """
     def __init__(self, children=[]):
         self.id = None
         self.parent = None
