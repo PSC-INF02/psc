@@ -1,8 +1,0 @@
-["steven_gerrard", "soccer_player", {"r": "IsA", "w": 39}]
-["steven_gerrard", "soccer_midfielder", {"r": "IsA", "w": 18}]
-["steven_gerrard", "athlete", {"r": "IsA", "w": 39}]
-["wayne_rooney", "soccer_player", {"r": "IsA", "w": 39}]
-["wayne_rooney", "athlete", {"r": "IsA", "w": 39}]
-["soccer_player", "athlete", {"w": 47, "r": "IsA"}]
-["soccer_player", "win_match", {"w": 47, "r": "CapableOf"}]
-["soccer_player", "at_soccer_game", {"w": 47, "r": "AtLocation"}]

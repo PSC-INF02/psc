@@ -1,0 +1,86 @@
+Loading network rc4...
+Loading network rc4...
+Current network has 28583 nodes and 69307 edges.
+0 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+tag linked nodes on current network...
+28583 nodes looked !
+21127 nodes reactivated !
+Current network has 28583 nodes and 69307 edges.
+21127 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+clear nodes on current network with filter a
+28583 nodes looked !
+7456 nodes removed !
+deactivate nodes...
+done !
+Current network has 21127 nodes and 63156 edges.
+0 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+Saving to network rc5...
+Loading network rc6...
+Loading network rc5...
+Current network has 21127 nodes and 63156 edges.
+0 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+tag linked nodes on current network...
+21127 nodes looked !
+20730 nodes reactivated !
+Current network has 21127 nodes and 63156 edges.
+20730 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+clear nodes on current network with filter a
+21127 nodes looked !
+397 nodes removed !
+deactivate nodes...
+done !
+Current network has 20730 nodes and 62824 edges.
+0 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+Saving to network rc6...
+Loading network rc4...
+Current network has 28583 nodes and 69307 edges.
+0 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+tag linked nodes on current network...
+28583 nodes looked !
+27283 nodes reactivated !
+Current network has 28583 nodes and 69307 edges.
+27283 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+clear nodes on current network with filter a
+28583 nodes looked !
+1300 nodes removed !
+deactivate nodes...
+done !
+Current network has 27283 nodes and 69307 edges.
+0 nodes are activated (thus will be kept).
+Current black list has 27251 entries
+Current success list has 32908 entries
+
+
+Saving to network rc5...

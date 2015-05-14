@@ -235,6 +235,25 @@ def tag_linked_nodes(limit=1000):
     print_log(q.__str__() + " nodes reactivated !")
 
 
+def tag_less_linked_nodes(limit=1000):
+    k = 0
+    q = 0
+    print_log("tag linked nodes on current network...")
+    for n, d in NETWORK.nodes():
+        k += 1
+        if NETWORK[n]['a'] < 100 and len(list(NETWORK.predecessors(n))) + len(list(NETWORK.successors(n))) >= 1:
+            NETWORK[n]['a'] = 100
+            q += 1
+            if q % 100 == 0:
+                print(q.__str__() + " nodes reactivated !")
+        if k % 500 == 0:
+            print(k.__str__() + " nodes looked !")
+        if k > limit:
+            break
+    print_log(k.__str__() + " nodes looked !")
+    print_log(q.__str__() + " nodes reactivated !")
+
+
 def tag_much_linked_nodes(limit=1000):
     k = 0
     q = 0
@@ -462,9 +481,9 @@ def expand_network_by(rcdir, max, to_existing,
 
 
 
-LOG_FILE = open("rc3/log.txt", 'a')
+LOG_FILE = open("rc4/log.txt", 'a')
 
-load_dir("rc3")
+load_dir("rc4")
 print_network_status()
 
 
@@ -491,15 +510,15 @@ print_network_status()
 #use_method_on_network(expand_similarity, max=5000, to_existing=False, from_existing=False, not_act_only=False)
 
 
-#tag_linked_nodes(limit=100000)
-#print_network_status()
+tag_less_linked_nodes(limit=100000)
+print_network_status()
 
 
 ###activate_nodes()
 #clear_ic(limit=100000)
-#clear_act(limit=100000)
-#deactivate_nodes(limit=100000)
-#print_network_status()
+clear_act(limit=100000)
+deactivate_nodes(limit=100000)
+print_network_status()
 
-save_dir("rc3")
+save_dir("rc5")
 LOG_FILE.close()
