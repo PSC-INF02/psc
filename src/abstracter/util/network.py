@@ -24,6 +24,12 @@ class Network:
         except KeyError:
             return None
 
+    def __iter__(self):
+        return self.network.nodes_iter(data=False)
+
+    def nodes_iter(self):
+        return self.network.nodes_iter(data=True)
+
     def get_node(self, id):
         return self.network.node[id]
 
