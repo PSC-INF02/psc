@@ -9,6 +9,14 @@ class Workspace:
     def __init__(self):
         self.network = network.Network()
 
+    def __getitem__(self, id):
+        return self.network[id]["syntagm"]
+
+    def items(self):
+        for n, d in self.network.nodes_iter():
+            if "syntagm" in d:
+                yield (n, d["syntagm"])
+
     def add_node(self, id, node=None, **kwargs):
         id = tuple(id)
         if node is None:
@@ -35,6 +43,9 @@ class Syntagm:
         self.tags = tags
         if 'id' in self.tags:
             del self.tags['id']
+
+    def __getitem__(self, id):
+        return self.tags[id]
 
     def add_atribute(self, **kwargs):
         for attr, val in kwargs.items():
