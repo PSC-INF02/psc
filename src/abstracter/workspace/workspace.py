@@ -43,6 +43,8 @@ class Syntagm:
         self.tags = tags
         if 'id' in self.tags:
             del self.tags['id']
+        if 'norm' not in self.tags or self.tags['norm'] is None:
+            self.tags["norm"] = name.lower()
 
     def __getitem__(self, id):
         return self.tags[id]
