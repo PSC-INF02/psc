@@ -95,6 +95,7 @@ def group_noun_phrases(sentence):
         head_noun = head_nouns[0]
 
         np['tags']['HEAD_NOUN'] = head_noun.path()
+        np['global_id'] = head_noun['global_id']
         head_noun['tags']['IS_HEAD_NOUN'] = True
         # Copy relevant tags from head noun
         for t in head_noun['tags']:
@@ -147,6 +148,7 @@ def group_verb_phrases(sentence):
         head_verb = head_verbs[0]
 
         vp['tags']['HEAD_VERB'] = head_verb.path()
+        vp['global_id'] = head_verb['global_id']
         head_verb['tags']['IS_HEAD_VERB'] = True
         # Copy relevant tags from head verb
         for t in head_verb['tags']:
