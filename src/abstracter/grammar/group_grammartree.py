@@ -87,8 +87,19 @@ def group_noun_phrases(sentence):
         head_nouns = []
         for w in np:
             if w['kind'] in NOUN_PHRASE_TYPES and not set(HEAD_NOUN_TAGS).isdisjoint(w['tags']):
-                head_nouns.append(w.path())
-        np['tags']['HEAD_NOUN'] = head_nouns[0]
+                head_nouns.append(w)
+
+        if len(head_nouns) != 1:
+            print("Noun phrase '%s' has multiple possible head nouns: %s" % (np['text'], ', '.join("'%s'" % w['text'] for w in head_nouns)), file=sys.stderr)
+            continue
+        head_noun = head_nouns[0]
+
+        np['tags']['HEAD_NOUN'] = head_noun.path()
+        head_noun['tags']['IS_HEAD_NOUN'] = True
+        # Copy relevant tags from head noun
+        for t in head_noun['tags']:
+            if t not in np['tags'] or t in ['NUMBER']:
+                np['tags'][t] = head_noun['tags'][t]
 
 
 def group_verb_phrases(sentence):
@@ -128,8 +139,19 @@ def group_verb_phrases(sentence):
         head_verbs = []
         for w in vp:
             if w['kind'] in VERB_PHRASE_TYPES and not set(HEAD_VERB_TAGS).isdisjoint(w['tags']):
-                head_verbs.append(w.path())
-        vp['tags']['HEAD_VERB'] = head_verbs[0]
+                head_verbs.append(w)
+
+        if len(head_verbs) != 1:
+            print("Verb phrase '%s' has multiple possible head verbs: %s" % (vp['text'], ', '.join("'%s'" % w['text'] for w in head_verbs)), file=sys.stderr)
+            continue
+        head_verb = head_verbs[0]
+
+        vp['tags']['HEAD_VERB'] = head_verb.path()
+        head_verb['tags']['IS_HEAD_VERB'] = True
+        # Copy relevant tags from head verb
+        for t in head_verb['tags']:
+            if t not in vp['tags'] or t in ['PERSONS']:
+                vp['tags'][t] = head_verb['tags'][t]
 
 
 def group_syntagmes(sentence):

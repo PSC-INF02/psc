@@ -75,7 +75,9 @@ TAGS_INFO = {
 
     # Custom tags
     "HEAD_NOUN": {"type": "relation"},
+    "IS_HEAD_NOUN": {"type": "boolean"},
     "HEAD_VERB": {"type": "relation"},
+    "IS_HEAD_VERB": {"type": "boolean"},
     "NUMBER": {"type": "unknown"},
 }
 
