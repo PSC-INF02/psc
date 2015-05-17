@@ -78,6 +78,7 @@ TAGS_INFO = {
     "IS_HEAD_NOUN": {"type": "boolean"},
     "HEAD_VERB": {"type": "relation"},
     "IS_HEAD_VERB": {"type": "boolean"},
+    "PERSONS": {"type": "unknown"},
     "NUMBER": {"type": "unknown"},
 }
 
