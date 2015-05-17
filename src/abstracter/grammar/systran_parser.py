@@ -91,6 +91,7 @@ def parse_systran(file):
     """
     data = []
     with open(file, "r") as f:
+        global_id = 0  # Order in text
         for paragraph in f:
             words = []
             paragraph_text = []
@@ -150,6 +151,7 @@ def parse_systran(file):
                 tags["relations"] = relations  # TODO: remove (retrocompatibility)
                 words.append({
                     "id": len(words),
+                    "global_id": global_id,
                     "name": word_details[0],
                     "norm": word_details[1],
                     "type": word_details[2],
@@ -157,6 +159,7 @@ def parse_systran(file):
                     "relations": relations
                 })
                 paragraph_text.append(word_details[0])
+                global_id += 1
             data.append({
                 "id": len(data),
                 "text": " ".join(paragraph_text),
