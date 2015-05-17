@@ -141,6 +141,12 @@ def parse_systran(file):
                     pers = [int(x[:-2]) for x in persons[1::2]]
                     tags["PERSONS"] = list(zip(pers, nbs))
 
+                if "NUMBER" in tags:
+                    if len(tags["NUMBER"]) != 1:
+                        print("Word '%s' has multiple values for its 'NUMBER' tag" % word_details[0], file=sys.stderr)
+                    else:
+                        tags["NUMBER"] = tags["NUMBER"][0]
+
                 tags["relations"] = relations  # TODO: remove (retrocompatibility)
                 words.append({
                     "id": len(words),
