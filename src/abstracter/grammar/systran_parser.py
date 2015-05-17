@@ -68,14 +68,14 @@ TAGS_MAP = {
     # "per": "PER",
     "perfect": "PERFECT",
     "physub": "PHYSUB",
-    "pl": "PL",
+    # "pl": "PL",
     "predadj_of": "PREDADJ_OF",
     "present": "PRESENT",
     # "previous_enum": "PREVIOUS_ENUM",
     "progressive": "PROGRESSIVE",
     # "refl": "REFL",
     "semantic_modifier_of": "SEMANTIC_MODIFIER_OF",
-    "sg": "SG",
+    # "sg": "SG",
     # "skip_begin": "SKIP_BEGIN",
     # "skip_end": "SKIP_END",
     "superlative": "SUPERLATIVE",
@@ -116,6 +116,11 @@ def parse_systran(file):
                             if "PERSONS" not in tags:
                                 tags["PERSONS"] = []
                             tags["PERSONS"].append(v)
+
+                        elif tag == 'sg' or tag == 'pl':
+                            if "NUMBER" not in tags:
+                                tags["NUMBER"] = []
+                            tags["NUMBER"].append(tag)
 
                         elif tag in TAGS_MAP:
                             tag = TAGS_MAP[tag]

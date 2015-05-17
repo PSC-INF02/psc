@@ -75,7 +75,8 @@ TAGS_INFO = {
 
     # Custom tags
     "HEAD_NOUN": {"type": "relation"},
-    "HEAD_VERB": {"type": "relation"}
+    "HEAD_VERB": {"type": "relation"},
+    "NUMBER": {"type": "unknown"},
 }
 
 def is_relation_tag(tag):
