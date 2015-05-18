@@ -116,6 +116,8 @@ HUMAN = ["person"]
 ############################
 
 PRONOUN_TAGS = ["pron"]
+NON_REFERENTIAL_PRONOUNS = ['I', 'you', 'we', 'me', 'us', 'more', 'nobody', 'nothing', 'enough', 'anyone']
+
 
 ############################
 # Missing tags
