@@ -1,5 +1,6 @@
 import sys
 from abstracter.grammar.utils import *
+from abstracter.grammar.anaphora_resolution import resolve_anaphoras
 
 
 def group_sentences(paragraph):
@@ -218,5 +219,7 @@ def group_grammartree(gtree):
             group_verb_phrases(sentence)
 
     add_global_sentence_id(gtree)
+    # resolve_names(gtree)
+    resolve_anaphoras(gtree)
     for sentence in paragraph.nodes(depth=2, kind='sentence'):
         group_syntagmes(sentence)
