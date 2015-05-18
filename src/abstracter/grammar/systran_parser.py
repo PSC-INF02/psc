@@ -10,7 +10,7 @@ to_grammar_tree then transforms it into a GrammarTree
 
 import re
 import json
-from abstracter.grammar.utils import TAGS_INFO
+from abstracter.grammar.utils import TAGS_INFO, add_missing_tags
 from abstracter.grammar.grammartree import GrammarTree, Word
 
 ####################################
@@ -168,8 +168,11 @@ def parse_systran(file):
     return data
 
 
-
 def to_grammar_tree(data):
+    for x in data:
+        for w in x['words']:
+            add_missing_tags(w)
+
     tree = GrammarTree()
     for x in data:
         for w in x['words']:

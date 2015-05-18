@@ -85,9 +85,6 @@ TAGS_INFO = {
 def is_relation_tag(tag):
     return TAGS_INFO.get(tag, {}).get('type') == 'relation'
 
-###############################"
-#
-###############################
 
 
 ####################################
@@ -113,11 +110,34 @@ NAMES_TYPES = ["noun:propernoun"]
 HUMAN = ["person"]
 
 
-##########################
+############################
 # Types of pronouns
 ############################
 
 PRONOUN_TAGS = ["pron"]
+
+############################
+# Missing tags
+############################
+
+MISSING_TAGS_MAP = {
+    'he': {'NUMBER': 'sg', 'HUMAN': True},
+    'him': {'NUMBER': 'sg', 'HUMAN': True},
+    'it': {'NUMBER': 'sg', 'HUMAN': False},
+    'that': {'NUMBER': 'sg', 'HUMAN': True},
+    'them': {'NUMBER': 'pl', 'HUMAN': True},
+    'they': {'NUMBER': 'pl', 'HUMAN': True},
+    'this': {'NUMBER': 'sg', 'HUMAN': False},
+    'what': {'HUMAN': False},
+    'which': {'HUMAN': False},
+    'who': {'HUMAN': True}
+}
+
+def add_missing_tags(w):
+    if w['norm'] in MISSING_TAGS_MAP:
+        for t, v in MISSING_TAGS_MAP[w['norm']].items():
+            if t not in w['tags']:
+                w['tags'][t] = v
 
 
 #######################################
