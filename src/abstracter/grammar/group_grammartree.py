@@ -51,6 +51,8 @@ def group_compound_propernouns(sentence):
         if any(w['tags'].get('HUMAN') for w in n):
             n['tags']['HUMAN'] = True
 
+        n['global_id'] = min(w['global_id'] for w in n)
+
 
 def group_noun_phrases(sentence):
     """ Group noun phrases
@@ -91,7 +93,13 @@ def group_noun_phrases(sentence):
 
         if len(head_nouns) != 1:
             print("Noun phrase '%s' has multiple possible head nouns: %s" % (np['text'], ', '.join("'%s'" % w['text'] for w in head_nouns)), file=sys.stderr)
+
+            if len(head_nouns) > 0:
+                np['global_id'] = min(w['global_id'] for w in head_nouns)
+            else:
+                np['global_id'] = min(w['global_id'] for w in np)
             continue
+
         head_noun = head_nouns[0]
 
         np['tags']['HEAD_NOUN'] = head_noun.path()
@@ -144,7 +152,13 @@ def group_verb_phrases(sentence):
 
         if len(head_verbs) != 1:
             print("Verb phrase '%s' has multiple possible head verbs: %s" % (vp['text'], ', '.join("'%s'" % w['text'] for w in head_verbs)), file=sys.stderr)
+
+            if len(head_verbs) > 0:
+                vp['global_id'] = min(w['global_id'] for w in head_verbs)
+            else:
+                vp['global_id'] = min(w['global_id'] for w in vp)
             continue
+
         head_verb = head_verbs[0]
 
         vp['tags']['HEAD_VERB'] = head_verb.path()
