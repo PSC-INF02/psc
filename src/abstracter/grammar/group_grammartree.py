@@ -188,6 +188,13 @@ def group_syntagmes(sentence):
     sentence.group_words(syntagmes_eq, kind='syntagme')
 
 
+def add_global_sentence_id(gtree):
+    global_sent_id = 0
+    for sentence in gtree.nodes(depth=2, kind='sentence'):
+        sentence['global_sent_id'] = global_sent_id
+        global_sent_id += 1
+
+
 
 def group_grammartree(gtree):
     """
@@ -209,4 +216,7 @@ def group_grammartree(gtree):
             group_compound_propernouns(sentence)
             group_noun_phrases(sentence)
             group_verb_phrases(sentence)
-            group_syntagmes(sentence)
+
+    add_global_sentence_id(gtree)
+    for sentence in paragraph.nodes(depth=2, kind='sentence'):
+        group_syntagmes(sentence)
