@@ -80,6 +80,7 @@ TAGS_INFO = {
     "IS_HEAD_VERB": {"type": "boolean"},
     "PERSONS": {"type": "unknown"},
     "NUMBER": {"type": "unknown"},
+    "REFERS_TO": {"type": "relation"},
 }
 
 def is_relation_tag(tag):
