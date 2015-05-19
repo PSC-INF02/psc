@@ -27,7 +27,7 @@ class Workspace:
             for lbl, dest_id in node.get_relations():
                 if dest_id is not None:
                     self.network.add_edge(
-                        id, tuple(dest_id), relation_type=lbl
+                        id, tuple(dest_id), relation_type=lbl, r=lbl
                     )
 
     def get_node(self, parid, lid):
@@ -36,15 +36,19 @@ class Workspace:
 
 class Syntagm:
 
-    def __init__(self, id, name=None, tags={}, number_children=0):
+    def __init__(self, id, name=None, tags={},
+                 relations=[], number_children=0):
         self.id = id
         self.name = name
         self.number_children = number_children
         self.tags = tags
+        self.relations = []
         if 'id' in self.tags:
             del self.tags['id']
         if 'norm' not in self.tags or self.tags['norm'] is None:
             self.tags["norm"] = name.lower()
+        else:
+            self.tags['norm'] = self.tags['norm'].lower()
 
     def __getitem__(self, id):
         return self.tags[id]
@@ -62,7 +66,10 @@ class Syntagm:
             ("parent_of", self.id.append(son_id))
             for son_id in range(0, self.number_children - 1)
         ]
-        return [("son_of", parent)] + sons
+        return [("son_of", parent)] + sons + self.relations
+
+    def add_relations(self, relations):
+        self.relations = self.relations + relations
 
     def set_number_children(self, number):
         self.number_children = number
@@ -83,7 +90,8 @@ class Entity(Syntagm):
         under the norm (paragraphNumber, wordNumber)
     '''
 
-    def __init__(self, id, name=None, attributes=[], references={}, tags={}):
+    def __init__(self, id, name=None, attributes=[],
+                 references={}, tags={}, relations=[]):
         '''
         Initialises an entity. All arguments but the name are optional.
         @param name the name of the entity
@@ -92,7 +100,7 @@ class Entity(Syntagm):
             where that entity is referred to in the text
         @return an entity ready to be pushed in the workspace !
         '''
-        super(Entity, self).__init__(id, name, tags=tags)
+        super(Entity, self).__init__(id, name, tags=tags, relations=relations)
         self.attributes = attributes
         self.references = references
 
@@ -149,7 +157,7 @@ class Attribute(Syntagm):
         no other example at the moment)
     '''
 
-    def __init__(self, id, name, modifier=None, tags={}):
+    def __init__(self, id, name, modifier=None, tags={}, relations=[]):
         '''
         Creates an instance of the object,
         ready to be added to an entity or pushed in the workspace.
@@ -157,7 +165,8 @@ class Attribute(Syntagm):
         @param modifier An optional logical modifier for the title.
         '''
 
-        super(Attribute, self).__init__(id, name, tags=tags)
+        super(Attribute, self).__init__(id, name, tags=tags,
+                                        relations=relations)
         if modifier:
             self.modifier = modifier
 
@@ -183,7 +192,7 @@ class Event(Syntagm):
     '''
 
     def __init__(self, id, name, origin=None,
-                 destinations=[], events=None, tags={}):
+                 destinations=[], events=None, tags={}, relations=[]):
         '''
         Creates an event, ready to be pushed in the workspace.
         @param origin Attribute or Entity before the change.
@@ -191,7 +200,7 @@ class Event(Syntagm):
         @param events An optional list of other events this one is linked to
         '''
 
-        super(Event, self).__init__(id, name, tags)
+        super(Event, self).__init__(id, name, tags, relations=relations)
         self.origin = origin
         self.destinations = destinations
 

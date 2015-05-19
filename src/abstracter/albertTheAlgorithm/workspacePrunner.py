@@ -4,7 +4,7 @@
 @brief THE algorithm
 """
 
-from math import exp
+# from math import exp
 
 
 class workspacePrunner:
@@ -12,8 +12,6 @@ class workspacePrunner:
     def __init__(self, workspace, concept_network):
         self.wks = workspace
         self.cnetwork = concept_network
-        for n, d in self.cnetwork.nodes_iter():
-            d['ic'] = int(exp(d['ic']) / exp(60))
 
     def push_activation(self):
         for n, d in self.wks.items():
@@ -22,7 +20,7 @@ class workspacePrunner:
                 self.cnetwork.activate([d['norm']], act=60)
                 for k in self.wks.network.out_arcs(n):
                     self.cnetwork[d['norm']]['ic'] = (
-                        int(self.cnetwork[d['norm']]['ic'] * 1.1)
+                        int(100 - (100 - self.cnetwork[d['norm']]['ic']) / 1.5)
                     )
 
     def propagate(self, propagation_range=1):

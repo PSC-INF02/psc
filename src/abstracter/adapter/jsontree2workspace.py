@@ -17,18 +17,31 @@ class jsonTree2W:
 
     def __init__(self, workspace):
         self.workspace = workspace
-        self.tags_subject = [
-            "AGENT_OF_VERB",
-            "AGENT_OF_ACTION",
-        ]
-        self.tags_event_dest = ["OBJECT_OF_ACTION", "INDIROBJ"]
-        self.tags_entity_attributes = [
-            "MODIFIED_BY_ADVERB",
-            "MODIFIED_BY_PREP1",
-            "MODIFIED_BY_PREP2",
-            "MODIFIED_BY_PREP3",
-            "MODIFIED_BY_ADj",
-        ]
+        self.tags = {
+            "subject_of": [
+                "AGENT_OF_VERB",
+                "AGENT_OF_ACTION",
+            ],
+            "object_of": ["OBJECT_OF_ACTION", "INDIROBJ"],
+            "modified_by": [
+                "MODIFIED_BY_ADVERB",
+                "MODIFIED_BY_PREP1",
+                "MODIFIED_BY_PREP2",
+                "MODIFIED_BY_PREP3",
+                "MODIFIED_BY_ADj",
+                "MODIFIED_ON_LEFT",
+                "MODIFIED_ON_RIGHT",
+
+            ],
+            "attribute_of": [
+                "MODIFIES_ANOTHER_NOUN",
+                "MODIFIES_LEFT_HEAD",
+                "MODIFIES_RIGHT_HEAD",
+            ],
+            "various": [
+                "LINKED_TO_PREDICATE",
+            ],
+        }
 
         self.parsers = {
             "noun": self.parse_noun,
@@ -45,18 +58,16 @@ class jsonTree2W:
         return [int(x) for x in serial.split(":")[0].split(", ")]
 
     def find_relations(self, tags):
-        relations = {}
+        relations = []
         for lbl, val in tags.items():
-            if lbl in self.tags_subject:
-                relations["subject_of"] = self.deserialize_id(val)
-            elif lbl in self.tags_event_dest:
-                relations["object_of"] = self.deserialize_id(val)
-            elif lbl in self.tags_entity_attributes:
-                relations["modified_by"] = self.deserialize_id(val)
+            for rel_type, rels in self.tags.items():
+                if lbl in rels:
+                    relations.append((rel_type, val))
         return relations
 
     def parse_noun(self, id, noun):
-        wd = wks.Entity(id, name=noun.contents["text"], tags=noun.contents)
+        wd = wks.Entity(id, name=noun.contents["text"],
+                        tags=noun.contents)
         return wd
 
     def parse_event(self, id, verb):
@@ -103,6 +114,7 @@ class jsonTree2W:
         wd = self.parsers[self.get_nature(node.contents)](id, node)
         wd.set_number_children(nb_childs)
         self.add_tags(wd, node.contents)
+        wd.add_relations(self.find_relations(node.contents))
         if wd is None:
             debug("word " + str(id) + " is None !")
         self.workspace.add_node(id, node=wd)
