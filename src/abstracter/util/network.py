@@ -1,6 +1,19 @@
 """@file network.py
 @brief Interface with the networkx package.
 
+@code
+n = Network()
+n.add_node(id="toto", a=70, ic=5)
+n.add_node(id="babar", a=0, ic=6)
+n.add_edge(fromId="toto", toId="babar", r="haha", w=50)
+n.add_edge("toto", "babar", r="hihi", w=10.261645654)
+print(n["toto"])
+print(n.get_edge("toto", "babar", 0))
+print(n.get_edge("toto", "babar", 1))
+for v in n.outArcs("toto"):
+    print(v)
+@endcode
+
 """
 
 import networkx as nx

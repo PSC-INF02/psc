@@ -2,6 +2,23 @@
 @file jsontree2workspace.py
 
 @brief Interface between json trees and the Workspace.
+
+Example :
+@code
+import abstracter.adapter.jsontree2workspace as j2w
+import abstracter.workspace.workspace as workspace
+import json
+import abstracter.grammar.grammartree as gt
+
+wks = workspace.Workspace()
+
+with open("../../fichiers_parses/0.grammartree.json") as jfile:
+    piloup = json.load(jfile, cls=gt.GrammarTreeDecoder)
+
+blah = j2w.jsonTree2W(wks)
+blah.parse_forest([], piloup, piloup)
+@endcode
+
 """
 
 import abstracter.workspace.workspace as wks
@@ -14,6 +31,10 @@ def debug(x):
 
 
 class jsonTree2W:
+    """
+    Interfaces the JSON Tree resulting from Systran's analysis
+    with the workspace.
+    """
 
     def __init__(self, workspace):
         self.workspace = workspace
@@ -82,7 +103,7 @@ class jsonTree2W:
         wd = wks.Syntagm(id, name=word.contents["text"], tags=word.contents)
         return wd
 
-    def parse_word_group(self, id,  wg):
+    def parse_word_group(self, id, wg):
         # name = if "text" in wg.contents then wg.contents["text"] else
         name = wg.contents["text"] if "text" in wg.contents else ""
         wd = wks.Syntagm(id, name=name, tags=wg.contents)

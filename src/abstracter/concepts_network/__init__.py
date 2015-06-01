@@ -117,7 +117,7 @@ class ConceptNetwork(Network):
 
     def activate(self, id_list, act=60):
         for id in id_list:
-            self[id]['a'] += act
+            self[id.lower().replace(' ', '_').replace('_+_', '_')]['a'] += act
 
     def propagate(self):
         """

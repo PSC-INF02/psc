@@ -5,10 +5,15 @@
 
 class Adapter:
     """
-    A class that takes an article analyzed by systran
-    and pours elements from it into a workspace
-    Use it with
-    adapter.parse(filename, workspace);
+    @class Adapter
+
+    Takes an article analyzed by systran
+    and pours elements from it into a workspace.
+
+    To use it :
+    @code
+    adapter.parse(filename, workspace)
+    @endcode
     """
 
     def parse(self, filename, workspace):
@@ -34,7 +39,8 @@ class Adapter:
         Takes a cursory glance at whatever information is stored in the word
         (systran format) and returns it as a dictionary
 
-        @param word A word in the text, given with much information (-|- separator).
+        @param word A word in the text, given with much
+        information (-|- separator).
         @param workspace Current workspace.
 
         @return A dict representing all information about the word.
@@ -48,7 +54,8 @@ class Adapter:
 
         '''
          Now there are two possibilities :
-             -The name is a name, and I need to see whether it's a head of chunk or just a part
+         - The name is a name, and I need to see whether it's a
+             head of chunk or just a part
         - it's an adjective / verb or such and I need to make it
              an attribute or an event and to gather some more information.
         '''
@@ -58,13 +65,15 @@ class Adapter:
         features = wordStatus.pop(0).split(';')
 
         if 'noun' in wordCar['nature']:
-            '''a noun can be either a head of chunk or part of a chunk ; if the latter, it is more an attribute than an actual entity.
-        So, checking if the name is a head of chunk, and if so adding the whole chunk, otherwise adding it as an attribute
+            '''a noun can be either a head of chunk or part of a chunk ;
+            if the latter, it is more an attribute than an actual entity.
+        So, checking if the name is a head of chunk, and if so adding the whole
+        chunk, otherwise adding it as an attribute
         '''
         if self.isHeadOfChunk(features):
             chunkName = self.getChunkName(features, words)
-        else:
-            pass
+        # else:
+        #    pass
         else:
             '''
             For now I'll stay simple and just ignore everything
@@ -88,7 +97,8 @@ class Adapter:
         """
         Gets a whole chunk of sentence as the longest in the features list
 
-        @param features Features of the word under study, containing (among other things) chunks of which it is the head
+        @param features Features of the word under study, containing
+        (among other things) chunks of which it is the head
         @param words Array of all the words in the sentence
 
         @return Longest chunk as a string
@@ -111,7 +121,7 @@ class Adapter:
 
     def isHeadOfChunk(features):
         """
-        Checks whether a word having those features (in Crego sense) is a head of chunk.
+        Checks whether a word having those features (in Systran sense) is a head of chunk.
 
         @param features Features of the word to study
 
@@ -120,6 +130,6 @@ class Adapter:
         test = False
         for feature in features:
             if feature[0].isdigit():
-                test = true
+                test = True
 
         return test
