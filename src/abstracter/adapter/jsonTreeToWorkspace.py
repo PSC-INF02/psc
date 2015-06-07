@@ -1,11 +1,11 @@
 """
-@file jsontree2workspace.py
+@file jsonTreeToWorkspace.py
 
 @brief Interface between json trees and the Workspace.
 
 Example :
 @code
-import abstracter.adapter.jsontree2workspace as j2w
+import abstracter.adapter.jsonTreeToWorkspace as j2w
 import abstracter.workspace.workspace as workspace
 import json
 import abstracter.grammar.grammartree as gt
@@ -15,7 +15,7 @@ wks = workspace.Workspace()
 with open("../../fichiers_parses/0.grammartree.json") as jfile:
     piloup = json.load(jfile, cls=gt.GrammarTreeDecoder)
 
-blah = j2w.jsonTree2W(wks)
+blah = j2w.JSONTreeToWorkspace(wks)
 blah.parse_forest([], piloup, piloup)
 @endcode
 
@@ -30,8 +30,9 @@ def debug(x):
     # print(x)
 
 
-class jsonTree2W:
+class JSONTreeToWorkspace:
     """
+    @class JSONTreeToWorkspace
     Interfaces the JSON Tree resulting from Systran's analysis
     with the workspace.
     """

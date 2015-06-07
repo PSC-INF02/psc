@@ -2,7 +2,16 @@
 
 @brief The ConceptNetwork.
 
-Example :
+The ConceptNetwork (french Réseau de Concepts) stores
+relevant information regarding our main subject
+(in that case, football) and general knowledge
+about the world. It may be used for several purposes,
+including finding new information.
+
+Nodes' activationn is the natural way of accessing
+to htis information.
+
+Example of network :
 
 @code
 from abstracter.concepts_network import ConceptNetwork
@@ -47,6 +56,8 @@ from math import log
 def divlog(nb):
     """
     Heuristic logarithmic divisor used in activation propagation.
+    @param nb The number of entrant edges, which indicates if
+    the node has to be more or less deactivated.    
     """
     return log(13 + nb) / log(13)
 
@@ -95,34 +106,23 @@ class ConceptNetwork(Network):
         """
         return super(ConceptNetwork, self).shortest_path(source=fromId, target=toId, weight=None)
 
-    def compute_activation(self, id):
-        """
-        @brief Computes the new node activation.
-
-        Computes the new node activation,  using :
-        * a logarithmic divisor (depends on the connexity)
-        * its neighbours' activation
-        * its self-desactivation
-        """
-        # divlog = log(3 + len(self.inArcs(id))) / log(3)
-        divlog = 1  # deactivated for now
-        i = 0
-        for arc in self.in_arcs(id):
-            i = i + (arc[3]['w'] or 0) * self[arc[0]]['a']
-        act = self[id]['a']
-        i = i / (100 * divlog)  # neighbours
-        d = act * (100 - (self[id]['ic'] or 100)) / 100  # self desactivation
-        self[id]['a'] = int(min(act + i - d, 100))
-        # we do not go beyond 100,  and activation is an integer
-
     def activate(self, id_list, act=60):
+        """
+        @warning For now, in case we send to this function
+        bad refactored words, we replace tokens like _+_
+        with _ which represents a white space in the conceptnetwork's
+        nodes.
+        """
         for id in id_list:
             self[id.lower().replace(' ', '_').replace('_+_', '_')]['a'] += act
 
     def propagate(self):
         """
-        Compute the activation of all already activated nodes
+        @brief Compute the new activation of all already activated nodes
         and their neighbours.
+
+        Each step, the nodes receive activation from their parents
+        and deactivate themselves.
         """
         to_deactivate = list()
         # get all neighbours
@@ -148,11 +148,22 @@ class ConceptNetwork(Network):
             self[n]['a'] = int(self[n]['a'] * (self[n]['ic'] or 100) / 100)  # int(min(self[n]['a'] * (100 - (self[id]['ic'] or 100)) / 100))
 
     def print_activated_nodes(self, offset=0):
+        """
+        Print activated nodes if their activation is greater
+        than an offset.
+
+        @param offset Limit under which we do not consider the nodes.
+        """
         for n, d in self.nodes():
             if d['a'] > offset:
                 print(n + " : " + d['a'].__str__())
 
     def get_activated_nodes(self, offset=0):
+        """
+        Returns activated nodes.
+
+        @return Iterable of strings (nodes' id).
+        """
         for n, d in self.nodes():
             if d['a'] > offset:
                 yield n
@@ -164,6 +175,10 @@ class ConceptNetwork(Network):
                 print("[\"" + n1 + "\", \"" + n2 + "\", " + d.__repr__() + "]")
 
     def get_activated_arcs(self, offset=0):
+        """
+        @return Iterable of lists with [node1 id, node2 id, data]
+        where data is a python dict of the edge's information.
+        """
         for n1, n2, d in self.edges():
             if self[n1]['a'] > offset and self[n2]['a'] > offset:
                 yield [n1, n2, d]
