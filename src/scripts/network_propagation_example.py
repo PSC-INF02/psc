@@ -1,16 +1,18 @@
-###############################
-# Exemple créé pour montrer la propagation
-# d'activation d'un un réseau de concepts.
-# Prévu pour la soutenance du PSC du 19 mai 2015.
-
-# exemple d'utilisation en ligne de commande :
-# entrer le nombre d'étapes souhaitées,
-# puis le taux d'activation minimal, puis les mots à activer
-# >>> python3 network_propagation_example.py 5 10 bedroom
-###############################
 """
 @file network_propagation_example.py
 @author PSC INF02
+
+Exemple créé pour montrer la propagation
+d'activation d'un un réseau de concepts.
+Prévu pour la soutenance du PSC du 19 mai 2015.
+
+exemple d'utilisation en ligne de commande :
+entrer le nombre d'étapes souhaitées,
+puis le taux d'activation minimal, puis les mots à activer
+> python3 network_propagation_example.py 5 10 bedroom
+
+@warning Placer le fichier dans le répertoire contenant abstracter pour
+que les imports fonctionnent.
 """
 from abstracter.concepts_network import *
 import os
@@ -18,6 +20,13 @@ import sys
 
 
 def num_activated_nodes(net, offset):
+    """
+    Renvoie le nombre de noeuds d'un RC dont l'activation
+    est supérieure à un certain échelon.
+
+    @param net Réseau considéré.
+    @param offset Activation minimale.
+    """
     k = 0
     for n, d in net.nodes():
         if d['a'] > offset:

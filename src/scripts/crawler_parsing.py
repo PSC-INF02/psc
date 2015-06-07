@@ -6,7 +6,7 @@
 
 We use the following methods :
 @code
-parse_for_systran("2015_03_29")
+refactor_directory("2015_03_29")
 @endcode
 Parsing of articles from our crawler,
 suppressing a lot of tokenization errors.
@@ -23,17 +23,16 @@ update()
 Updates the crawler (may take a long time
 if there is much data to parse).
 
-@warning Uncomment.
 """
 
-from abstracter.crawler.parse_crawler import update, parse_for_systran, download_and_parse_data
+from abstracter.crawler.parse_crawler import update, refactor_directory, download_and_parse_data
 
 
 #################
 # example 1
 ############
 
-#parse_for_systran("2015_03_29")
+# refactor_directory("2015_03_29")
 
 ##################
 # example 2
