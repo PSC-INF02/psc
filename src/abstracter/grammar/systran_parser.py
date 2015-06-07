@@ -3,7 +3,7 @@
 @file systran_parser.py
 @brief Transform systran files into python objects.
 
-Systran's analyser files with a special syntax.
+Systran's analyser files come with a special syntax.
 parse_systran parses this syntax into a python object, and
 to_grammar_tree then transforms it into a GrammarTree
 """

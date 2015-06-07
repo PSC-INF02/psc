@@ -9,6 +9,18 @@ of the default ConceptNetwork to be loaded to perform
 operations that need it (especially names resolution).
 """
 
+ALL_TYPES = ["adj", "adv", "adv_x_aux:plain",
+             "adv_x_det", "aux:inf", "aux:pastpart",
+             "aux:plain", "aux:plain_x_adv", "aux:plain_x_aux:inf",
+             "aux:plain_x_aux:pastpart", "aux:plain_x_aux:plain",
+             "aux:prespart", "conj", "det", "intj", "noun:acronym",
+             "noun:acronym_x_adv", "noun:acronym_x_punct", "noun:common",
+             "noun:propernoun", "numeric", "numeric_x_punct", "prep",
+             "prep_x_det", "pron", "pron_x_aux:plain", "prtcl", "punct",
+             "symb", "verb:inf", "verb:pastpart", "verb:plain",
+             "verb:plain_x_adv",
+             "verb:plain_x_pron", "verb:prespart"]
+
 
 TAGS_INFO = {
     "ABSTRACT": {"type": "boolean"},

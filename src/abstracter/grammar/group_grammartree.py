@@ -1,3 +1,8 @@
+"""
+@file group_grammartree.py
+
+"""
+
 import sys
 from abstracter.grammar.utils import *
 from abstracter.grammar.anaphora_resolution import resolve_anaphoras
@@ -194,7 +199,6 @@ def add_global_sentence_id(gtree):
     for sentence in gtree.nodes(depth=2, kind='sentence'):
         sentence['global_sent_id'] = global_sent_id
         global_sent_id += 1
-
 
 
 def group_grammartree(gtree):

@@ -14,8 +14,14 @@ the json data provided contains enough information (such as types and tags).
 """
 from abstracter.grammar.utils import PRONOUN_TAGS, NON_REFERENTIAL_PRONOUNS, INDEFINITE, PROPERNOUNS
 
+#############################
+# How many sentences  before we can go to find the reference
+#############################
+
 PREV_SENTS = 5
 NEXT_SENTS = 1
+
+
 def resolve_anaphoras(tree):
     """
     Resolve anaphoras i.e. find a noun phrase corresponding to each pronoun.

@@ -38,10 +38,6 @@ class JSONStreamWriter(object):
         """
         if isinstance(obj, str):
             obj=[obj]
-            #raise ValueError(
-            #    "%r is already a string. It shouldn't be written to a JSON stream."
-            #    % obj
-            #)
 
         line = json.dumps(obj, ensure_ascii=False)
         print(line, file=self.stream)
