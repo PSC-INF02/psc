@@ -232,13 +232,16 @@ def download_and_parse_data(date="2015_01_05"):
     unify_day(subdirectory=date)
 
 
-def _parse_for_systran_directory(data_directory=DEFAULT_DATA_DIRECTORY,
-                                 results_directory="../parsed_for_systran/",
-                                 subdirectory="2014_12_04"):
+def refactor_directory(data_directory=DEFAULT_DATA_DIRECTORY,
+                       results_directory="../refactored_crawler/",
+                       subdirectory="2014_12_04"):
     """
     Parse one directory (ie one day) to make it more readable
     and suppress tokenization artefacts, especially to
-    give it to Systran.
+    summarize it or to analyze it more deeply with grammars.
+
+    As a result, one directory is written containing all the
+    previous files, named i_j if there were in i/j.
 
     @see parsers.tokenizer.refactor_crawler
     """
@@ -246,6 +249,7 @@ def _parse_for_systran_directory(data_directory=DEFAULT_DATA_DIRECTORY,
         os.makedirs(results_directory + subdirectory + "/")
     i = 0
     j = 0
+    print("Refactoring...")
     while(os.path.exists(data_directory + "%s/%i/%i" % (subdirectory, i, j))):
         while(os.path.exists(data_directory + "%s/%i/%i" % (subdirectory, i, j))):
             with open(data_directory + "%s/%i/%i" % (subdirectory, i, j), 'r') as to_parse:
@@ -258,10 +262,11 @@ def _parse_for_systran_directory(data_directory=DEFAULT_DATA_DIRECTORY,
                 with open(results_directory + "%s/%i_%i" % (subdirectory, i, j), 'a') as file:
                     for s in temp:
                         file.write(s + "\n")
-                    print("successful with : " + data_directory + "%s/%i/%i" % (subdirectory, i, j))
+                    # print("successful with : " + data_directory + "%s/%i/%i" % (subdirectory, i, j))
             j += 1
         j = 0
         i += 1
+    print("Done.")
 
 
 def parse_for_systran(date="2015_01_05"):

@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
-import abstracter.adapter.jsontree2workspace as j2w
+#################################
+# Example written for the oral examination
+# of 19/05/2015
+#################################
+
+
+import abstracter.adapter.jsonTreeToWorkspace as j2w
 import abstracter.workspace.workspace as workspace
 import json
 import abstracter.grammar.grammartree as gt
@@ -18,13 +24,13 @@ wks = workspace.Workspace()
 with open("../../fichiers_parses/thephrase.json") as jfile:
     piloup = json.load(jfile, cls=gt.GrammarTreeDecoder)
 
-blah = j2w.jsonTree2W(wks)
+blah = j2w.JSONTreeToWorkspace(wks)
 blah.parse_forest([], piloup, piloup)
 
 cn = abstracter.concepts_network.ConceptNetwork()
 cn.load("rc5")
 
-wp = wksP.workspacePrunner(wks, cn)
+wp = wksP.WorkspacePrunner(wks, cn)
 wp.push_activation()
 wp.propagate(20)
 print(

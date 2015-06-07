@@ -20,3 +20,4 @@ tfidf/
 resume_test/
 *.zip
 resumes/
+refactored_crawler/
