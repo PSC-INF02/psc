@@ -1,9 +1,16 @@
+"""
+@file workspace.py
+@brief The workspace and its elements.
+"""
+
 import abstracter.util.network as network
 
 
 class Workspace:
     """
-    THE Workspace
+    @class Workspace
+    The workspace, as specified in our report.
+    It uses a network from the class abstracter.util.network.Network.
     """
 
     def __init__(self):
@@ -236,7 +243,7 @@ class Event(Syntagm):
             [
                 ("origin", self.origin)
             ]
-            )
+        )
 
 
 class WordGroup(Syntagm):
