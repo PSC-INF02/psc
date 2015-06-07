@@ -9,6 +9,8 @@ class WorkspacePrunner:
     """
     @class WorkspacePrunner
 
+    @brief Workspace prunner.
+
     Given a concepts_network.ConceptNetwork object and
     a workspace fulled with information,
     performs the selection of information within

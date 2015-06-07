@@ -6,8 +6,7 @@
 class Adapter:
     """
     @class Adapter
-
-    Takes an article analyzed by systran
+    @brief Takes an article analyzed by systran
     and pours elements from it into a workspace.
 
     To use it :
